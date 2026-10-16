@@ -2,5 +2,54 @@
   "Metadata": {
     "title": "BusinessNote — Calculate COGS & Business Profit",
     "description": "Calculate COGS, selling prices, operating costs, and your business profit with ease."
+  },
+  "Landing": {
+    "heading": "Know whether your business makes money from day one.",
+    "intro": "Calculate COGS from ingredients, operating costs, and equipment depreciation. Get the right selling price and see when you'll earn your capital back — no accounting knowledge needed.",
+    "features": {
+      "hpp": {
+        "title": "Automatic COGS",
+        "body": "Enter ingredients and amounts; the cost per portion is calculated instantly."
+      },
+      "price": {
+        "title": "The right price",
+        "body": "Price suggestions for your target margin, including GoFood & marketplace fees."
+      },
+      "profit": {
+        "title": "Profit & payback",
+        "body": "See monthly profit, daily sales targets, and when your capital comes back."
+      }
+    },
+    "openApp": "Open the app",
+    "startFree": "Start free with Google"
+  },
+  "Auth": {
+    "title": "Sign in to BusinessNote",
+    "subtitle": "Calculate COGS, selling prices, and your business profit.",
+    "error": "Sign-in failed. Please try again.",
+    "google": "Sign in with Google",
+    "googlePending": "Opening Google…",
+    "googleError": "Could not open Google sign-in. Try again.",
+    "devMode": "Development mode",
+    "email": "Email",
+    "password": "Password",
+    "devSubmit": "Sign in (dev)",
+    "devPending": "Signing in…",
+    "devDisabled": "Dev login is disabled.",
+    "devInvalid": "Enter an email and a password (at least 6 characters).",
+    "devFailed": "Sign-in failed.",
+    "signOut": "Sign out",
+    "signOutPending": "Signing out…"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist, or you don't have access to it.",
+    "back": "Back to the app"
+  },
+  "Errors": {
+    "title": "Something went wrong",
+    "body": "Sorry, something went wrong. Please try again.",
+    "retry": "Try again",
+    "home": "Back to home"
   }
 }

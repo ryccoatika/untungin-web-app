@@ -45,3 +45,22 @@ test("a path outside the proxy matcher renders the root bilingual 404", async ({
   expect(response?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: /Page not found/ })).toBeVisible();
 });
+
+test.describe("English public pages", () => {
+  test.use({ locale: "en-US" });
+
+  test("landing, login and 404 are in English", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Know whether your business makes money from day one.",
+    );
+    await page.getByRole("link", { name: "Start free with Google" }).click();
+    await expect(page).toHaveURL(/\/en\/login$/);
+    await expect(page.getByRole("heading", { name: "Sign in to BusinessNote" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in (dev)" })).toBeVisible();
+
+    await page.goto("/en/does-not-exist");
+    await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+  });
+});

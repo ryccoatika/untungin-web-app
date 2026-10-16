@@ -8,7 +8,7 @@ export async function devLogin(page: Page, email = uniqueEmail("e2e"), next?: st
   await page.goto(next ? `/login?next=${encodeURIComponent(next)}` : "/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill("password-123456");
-  await page.getByRole("button", { name: "Masuk (dev)" }).click();
+  await page.getByRole("button", { name: /^(Masuk|Sign in) \(dev\)$/ }).click();
   await page.waitForURL((url) => !/^\/(?:(?:id|en)\/)?login(?:\/|$)/.test(url.pathname));
   return email;
 }

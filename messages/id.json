@@ -2,5 +2,54 @@
   "Metadata": {
     "title": "BusinessNote — Hitung HPP & Laba Usaha",
     "description": "Hitung HPP, harga jual, biaya operasional, dan laba usahamu dengan mudah."
+  },
+  "Landing": {
+    "heading": "Tahu untung-rugi usahamu sejak hari pertama.",
+    "intro": "Hitung HPP dari bahan, biaya operasional, dan penyusutan alat. Dapatkan harga jual yang pas dan lihat kapan modalmu kembali — tanpa perlu paham akuntansi.",
+    "features": {
+      "hpp": {
+        "title": "HPP otomatis",
+        "body": "Masukkan bahan dan takaran, biaya per porsi langsung terhitung."
+      },
+      "price": {
+        "title": "Harga jual pas",
+        "body": "Saran harga sesuai target margin, termasuk potongan GoFood & marketplace."
+      },
+      "profit": {
+        "title": "Laba & balik modal",
+        "body": "Lihat laba bulanan, target jual per hari, dan kapan modal kembali."
+      }
+    },
+    "openApp": "Buka aplikasi",
+    "startFree": "Mulai gratis dengan Google"
+  },
+  "Auth": {
+    "title": "Masuk ke BusinessNote",
+    "subtitle": "Hitung HPP, harga jual, dan laba usahamu.",
+    "error": "Gagal masuk. Silakan coba lagi.",
+    "google": "Masuk dengan Google",
+    "googlePending": "Membuka Google…",
+    "googleError": "Gagal membuka login Google. Coba lagi.",
+    "devMode": "Mode pengembangan",
+    "email": "Email",
+    "password": "Password",
+    "devSubmit": "Masuk (dev)",
+    "devPending": "Masuk…",
+    "devDisabled": "Login dev tidak aktif.",
+    "devInvalid": "Isi email dan password (minimal 6 karakter).",
+    "devFailed": "Gagal masuk.",
+    "signOut": "Keluar",
+    "signOutPending": "Keluar…"
+  },
+  "NotFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Halaman ini tidak ada, atau kamu tidak punya akses ke sana.",
+    "back": "Kembali ke aplikasi"
+  },
+  "Errors": {
+    "title": "Terjadi kesalahan",
+    "body": "Maaf, ada yang tidak beres. Silakan coba lagi.",
+    "retry": "Coba lagi",
+    "home": "Kembali ke beranda"
   }
 }

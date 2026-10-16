@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
 export function GoogleSignInButton({ next }: { next: string }) {
+  const t = useTranslations("Auth");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +19,7 @@ export function GoogleSignInButton({ next }: { next: string }) {
       options: { redirectTo },
     });
     if (error) {
-      setError("Gagal membuka login Google. Coba lagi.");
+      setError(t("googleError"));
       setPending(false);
     }
   }
@@ -25,7 +27,7 @@ export function GoogleSignInButton({ next }: { next: string }) {
   return (
     <div className="space-y-2">
       <Button onClick={signIn} disabled={pending} size="lg" className="w-full">
-        {pending ? "Membuka Google…" : "Masuk dengan Google"}
+        {pending ? t("googlePending") : t("google")}
       </Button>
       {error && (
         <p role="alert" className="text-sm text-destructive">

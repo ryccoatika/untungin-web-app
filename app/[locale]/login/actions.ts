@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -11,8 +11,9 @@ import { createClient } from "@/lib/supabase/server";
  * the Email provider is disabled in the production Supabase project.
  */
 export async function devLoginAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const t = await getTranslations("Auth");
   if (process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN !== "true") {
-    return { message: "Login dev tidak aktif." };
+    return { message: t("devDisabled") };
   }
 
   const email = String(formData.get("email") ?? "").trim();
@@ -21,7 +22,7 @@ export async function devLoginAction(_prev: FormState, formData: FormData): Prom
     safeNextPath(String(formData.get("next") ?? "")) ?? `/${await getLocale()}${DEFAULT_AFTER_LOGIN}`;
 
   if (!email || password.length < 6) {
-    return { message: "Isi email dan password (minimal 6 karakter)." };
+    return { message: t("devInvalid") };
   }
 
   const supabase = await createClient();
@@ -29,7 +30,7 @@ export async function devLoginAction(_prev: FormState, formData: FormData): Prom
   if (signIn.error) {
     const signUp = await supabase.auth.signUp({ email, password });
     if (signUp.error || !signUp.data.session) {
-      return { message: signUp.error?.message ?? "Gagal masuk." };
+      return { message: t("devFailed") };
     }
   }
 
