@@ -15,7 +15,14 @@ export async function proxy(request: NextRequest) {
   // The OAuth callback lives outside [locale] so its redirect URI never changes.
   if (pathname.startsWith("/auth/")) return session.apply(NextResponse.next({ request }));
 
-  const { locale, rest } = splitLocale(pathname);
+  // next-intl decodes the pathname before routing, so match auth rules on the decoded path too.
+  let decoded = pathname;
+  try {
+    decoded = decodeURI(pathname);
+  } catch {
+    /* malformed escapes: keep raw; next-intl will 404 */
+  }
+  const { locale, rest } = splitLocale(decoded);
   if (locale) {
     if (!session.isLoggedIn && isProtectedPath(rest)) {
       const url = request.nextUrl.clone();

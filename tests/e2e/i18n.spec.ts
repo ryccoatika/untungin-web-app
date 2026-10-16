@@ -31,6 +31,11 @@ test("an unprefixed path keeps its query when redirected", async ({ page }) => {
   await expect(page).toHaveURL(/\/id\/login\?error=auth$/);
 });
 
+test("a percent-encoded protected path still requires login", async ({ page }) => {
+  await page.goto("/id/%74oko");
+  await expect(page).toHaveURL(/\/id\/login\?next=/);
+});
+
 test("an unknown locale segment shows the 404 page", async ({ page }) => {
   await page.goto("/fr/toko");
   await expect(page.getByRole("heading", { name: /Halaman tidak ditemukan|Page not found/ })).toBeVisible();

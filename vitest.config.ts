@@ -8,5 +8,7 @@ export default defineConfig({
   test: {
     include: ["tests/unit/**/*.test.ts"],
     environment: "node",
+    // next-intl imports "next/server" without an extension; inline it so Vite resolves it.
+    server: { deps: { inline: ["next-intl"] } },
   },
 });
