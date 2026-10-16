@@ -13,8 +13,8 @@ export type StoreFieldDefaults = {
   name?: string;
   businessType?: string;
   targetMarket?: string | null;
-  operatingDaysPerMonth?: number;
-  targetMarginPct?: number;
+  operatingDaysPerMonth?: number | string;
+  targetMarginPct?: number | string;
 };
 
 type Props = {

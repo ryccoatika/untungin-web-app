@@ -17,11 +17,15 @@ export function OnboardingForm() {
   const [state, formAction] = useActionState(createStoreAction, undefined);
   const [step, setStep] = useState<1 | 2>(1);
   const [seenState, setSeenState] = useState(state);
+  const [fieldsKey, setFieldsKey] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
 
   // When the server reports an error on step-1 fields, jump back to step 1.
   if (state !== seenState) {
     setSeenState(state);
+    // Remount the fields so the refilled defaults apply (React's post-action form
+    // reset does not keep a changed <select> defaultValue).
+    setFieldsKey((k) => k + 1);
     if (hasIdentityError(state)) setStep(1);
   }
 
@@ -34,19 +38,29 @@ export function OnboardingForm() {
     if (fields.every((field) => field.reportValidity())) setStep(2);
   }
 
+  // React resets uncontrolled fields after an action; refill them from the echoed values.
+  const values = state?.values;
+  const defaults = values && {
+    name: values.name,
+    businessType: values.businessType,
+    targetMarket: values.targetMarket,
+    operatingDaysPerMonth: values.operatingDaysPerMonth,
+    targetMarginPct: values.targetMarginPct,
+  };
+
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
       <p className="text-sm text-muted-foreground">Langkah {step} dari 2</p>
 
       <div hidden={step !== 1} className="space-y-6">
-        <StoreFields section="identity" errors={state?.fieldErrors} />
+        <StoreFields key={`identity-${fieldsKey}`} section="identity" defaults={defaults} errors={state?.fieldErrors} />
         <Button type="button" className="w-full" onClick={goNext}>
           Lanjut
         </Button>
       </div>
 
       <div hidden={step !== 2} className="space-y-6">
-        <StoreFields section="operations" errors={state?.fieldErrors} />
+        <StoreFields key={`operations-${fieldsKey}`} section="operations" defaults={defaults} errors={state?.fieldErrors} />
         {state?.message && (
           <p role="alert" className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
             {state.message}

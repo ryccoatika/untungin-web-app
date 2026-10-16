@@ -27,6 +27,10 @@ test("shows an Indonesian error for a 100% margin", async ({ page }) => {
   await page.getByLabel("Target margin (%)").fill("100");
   await page.getByRole("button", { name: "Buat toko" }).click();
   await expect(page.getByText("Target margin harus kurang dari 100%")).toBeVisible();
+  await expect(page.getByLabel("Target margin (%)")).toHaveValue("100");
+  await page.getByRole("button", { name: "Kembali" }).click();
+  await expect(page.getByLabel("Nama toko")).toHaveValue("Toko Margin");
+  await expect(page.getByLabel("Jenis usaha")).toHaveValue("makanan");
 });
 
 test("rejects a duplicate store name and returns to step 1", async ({ page }) => {
@@ -37,7 +41,7 @@ test("rejects a duplicate store name and returns to step 1", async ({ page }) =>
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByRole("button", { name: "Buat toko" }).click();
   await expect(page.getByText("Kamu sudah punya toko dengan nama ini.")).toBeVisible();
-  await expect(page.getByLabel("Nama toko")).toBeVisible();
+  await expect(page.getByLabel("Nama toko")).toHaveValue("warung sama");
 });
 
 test("stops a free user at 2 stores", async ({ page }) => {
