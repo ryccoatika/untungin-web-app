@@ -141,7 +141,7 @@ Total nilai aset dipakai sebagai **modal awal** untuk perhitungan balik modal.
 - RLS aktif di semua tabel.
 - Fungsi `public.is_store_owner(sid uuid) returns boolean` (`security definer`, `stable`): `exists (select 1 from stores where id = sid and owner_id = auth.uid())`.
 - `profiles`: select/update hanya `id = auth.uid()`. Role `authenticated` hanya diberi `grant update (full_name)`, sehingga kolom `plan` tidak bisa diubah pengguna.
-- `stores`: semua operasi hanya `owner_id = auth.uid()`; insert dibatasi jumlah toko per plan (dicek di Server Action; RLS tetap menjamin kepemilikan).
+- `stores`: semua operasi hanya `owner_id = auth.uid()`; insert dibatasi jumlah toko per plan (dicek di Server Action sebagai pesan ramah, dan ditegakkan di database oleh trigger `stores_enforce_limit` yang mencerminkan `lib/config/plans.ts`, SQLSTATE `BN001`; RLS tetap menjamin kepemilikan).
 - Tabel ber-`store_id`: semua operasi `is_store_owner(store_id)`.
 - `product_materials` dan `product_channel_prices` juga memiliki `store_id` (didenormalisasi) agar policy sederhana; **FK komposit** `(x_id, store_id) → tabel(id, store_id)` memastikan produk, bahan, dan kanal yang dirujuk berasal dari toko yang sama.
 - `ai_analyses`: tidak ada policy insert/update/delete untuk pengguna; insert dilakukan Server Action memakai client secret key (`SUPABASE_SECRET_KEY`) (setelah memverifikasi sesi + kepemilikan toko). Select: `is_store_owner(store_id)`.
@@ -158,7 +158,11 @@ Total nilai aset dipakai sebagai **modal awal** untuk perhitungan balik modal.
 
 Plan diubah manual lewat database di v1.
 
+Batas toko juga ditegakkan oleh trigger database (`supabase/migrations/20261016000003_store_limit.sql`); angkanya harus selalu sama dengan `lib/config/plans.ts`.
+
 ## 4. Kalkulasi (`lib/calc`)
+
+Catatan validasi (Fase 2): `localeNumber` menganggap "." sebagai desimal bila tidak ada koma. Input Rupiah butuh parser integer terpisah yang membuang titik ribuan ("15.000" → 15000).
 
 Fungsi murni, tanpa akses database/network. Input = objek data toko lengkap (`StoreData`); output = objek hasil (`StoreMetrics`). Dipakai di Server Components (dashboard) dan Client Components (halaman produk live, simulasi).
 
@@ -295,7 +299,7 @@ Navigasi: bottom nav di HP (Dashboard, Produk, Bahan, Lainnya), sidebar di deskt
 
 ### 6.1 Alur
 1. User menekan "Analisis usahaku".
-2. Server Action: cek sesi + kepemilikan toko; hitung analisis user hari ini (00:00–24:00 Asia/Jakarta) dari `ai_analyses`; tolak jika ≥ batas plan.
+2. Server Action: cek sesi + kepemilikan toko; hitung analisis user hari ini (00:00–24:00 Asia/Jakarta) dari `ai_analyses`; tolak jika ≥ batas plan. Catatan: menghitung dari `ai_analyses` ikut ter-reset saat toko dihapus (cascade). Fase 5 harus menghitung pemakaian secara independen dari penghapusan toko (mis. ledger pemakaian per `user_id`, atau `store_id` nullable dengan `on delete set null`).
 3. `buildSnapshot(storeData, metrics)` → JSON ringkas: info toko (termasuk `target_market`), per produk per kanal (hppBahan, hppPenuh, harga, kompetitor, net, kontribusi, margin, status, est), total (omzet, laba, biaya tetap per kategori, penyusutan), BEP, balik modal, `warnings`.
 4. `snapshot_hash = sha256(canonicalJSON(snapshot))`. Jika sama dengan analisis terakhir toko ini → kembalikan hasil lama, tidak memanggil AI, tidak memotong kuota.
 5. `lib/ai/analyze.ts` memanggil Gemini dengan structured output (response JSON schema), timeout 30 detik.

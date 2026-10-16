@@ -42,6 +42,7 @@ npm run db:reset && npm run db:types
 3. **Google OAuth**:
    - Google Cloud Console → APIs & Services → Credentials → Create OAuth client ID (Web application).
    - Authorized redirect URI: `https://<ref>.supabase.co/auth/v1/callback`.
+   - OAuth consent screen: isi nama aplikasi, email dukungan, dan authorized domain, lalu publikasikan ("In production"); kalau tidak, akun Google non-test mendapat error `access_denied`.
    - Supabase → Authentication → Sign In / Providers → Google: isi Client ID & Secret, aktifkan.
    - Supabase → Authentication → Sign In / Providers → **Email: nonaktifkan** (production hanya Google).
    - Supabase → Authentication → URL Configuration: Site URL = URL Vercel production;
