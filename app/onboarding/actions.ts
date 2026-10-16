@@ -7,6 +7,9 @@ import { canCreateStore, PLAN_LIMITS, toPlan } from "@/lib/config/plans";
 import type { FormState } from "@/lib/forms";
 import { DUPLICATE_STORE_NAME_MESSAGE, storeInputSchema } from "@/lib/validation/store";
 
+// SQLSTATE raised by the stores_enforce_limit trigger (20261016000003_store_limit.sql).
+const STORE_LIMIT_ERROR_CODE = "BN001";
+
 const STORE_FIELD_NAMES = [
   "name",
   "businessType",
@@ -37,6 +40,9 @@ export async function createStoreAction(_prev: FormState, formData: FormData): P
     supabase.from("profiles").select("plan").eq("id", userId).single(),
     supabase.from("stores").select("id", { count: "exact", head: true }),
   ]);
+  if (profile.error || stores.error) {
+    return { message: "Gagal membuat toko. Coba lagi.", values };
+  }
   const plan = toPlan(profile.data?.plan);
   if (!canCreateStore(plan, stores.count ?? 0)) {
     return {
@@ -45,6 +51,7 @@ export async function createStoreAction(_prev: FormState, formData: FormData): P
     };
   }
 
+  const limitMessage = `Batas jumlah toko untuk paketmu sudah tercapai (maksimal ${PLAN_LIMITS[plan].maxStores} toko).`;
   const input = parsed.data;
   const { data: storeId, error } = await supabase.rpc("create_store", {
     p_name: input.name,
@@ -56,6 +63,9 @@ export async function createStoreAction(_prev: FormState, formData: FormData): P
 
   if (error?.code === "23505") {
     return { fieldErrors: { name: [DUPLICATE_STORE_NAME_MESSAGE] }, values };
+  }
+  if (error?.code === STORE_LIMIT_ERROR_CODE) {
+    return { message: limitMessage, values };
   }
   if (error || !storeId) {
     return { message: "Gagal membuat toko. Coba lagi.", values };

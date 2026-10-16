@@ -1,3 +1,5 @@
+// Store limits are also enforced by a DB trigger; keep in sync with
+// supabase/migrations/20261016000003_store_limit.sql.
 export const PLAN_LIMITS = {
   free: { maxStores: 2, aiAnalysesPerDay: 3 },
   pro: { maxStores: 10, aiAnalysesPerDay: 20 },
