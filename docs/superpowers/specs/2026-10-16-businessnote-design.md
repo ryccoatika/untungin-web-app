@@ -1,54 +1,54 @@
 # BusinessNote — Design Spec (v1)
 
-Tanggal: 2026-10-16
-Status: Draft, menunggu review
+Date: 2026-10-16
+Status: Approved (v1); updated during Phase 1
 
-## 1. Tujuan
+## 1. Goals
 
-Web app untuk orang yang **baru mulai berjualan** (F&B dan produk olahan seperti sabun, lilin, kerajinan) agar bisa menghitung HPP, biaya operasional, harga jual, laba, BEP, dan balik modal **tanpa pengetahuan akuntansi**.
+A web app for people who are **just starting to sell** (F&B and processed products such as soap, candles, crafts) so they can calculate COGS (HPP), operating costs, selling price, profit, break-even point (BEP), and payback period **without any accounting knowledge**.
 
-Kriteria sukses v1:
-- Pengguna baru bisa login dengan Google, membuat toko, dan melihat estimasi laba bulanan setelah mengisi minimal 1 bahan + 1 produk + harga.
-- Semua angka berasal dari rumus deterministik yang teruji (`lib/calc`), bukan dari AI.
-- Pengguna mendapat peringatan untuk kesalahan pemula yang umum: produk rugi, margin di bawah target, gaji pemilik belum dihitung, komisi platform belum dihitung, harga jauh dari kompetitor.
-- App nyaman dipakai di HP Android kelas menengah ke bawah.
+v1 success criteria:
+- A new user can log in with Google, create a store, and see the estimated monthly profit after entering at least 1 material + 1 product + a price.
+- All numbers come from tested deterministic formulas (`lib/calc`), not from AI.
+- The user gets warnings about common beginner mistakes: products that lose money, margin below target, owner salary not yet counted, platform commission not yet counted, price far from competitors.
+- The app is comfortable to use on mid-to-low-end Android phones.
 
-### Keputusan yang sudah disepakati
+### Agreed decisions
 
-| Topik | Keputusan |
+| Topic | Decision |
 |---|---|
-| Mode laba | v1 = **proyeksi** (estimasi penjualan). Pencatatan aktual = tahap 2 (di luar spec ini). |
-| Jenis usaha | F&B + produk olahan. Label UI umum: "Produk" & "Komposisi". Jasa & reseller di luar v1. |
-| User–toko | 1 user bisa punya banyak toko. Semua data ber-`store_id`. Multi-anggota di luar v1. |
-| Model bisnis | Freemium disiapkan (kolom `plan`, batas per plan), payment gateway di luar v1. |
-| Arsitektur kalkulasi | Modul TypeScript murni `lib/calc`, dipakai di server dan browser. |
-| AI | Google Gemini, model default **Gemini 3.5 Flash-Lite** (ID persis diverifikasi saat implementasi), lewat env var. |
-| Visual | Three.js (vanilla, memakai skill `cloudai-x/threejs-skills`) untuk landing, chart 3D dashboard (dengan toggle 2D), momen tertentu, empty state. Halaman form tetap 2D. |
+| Profit mode | v1 = **projection** (sales estimate). Actual recording = phase 2 (outside this spec). |
+| Business type | F&B + processed products. General UI labels: "Produk" ("Product") & "Komposisi" ("Composition"). Services & resellers are outside v1. |
+| User–store | 1 user can have many stores. All data carries a `store_id`. Multiple members are outside v1. |
+| Business model | Freemium is prepared (`plan` column, per-plan limits), payment gateway is outside v1. |
+| Calculation architecture | Pure TypeScript module `lib/calc`, used on the server and in the browser. |
+| AI | Google Gemini, default model **Gemini 3.5 Flash-Lite** (exact ID verified during implementation), via env var. |
+| Visual | Three.js (vanilla, using the `cloudai-x/threejs-skills` skill) for the landing page, 3D dashboard chart (with a 2D toggle), certain moments, empty states. Form pages stay 2D. |
 
 ## 2. Stack
 
-- Next.js (App Router, versi stabil terbaru saat implementasi), TypeScript strict
+- Next.js (App Router, latest stable version at implementation time), TypeScript strict
 - Tailwind CSS + shadcn/ui
-- Supabase: Postgres, Auth (Google OAuth), RLS; `@supabase/ssr`; migrasi SQL via Supabase CLI di `supabase/migrations`
-- zod (validasi input & output AI)
+- Supabase: Postgres, Auth (Google OAuth), RLS; `@supabase/ssr`; SQL migrations via Supabase CLI in `supabase/migrations`
+- zod (input & AI output validation)
 - `@google/genai` (Gemini SDK)
 - three (vanilla Three.js)
 - Vitest (unit/integration), Playwright (e2e)
 - Deploy: Vercel
 
-UI berbahasa Indonesia, mata uang Rupiah tanpa desimal, mobile-first.
+The UI is in Indonesian, currency is Rupiah without decimals, mobile-first.
 
-## 3. Model Data
+## 3. Data Model
 
-Semua tabel memiliki `id uuid pk default gen_random_uuid()`, `created_at timestamptz default now()`, dan (kecuali `profiles`/`stores`) `store_id uuid not null references stores(id) on delete cascade`. Uang disimpan sebagai `integer` (Rupiah). Kuantitas sebagai `numeric`.
+All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz default now()`, and (except `profiles`/`stores`) `store_id uuid not null references stores(id) on delete cascade`. Money is stored as `integer` (Rupiah). Quantities as `numeric`.
 
-### 3.1 Akun & toko
+### 3.1 Accounts & stores
 
 **`profiles`**
 - `id uuid pk references auth.users(id) on delete cascade`
 - `full_name text`
 - `plan text not null default 'free' check (plan in ('free','pro'))`
-- Dibuat otomatis oleh trigger `on auth.users insert`.
+- Created automatically by a trigger `on auth.users insert`.
 
 **`stores`**
 - `owner_id uuid not null references profiles(id) on delete cascade`
@@ -56,46 +56,46 @@ Semua tabel memiliki `id uuid pk default gen_random_uuid()`, `created_at timesta
 - `business_type text not null` — `check in ('makanan','minuman','kue_roti','katering','produk_olahan','lainnya')`
 - `target_margin_pct numeric not null default 40` — `check (target_margin_pct >= 0 and target_margin_pct < 100)`
 - `operating_days_per_month integer not null default 26` — `check between 1 and 31`
-- `target_market text null` — `check in ('menengah_bawah','menengah','menengah_atas')`; hanya dipakai sebagai konteks AI.
-- Unique index `(owner_id, lower(name))`: satu user tidak boleh punya dua toko bernama sama (juga mencegah toko ganda akibat klik dua kali).
+- `target_market text null` — `check in ('menengah_bawah','menengah','menengah_atas')`; used only as AI context.
+- Unique index `(owner_id, lower(name))`: one user cannot have two stores with the same name (this also prevents duplicate stores caused by double clicks).
 
-### 3.2 Bahan
+### 3.2 Materials
 
 **`materials`**
 - `name text not null`
 - `category text not null` — `check in ('bahan','kemasan')`
 - `purchase_qty numeric not null check (> 0)`
-- `purchase_unit text not null` — salah satu unit di §4.1
+- `purchase_unit text not null` — one of the units in §4.1
 - `purchase_price integer not null check (>= 0)`
 - `waste_pct numeric not null default 0 check (>= 0 and < 100)`
 
-### 3.3 Produk & komposisi
+### 3.3 Products & composition
 
 **`products`**
 - `name text not null`
 - `category text null`
-- `yield_qty numeric not null default 1 check (> 0)` — satu resep/batch menghasilkan berapa unit/porsi
-- `target_margin_pct numeric null check (>= 0 and < 100)` — menimpa target toko jika diisi
+- `yield_qty numeric not null default 1 check (> 0)` — how many units/portions one recipe/batch produces
+- `target_margin_pct numeric null check (>= 0 and < 100)` — overrides the store target if filled
 - `is_active boolean not null default true`
 
 **`product_materials`**
-- `product_id uuid not null` — FK komposit `(product_id, store_id) → products(id, store_id)` `on delete cascade`
-- `material_id uuid not null` — FK komposit `(material_id, store_id) → materials(id, store_id)` dengan `on delete no action` (menghapus bahan yang dipakai ditolak; menghapus toko tetap bisa karena dicek di akhir statement)
+- `product_id uuid not null` — composite FK `(product_id, store_id) → products(id, store_id)` `on delete cascade`
+- `material_id uuid not null` — composite FK `(material_id, store_id) → materials(id, store_id)` with `on delete no action` (deleting a material that is in use is rejected; deleting a store still works because the check happens at the end of the statement)
 - `qty numeric not null check (> 0)`
-- `unit text not null` — harus satu dimensi dengan `materials.purchase_unit`
-- `basis text not null default 'batch'` — `check in ('batch','unit')`. `batch` = takaran untuk satu resep (dibagi `yield_qty`); `unit` = takaran per porsi/unit (misalnya 1 cup, 1 kantong). Default UI: `batch` untuk kategori bahan, `unit` untuk kategori kemasan.
-- `channel_id uuid null references sales_channels(id) on delete cascade` — `null` = dipakai di semua kanal; terisi = hanya untuk kanal itu (misalnya bubble wrap hanya untuk online).
+- `unit text not null` — must be in the same dimension as `materials.purchase_unit`
+- `basis text not null default 'batch'` — `check in ('batch','unit')`. `batch` = amount for one recipe (divided by `yield_qty`); `unit` = amount per portion/unit (for example 1 cup, 1 bag). UI default: `batch` for the `bahan` category, `unit` for the `kemasan` category.
+- `channel_id uuid null references sales_channels(id) on delete cascade` — `null` = used in all channels; filled = only for that channel (for example bubble wrap only for online).
 
-### 3.4 Kanal penjualan & harga
+### 3.4 Sales channels & prices
 
 **`sales_channels`**
 - `name text not null`
 - `commission_pct numeric not null default 0 check (>= 0 and < 100)`
-- `fixed_fee integer not null default 0 check (>= 0)` — biaya tetap per transaksi/unit
+- `fixed_fee integer not null default 0 check (>= 0)` — fixed fee per transaction/unit
 - `sort_order integer not null default 0`
-- Saat toko dibuat, kanal **"Offline – Tunai"** (0%, 0) dibuat otomatis.
+- When a store is created, the channel **"Offline – Tunai"** ("Offline – Cash") (0%, 0) is created automatically.
 
-Template kanal (file `lib/config/channel-templates.ts`, bukan tabel): Offline – QRIS, GoFood, GrabFood, ShopeeFood, Shopee, Tokopedia, TikTok Shop. Nilai komisi default di template diverifikasi saat implementasi dan ditandai di UI sebagai "perkiraan, cek di dashboard merchant kamu". Pengguna selalu bisa mengedit.
+Channel templates (file `lib/config/channel-templates.ts`, not a table): Offline – QRIS, GoFood, GrabFood, ShopeeFood, Shopee, Tokopedia, TikTok Shop. The default commission values in the template are verified during implementation and marked in the UI as "perkiraan, cek di dashboard merchant kamu" ("estimate, check in your merchant dashboard"). Users can always edit them.
 
 **`product_channel_prices`**
 - `product_id uuid not null references products(id) on delete cascade`
@@ -105,7 +105,7 @@ Template kanal (file `lib/config/channel-templates.ts`, bukan tabel): Offline �
 - `competitor_price integer null check (>= 0)`
 - `unique (product_id, channel_id)`
 
-### 3.5 Biaya operasional
+### 3.5 Operating expenses
 
 **`operating_expenses`**
 - `name text not null`
@@ -113,9 +113,9 @@ Template kanal (file `lib/config/channel-templates.ts`, bukan tabel): Offline �
 - `amount integer not null check (>= 0)`
 - `frequency text not null` — `check in ('harian','mingguan','bulanan','tahunan')`
 
-Biaya pemasaran sekali bayar (misalnya endorse) dimasukkan dengan frekuensi `tahunan` atau dibagi manual oleh pengguna; UI menjelaskan ini.
+One-time marketing costs (for example an endorsement) are entered with the frequency `tahunan` or divided manually by the user; the UI explains this.
 
-### 3.6 Inventaris / aset
+### 3.6 Inventory / assets
 
 **`assets`**
 - `name text not null`
@@ -124,7 +124,7 @@ Biaya pemasaran sekali bayar (misalnya endorse) dimasukkan dengan frekuensi `tah
 - `unit_price integer not null check (>= 0)`
 - `useful_life_months integer not null check (>= 1)`
 
-Total nilai aset dipakai sebagai **modal awal** untuk perhitungan balik modal.
+The total asset value is used as the **initial capital** for the payback period calculation.
 
 ### 3.7 AI
 
@@ -136,182 +136,182 @@ Total nilai aset dipakai sebagai **modal awal** untuk perhitungan balik modal.
 - `output jsonb not null`
 - Index: `(user_id, created_at)`, `(store_id, created_at desc)`
 
-### 3.8 Keamanan (RLS)
+### 3.8 Security (RLS)
 
-- RLS aktif di semua tabel.
-- Fungsi `public.is_store_owner(sid uuid) returns boolean` (`security definer`, `stable`): `exists (select 1 from stores where id = sid and owner_id = auth.uid())`.
-- `profiles`: select/update hanya `id = auth.uid()`. Role `authenticated` hanya diberi `grant update (full_name)`, sehingga kolom `plan` tidak bisa diubah pengguna.
-- `stores`: semua operasi hanya `owner_id = auth.uid()`; insert dibatasi jumlah toko per plan (dicek di Server Action sebagai pesan ramah, dan ditegakkan di database oleh trigger `stores_enforce_limit` yang mencerminkan `lib/config/plans.ts`, SQLSTATE `BN001`; RLS tetap menjamin kepemilikan).
-- Tabel ber-`store_id`: semua operasi `is_store_owner(store_id)`.
-- `product_materials` dan `product_channel_prices` juga memiliki `store_id` (didenormalisasi) agar policy sederhana; **FK komposit** `(x_id, store_id) → tabel(id, store_id)` memastikan produk, bahan, dan kanal yang dirujuk berasal dari toko yang sama.
-- `ai_analyses`: tidak ada policy insert/update/delete untuk pengguna; insert dilakukan Server Action memakai client secret key (`SUPABASE_SECRET_KEY`) (setelah memverifikasi sesi + kepemilikan toko). Select: `is_store_owner(store_id)`.
-- Jalur ke multi-anggota nanti: tambah `store_members`, ubah isi `is_store_owner`.
+- RLS is enabled on all tables.
+- Function `public.is_store_owner(sid uuid) returns boolean` (`security definer`, `stable`): `exists (select 1 from stores where id = sid and owner_id = auth.uid())`.
+- `profiles`: select/update only `id = auth.uid()`. The `authenticated` role is only granted `grant update (full_name)`, so the `plan` column cannot be changed by users.
+- `stores`: all operations only `owner_id = auth.uid()`; inserts are limited by the number of stores per plan (checked in the Server Action as a friendly message, and enforced in the database by the trigger `stores_enforce_limit` that mirrors `lib/config/plans.ts`, SQLSTATE `BN001`; RLS still guarantees ownership).
+- Tables with `store_id`: all operations `is_store_owner(store_id)`.
+- `product_materials` and `product_channel_prices` also have `store_id` (denormalized) to keep policies simple; the **composite FK** `(x_id, store_id) → table(id, store_id)` ensures the referenced product, material, and channel come from the same store.
+- `ai_analyses`: no insert/update/delete policies for users; inserts are done by the Server Action using the client secret key (`SUPABASE_SECRET_KEY`) (after verifying the session + store ownership). Select: `is_store_owner(store_id)`.
+- Path to multiple members later: add `store_members`, change the body of `is_store_owner`.
 
-### 3.9 Batas per plan
+### 3.9 Per-plan limits
 
 `lib/config/plans.ts`:
 
-| Plan | Maks toko | Analisis AI per hari |
+| Plan | Max stores | AI analyses per day |
 |---|---|---|
 | free | 2 | 3 |
 | pro | 10 | 20 |
 
-Plan diubah manual lewat database di v1.
+The plan is changed manually through the database in v1.
 
-Batas toko juga ditegakkan oleh trigger database (`supabase/migrations/20261016000003_store_limit.sql`); angkanya harus selalu sama dengan `lib/config/plans.ts`.
+The store limit is also enforced by a database trigger (`supabase/migrations/20261016000003_store_limit.sql`); the numbers must always match `lib/config/plans.ts`.
 
-## 4. Kalkulasi (`lib/calc`)
+## 4. Calculation (`lib/calc`)
 
-Catatan validasi (Fase 2): `localeNumber` menganggap "." sebagai desimal bila tidak ada koma. Input Rupiah butuh parser integer terpisah yang membuang titik ribuan ("15.000" → 15000).
+Validation note (Phase 2): `localeNumber` treats "." as a decimal when there is no comma. Rupiah input needs a separate integer parser that strips thousand-separator dots ("15.000" → 15000).
 
-Fungsi murni, tanpa akses database/network. Input = objek data toko lengkap (`StoreData`); output = objek hasil (`StoreMetrics`). Dipakai di Server Components (dashboard) dan Client Components (halaman produk live, simulasi).
+Pure functions, no database/network access. Input = a complete store data object (`StoreData`); output = a result object (`StoreMetrics`). Used in Server Components (dashboard) and Client Components (live product page, simulation).
 
-### 4.1 Satuan
+### 4.1 Units
 
-| Dimensi | Satuan dasar | Unit yang didukung |
+| Dimension | Base unit | Supported units |
 |---|---|---|
-| massa | g | g, ons (=100 g), kg (=1000 g) |
+| mass | g | g, ons (=100 g), kg (=1000 g) |
 | volume | ml | ml, l (=1000 ml) |
-| jumlah | pcs | pcs, lusin (=12 pcs) |
+| count | pcs | pcs, lusin (=12 pcs) |
 
-`toBase(qty, unit)` dan `sameDimension(unitA, unitB)`. Satuan rumah tangga (sdm, sdt, gelas) tidak didukung di v1.
+`toBase(qty, unit)` and `sameDimension(unitA, unitB)`. Household units (sdm, sdt, gelas) are not supported in v1.
 
-### 4.2 Rumus
+### 4.2 Formulas
 
-Notasi: `m` = bahan, `p` = produk, `c` = kanal, `D` = `operating_days_per_month`.
+Notation: `m` = material, `p` = product, `c` = channel, `D` = `operating_days_per_month`.
 
-1. **Biaya bahan per satuan dasar**
+1. **Material cost per base unit**
    `unitCost(m) = purchase_price / (toBase(purchase_qty, purchase_unit) × (1 − waste_pct/100))`
 
-2. **HPP bahan per unit produk per kanal**
-   Baris komposisi yang berlaku untuk kanal `c`: `channel_id is null or channel_id = c`.
+2. **Material HPP per product unit per channel**
+   Composition rows that apply to channel `c`: `channel_id is null or channel_id = c`.
    `hppBahan(p, c) = Σ_batchRows(toBase(qty, unit) × unitCost(m)) / yield_qty + Σ_unitRows(toBase(qty, unit) × unitCost(m))`
-   Baris dengan satuan beda dimensi dari bahannya = error validasi (ditolak saat simpan; jika tetap ada di data, `lib/calc` melempar error terstruktur, bukan menghitung diam-diam).
+   A row whose unit is in a different dimension from its material = validation error (rejected on save; if it still exists in the data, `lib/calc` throws a structured error instead of calculating silently).
 
-3. **Biaya tetap bulanan**
-   Normalisasi biaya: `harian × D`, `mingguan × 52/12`, `bulanan × 1`, `tahunan / 12`.
+3. **Monthly fixed costs**
+   Cost normalization: `harian × D`, `mingguan × 52/12`, `bulanan × 1`, `tahunan / 12`.
    `penyusutanBulanan = Σ (qty × unit_price / useful_life_months)`
-   `biayaTetap = Σ biaya ternormalisasi + penyusutanBulanan`
+   `biayaTetap = Σ normalized costs + penyusutanBulanan`
 
-4. **HPP penuh per unit**
-   `totalUnit = Σ_{p,c} est_monthly_sales` (hanya produk aktif)
-   `overheadPerUnit = biayaTetap / totalUnit` (jika `totalUnit = 0` → `null`, UI menampilkan "—" + petunjuk mengisi estimasi penjualan)
+4. **Full HPP per unit**
+   `totalUnit = Σ_{p,c} est_monthly_sales` (active products only)
+   `overheadPerUnit = biayaTetap / totalUnit` (if `totalUnit = 0` → `null`, the UI shows "—" + a hint to fill in the sales estimate)
    `hppPenuh(p, c) = hppBahan(p, c) + overheadPerUnit`
 
-5. **Pendapatan bersih & kontribusi per unit**
+5. **Net revenue & contribution per unit**
    `net(p, c) = price × (1 − commission_pct/100) − fixed_fee`
    `kontribusi(p, c) = net(p, c) − hppBahan(p, c)`
 
-6. **Laba bulanan**
+6. **Monthly profit**
    - `omzetKotor = Σ price × est`
    - `omzetBersih = Σ net × est`
    - `biayaBahan = Σ hppBahan × est`
    - `labaKotor = omzetBersih − biayaBahan`
    - `labaBersih = labaKotor − biayaTetap`
-   - `marginBersihPct = labaBersih / omzetKotor × 100` (jika omzet 0 → `null`)
+   - `marginBersihPct = labaBersih / omzetKotor × 100` (if revenue is 0 → `null`)
 
-7. **BEP**
+7. **Break-even point (BEP)**
    - `kontribusiRataRata = Σ(kontribusi × est) / Σ est`
-   - Jika `Σ est = 0` → BEP `null` ("isi estimasi penjualan").
-   - Jika `kontribusiRataRata ≤ 0` → BEP `null` + peringatan "Setiap penjualan rugi".
+   - If `Σ est = 0` → BEP `null` ("isi estimasi penjualan" ("fill in the sales estimate")).
+   - If `kontribusiRataRata ≤ 0` → BEP `null` + warning "Setiap penjualan rugi" ("Every sale loses money").
    - `bepUnitBulanan = ceil(biayaTetap / kontribusiRataRata)`; `bepUnitHarian = ceil(bepUnitBulanan / D)`
 
-8. **Balik modal**
-   `totalModal = Σ qty × unit_price` (aset)
-   `bulanBalikModal = totalModal / labaBersih` jika `labaBersih > 0`, selain itu `null`.
+8. **Payback period**
+   `totalModal = Σ qty × unit_price` (assets)
+   `bulanBalikModal = totalModal / labaBersih` if `labaBersih > 0`, otherwise `null`.
 
-9. **Rekomendasi harga per produk per kanal**
+9. **Price recommendation per product per channel**
    `margin = (products.target_margin_pct ?? stores.target_margin_pct) / 100`
    `k = commission_pct / 100`
-   Jika `k + margin ≥ 1` → `null` + pesan "Komisi + target margin ≥ 100%, tidak ada harga yang memenuhi".
-   Jika `hppPenuh` `null` → pakai `hppBahan` dan tandai "belum termasuk biaya operasional".
+   If `k + margin ≥ 1` → `null` + message "Komisi + target margin ≥ 100%, tidak ada harga yang memenuhi" ("Commission + target margin ≥ 100%, no price satisfies this").
+   If `hppPenuh` is `null` → use `hppBahan` and mark "belum termasuk biaya operasional" ("does not yet include operating costs").
    `hargaRekomendasi = ceilTo500((hppPenuh + fixed_fee) / (1 − k − margin))`
-   Margin di sini = persentase laba terhadap harga jual (bukan markup). UI menjelaskan bedanya.
+   Margin here = profit as a percentage of the selling price (not markup). The UI explains the difference.
 
-### 4.3 Status & peringatan (deterministik)
+### 4.3 Status & warnings (deterministic)
 
 Per `(p, c)`:
-- **merah**: `kontribusi < 0`
-- **kuning**: margin aktual `(net − hppPenuh) / price < target` (atau `hppBahan` jika `hppPenuh` null)
-- **hijau**: margin aktual ≥ target
+- **red**: `kontribusi < 0`
+- **yellow**: actual margin `(net − hppPenuh) / price < target` (or `hppBahan` if `hppPenuh` is null)
+- **green**: actual margin ≥ target
 
-Peringatan toko (`StoreMetrics.warnings`):
-- `NO_OWNER_SALARY`: tidak ada biaya kategori `gaji_pemilik` → "Laba terlihat lebih besar karena gajimu sendiri belum dihitung."
-- `LOSS_PRODUCTS`: ada produk merah
-- `BELOW_TARGET`: ada produk kuning
-- `NEGATIVE_CONTRIBUTION`: kontribusi rata-rata ≤ 0
+Store warnings (`StoreMetrics.warnings`):
+- `NO_OWNER_SALARY`: no cost of category `gaji_pemilik` → "Laba terlihat lebih besar karena gajimu sendiri belum dihitung." ("Profit looks bigger because your own salary has not been counted.")
+- `LOSS_PRODUCTS`: there are red products
+- `BELOW_TARGET`: there are yellow products
+- `NEGATIVE_CONTRIBUTION`: average contribution ≤ 0
 - `NO_SALES_ESTIMATE`: `Σ est = 0`
 - `COMPETITOR_GAP`: `|price − competitor_price| / competitor_price > 0.25`
 - `NET_LOSS`: `labaBersih < 0`
 
-### 4.4 Simulasi what-if
+### 4.4 What-if simulation
 
-`applyOverrides(data: StoreData, o: Overrides): StoreData` lalu dihitung ulang dengan fungsi yang sama.
+`applyOverrides(data: StoreData, o: Overrides): StoreData`, then recalculated with the same functions.
 
 ```ts
 type Overrides = {
-  materialPricePct?: Record<string /* materialId | 'all' */, number>; // +50 = naik 50%
-  salesMultiplier?: number;                                          // 1.2 = naik 20%
+  materialPricePct?: Record<string /* materialId | 'all' */, number>; // +50 = up 50%
+  salesMultiplier?: number;                                          // 1.2 = up 20%
   prices?: Record<`${string}:${string}` /* productId:channelId */, number>;
 };
 ```
 
-Tidak disimpan ke database. Halaman simulasi menampilkan metrik "Sekarang" dan "Simulasi" berdampingan beserta selisihnya. Overrides bisa diisi dari query string (dipakai tombol "Coba di simulasi" dari AI).
+Not saved to the database. The simulation page shows the "Sekarang" ("Now") and "Simulasi" ("Simulation") metrics side by side along with the difference. Overrides can be filled from the query string (used by the "Coba di simulasi" ("Try in simulation") button from the AI).
 
-## 5. Alur & Halaman
+## 5. Flow & Pages
 
 ### 5.1 Auth & onboarding
-1. `/` landing: hero 3D, penjelasan singkat, tombol "Masuk dengan Google".
-2. `/login` → Supabase Google OAuth → `/auth/callback` (tukar code jadi sesi).
-3. Belum punya toko → `/onboarding`, wizard 2 langkah:
-   - nama toko, jenis usaha, target pasar (opsional)
-   - hari buka per bulan, target margin (default + penjelasan margin vs markup)
-   - Toko dibuat + kanal "Offline – Tunai".
-   - Alternatif: tombol **"Coba dengan data contoh"** membuat toko demo (kedai kopi) lengkap dengan bahan, kemasan, produk, kanal (termasuk GoFood + kemasan khusus online), biaya (termasuk gaji pemilik), aset, dan harga kompetitor. Implementasi: satu fungsi seed di server.
-4. Masuk dashboard.
+1. `/` landing: 3D hero, short explanation, "Masuk dengan Google" ("Sign in with Google") button.
+2. `/login` → Supabase Google OAuth → `/auth/callback` (exchange the code for a session).
+3. No store yet → `/onboarding`, a 2-step wizard:
+   - store name, business type, target market (optional)
+   - operating days per month, target margin (default + explanation of margin vs markup)
+   - The store is created + the "Offline – Tunai" channel.
+   - Alternative: a **"Coba dengan data contoh"** ("Try with sample data") button creates a demo store (coffee shop) complete with materials, packaging, products, channels (including GoFood + online-only packaging), costs (including owner salary), assets, and competitor prices. Implementation: a single seed function on the server.
+4. Enter the dashboard.
 
-### 5.2 Halaman toko (`/s/[storeId]/...`)
+### 5.2 Store pages (`/s/[storeId]/...`)
 
-| Route | Isi |
+| Route | Content |
 |---|---|
-| `dashboard` | Kartu: laba bersih, omzet, BEP/hari, balik modal. Peringatan. Chart produk (3D, toggle 2D). Tabel produk dengan status warna. **Checklist setup** selama belum lengkap: Bahan → Produk → Biaya operasional → **Gaji kamu sendiri** → Inventaris → Kanal online (opsional). |
-| `bahan` | Daftar + form bahan; biaya per satuan dasar tampil live. |
-| `produk` | Daftar produk + status. |
-| `produk/[id]` | Editor komposisi (bahan, takaran, satuan, basis batch/unit, kanal), HPP live per kanal, harga + estimasi penjualan + harga kompetitor per kanal, perbandingan harga kamu vs rekomendasi vs kompetitor, tombol "Pakai harga rekomendasi". |
-| `biaya` | Biaya operasional per kategori, total bulanan. |
-| `inventaris` | Aset, penyusutan bulanan, total modal. |
-| `kanal` | Kanal penjualan + tambah dari template. |
-| `simulasi` | Slider/input overrides, perbandingan Sekarang vs Simulasi. |
-| `analisis` | Tombol "Analisis usahaku", hasil terbaru, riwayat, sisa kuota, catatan privasi. |
-| `pengaturan` | Edit data toko, hapus toko (konfirmasi ketik nama toko). |
+| `dashboard` | Cards: net profit, revenue, BEP/day, payback period. Warnings. Product chart (3D, 2D toggle). Product table with color status. **Setup checklist** while incomplete: Materials → Products → Operating costs → **"Gaji kamu sendiri"** ("Your own salary") → Inventory → Online channels (optional). |
+| `bahan` | Material list + form; cost per base unit shown live. |
+| `produk` | Product list + status. |
+| `produk/[id]` | Composition editor (material, amount, unit, batch/unit basis, channel), live HPP per channel, price + sales estimate + competitor price per channel, comparison of your price vs recommendation vs competitor, "Pakai harga rekomendasi" ("Use recommended price") button. |
+| `biaya` | Operating costs per category, monthly total. |
+| `inventaris` | Assets, monthly depreciation, total capital. |
+| `kanal` | Sales channels + add from template. |
+| `simulasi` | Slider/input overrides, comparison of Now vs Simulation. |
+| `analisis` | "Analisis usahaku" ("Analyze my business") button, latest result, history, remaining quota, privacy note. |
+| `pengaturan` | Edit store data, delete store (confirm by typing the store name). |
 
-Lainnya: `/toko` (daftar toko, pindah, tambah baru), `/privasi` (kebijakan privasi).
+Others: `/toko` (store list, switch, add new), `/privasi` (privacy policy).
 
-Navigasi: bottom nav di HP (Dashboard, Produk, Bahan, Lainnya), sidebar di desktop, pemilih toko di header.
+Navigation: bottom nav on phones (Dashboard, Produk, Bahan, Lainnya), sidebar on desktop, store picker in the header.
 
-### 5.3 Mutasi & error
-- Semua mutasi lewat Server Actions; input divalidasi zod; error dikembalikan per field dalam bahasa Indonesia.
-- Menghapus bahan yang dipakai produk ditolak (FK `restrict`) dengan pesan "Dipakai di: <daftar produk>".
-- Proxy (`proxy.ts`, Next.js 16): route `/s/*`, `/onboarding`, `/toko`, `/mulai` butuh sesi; server memakai `auth.getClaims()`, bukan `getSession()`. `storeId` yang bukan milik user → 404 (RLS mengembalikan kosong).
-- Empty state di setiap daftar: penjelasan + contoh + tombol aksi.
+### 5.3 Mutations & errors
+- All mutations go through Server Actions; input is validated with zod; errors are returned per field in Indonesian.
+- Deleting a material used by a product is rejected (FK `restrict`) with the message "Dipakai di: <daftar produk>" ("Used in: <product list>").
+- Proxy (`proxy.ts`, Next.js 16): routes `/s/*`, `/onboarding`, `/toko`, `/mulai` require a session; the server uses `auth.getClaims()`, not `getSession()`. A `storeId` that does not belong to the user → 404 (RLS returns empty).
+- Empty state in every list: explanation + example + action button.
 
-## 6. Fitur AI
+## 6. AI Feature
 
-### 6.1 Alur
-1. User menekan "Analisis usahaku".
-2. Server Action: cek sesi + kepemilikan toko; hitung analisis user hari ini (00:00–24:00 Asia/Jakarta) dari `ai_analyses`; tolak jika ≥ batas plan. Catatan: menghitung dari `ai_analyses` ikut ter-reset saat toko dihapus (cascade). Fase 5 harus menghitung pemakaian secara independen dari penghapusan toko (mis. ledger pemakaian per `user_id`, atau `store_id` nullable dengan `on delete set null`).
-3. `buildSnapshot(storeData, metrics)` → JSON ringkas: info toko (termasuk `target_market`), per produk per kanal (hppBahan, hppPenuh, harga, kompetitor, net, kontribusi, margin, status, est), total (omzet, laba, biaya tetap per kategori, penyusutan), BEP, balik modal, `warnings`.
-4. `snapshot_hash = sha256(canonicalJSON(snapshot))`. Jika sama dengan analisis terakhir toko ini → kembalikan hasil lama, tidak memanggil AI, tidak memotong kuota.
-5. `lib/ai/analyze.ts` memanggil Gemini dengan structured output (response JSON schema), timeout 30 detik.
-6. Validasi output dengan zod. Gagal/timeout/invalid → error "Analisis gagal, coba lagi", tidak disimpan, kuota tidak terpotong.
-7. Simpan ke `ai_analyses`, tampilkan.
+### 6.1 Flow
+1. The user presses "Analisis usahaku".
+2. Server Action: check session + store ownership; count the user's analyses today (00:00–24:00 Asia/Jakarta) from `ai_analyses`; reject if ≥ the plan limit. Note: counting from `ai_analyses` also resets when a store is deleted (cascade). Phase 5 must count usage independently of store deletion (e.g. a usage ledger per `user_id`, or a nullable `store_id` with `on delete set null`).
+3. `buildSnapshot(storeData, metrics)` → compact JSON: store info (including `target_market`), per product per channel (hppBahan, hppPenuh, price, competitor, net, contribution, margin, status, est), totals (revenue, profit, fixed costs per category, depreciation), BEP, payback period, `warnings`.
+4. `snapshot_hash = sha256(canonicalJSON(snapshot))`. If it equals this store's latest analysis → return the old result, do not call the AI, do not deduct quota.
+5. `lib/ai/analyze.ts` calls Gemini with structured output (response JSON schema), 30-second timeout.
+6. Validate the output with zod. Failure/timeout/invalid → error "Analisis gagal, coba lagi" ("Analysis failed, try again"), not saved, quota not deducted.
+7. Save to `ai_analyses`, display.
 
-### 6.2 Skema output
+### 6.2 Output schema
 
 ```ts
 {
-  summary: string;                       // 2–4 kalimat
-  highlights: string[];                  // hal yang sudah baik
+  summary: string;                       // 2–4 sentences
+  highlights: string[];                  // things that are already good
   issues: {
     title: string;
     explanation: string;
@@ -329,32 +329,32 @@ Navigasi: bottom nav di HP (Dashboard, Produk, Bahan, Lainnya), sidebar di deskt
 }
 ```
 
-ID yang dirujuk divalidasi terhadap snapshot; rekomendasi dengan ID tidak dikenal kehilangan `simulation`-nya (teks tetap ditampilkan). `simulation` dipetakan ke `Overrides` (§4.4) dan dibuka lewat tombol **"Coba di simulasi"**.
+Referenced IDs are validated against the snapshot; a recommendation with an unknown ID loses its `simulation` (the text is still shown). `simulation` is mapped to `Overrides` (§4.4) and opened through the **"Coba di simulasi"** button.
 
-### 6.3 Aturan prompt
-- Hanya mengutip angka yang ada di snapshot; dilarang membuat angka baru. Dampak angka dihitung `lib/calc` lewat simulasi.
-- Bahasa Indonesia sederhana, tanpa jargon akuntansi.
-- Wajib menyinggung peringatan di `warnings`, terutama `NO_OWNER_SALARY` dan `LOSS_PRODUCTS`.
-- Memakai `competitor_price` dan `target_market` sebagai konteks saran harga.
+### 6.3 Prompt rules
+- Only quote numbers that exist in the snapshot; creating new numbers is forbidden. The impact of figures is calculated by `lib/calc` through simulation.
+- Simple Indonesian, no accounting jargon.
+- Must address the warnings in `warnings`, especially `NO_OWNER_SALARY` and `LOSS_PRODUCTS`.
+- Uses `competitor_price` and `target_market` as context for price advice.
 
-### 6.4 Konfigurasi & privasi
+### 6.4 Configuration & privacy
 - Env: `GEMINI_API_KEY`, `GEMINI_MODEL`.
-- Semua akses Gemini hanya di server (`lib/ai`, `server-only`).
-- Halaman analisis dan `/privasi` menyatakan data toko dikirim ke Google Gemini untuk dianalisis.
+- All Gemini access only on the server (`lib/ai`, `server-only`).
+- The analysis page and `/privasi` state that store data is sent to Google Gemini for analysis.
 
-## 7. Visual 3D
+## 7. 3D Visuals
 
-- Library: `three` vanilla, dibungkus Client Component yang membuat/menghapus renderer di `useEffect`; dimuat dengan `next/dynamic` `{ ssr: false }`.
-- Lokasi:
-  - Landing: hero 3D interaktif.
-  - Dashboard: chart produk 3D (batang laba/kontribusi per produk) dengan **label angka**; toggle 3D/2D; pilihan disimpan di `localStorage` (try/catch).
-  - Momen: animasi saat onboarding selesai dan saat laba bersih pertama kali > 0.
-  - Empty state: ilustrasi 3D ringan.
-- Fallback ke 2D/statis jika: `prefers-reduced-motion: reduce`, WebGL tidak tersedia, atau perangkat lemah (`navigator.hardwareConcurrency ≤ 4` atau `deviceMemory ≤ 4` bila tersedia).
-- Renderer: `pixelRatio` dibatasi ≤ 2; render loop berhenti saat canvas tidak terlihat (IntersectionObserver) atau tab tersembunyi; geometri/material di-dispose saat unmount.
-- Halaman form (bahan, produk, biaya, inventaris, kanal) tidak memuat Three.js.
+- Library: vanilla `three`, wrapped in a Client Component that creates/removes the renderer in `useEffect`; loaded with `next/dynamic` `{ ssr: false }`.
+- Locations:
+  - Landing: interactive 3D hero.
+  - Dashboard: 3D product chart (profit/contribution bars per product) with **number labels**; 3D/2D toggle; the choice is saved in `localStorage` (try/catch).
+  - Moments: animation when onboarding finishes and when net profit first becomes > 0.
+  - Empty state: lightweight 3D illustration.
+- Fallback to 2D/static if: `prefers-reduced-motion: reduce`, WebGL is unavailable, or the device is weak (`navigator.hardwareConcurrency ≤ 4` or `deviceMemory ≤ 4` when available).
+- Renderer: `pixelRatio` capped at ≤ 2; the render loop stops when the canvas is not visible (IntersectionObserver) or the tab is hidden; geometry/materials are disposed on unmount.
+- Form pages (materials, products, costs, inventory, channels) do not load Three.js.
 
-## 8. Struktur Kode
+## 8. Code Structure
 
 ```
 app/
@@ -365,14 +365,14 @@ app/
   onboarding/page.tsx
   toko/page.tsx
   s/[storeId]/
-    layout.tsx                    nav + pemilih toko + load StoreData
+    layout.tsx                    nav + store picker + load StoreData
     dashboard/ bahan/ produk/ produk/[id]/ biaya/ inventaris/ kanal/ simulasi/ analisis/ pengaturan/
 lib/
   calc/        units.ts materials.ts products.ts expenses.ts assets.ts metrics.ts pricing.ts warnings.ts overrides.ts index.ts
   ai/          analyze.ts schema.ts snapshot.ts prompt.ts
   supabase/    server.ts client.ts middleware.ts
   data/        load-store-data.ts (query Supabase → StoreData)
-  validation/  zod schema per entitas
+  validation/  zod schema per entity
   config/      plans.ts channel-templates.ts
   seed/        demo-store.ts
 components/
@@ -383,44 +383,44 @@ supabase/
   migrations/
 tests/
   unit/ rls/ e2e/
-proxy.ts                         (Next.js 16: pengganti middleware.ts)
+proxy.ts                         (Next.js 16: replaces middleware.ts)
 ```
 
 ## 9. Testing
 
-- **`lib/calc`** (paling kritis): unit test table-driven dengan contoh yang dihitung manual, mencakup: konversi satuan; bahan dengan susut; komposisi batch vs unit; kemasan khusus kanal; normalisasi frekuensi; penyusutan; overhead dengan `totalUnit = 0`; laba; BEP (normal, `Σ est = 0`, kontribusi ≤ 0); balik modal (laba ≤ 0); rekomendasi harga (normal, override margin produk, `k + margin ≥ 1`, pembulatan Rp500); setiap kode peringatan; overrides.
-- **RLS**: integration test ke Supabase lokal — user A tidak bisa select/insert/update/delete data toko user B di setiap tabel; user tidak bisa mengubah `plan`.
-- **Validasi**: test schema zod untuk tiap entitas (termasuk dimensi satuan tidak cocok).
-- **AI**: Gemini di-mock; test `buildSnapshot`, hash stabil, cache hit, kuota (termasuk batas hari WIB), output valid, output rusak, ID tidak dikenal.
-- **E2E (Playwright)**: onboarding → tambah bahan → tambah produk + harga → dashboard menampilkan laba. Login e2e/dev memakai email/password lewat form "Masuk (dev)" yang hanya tampil jika `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` (lokal saja).
+- **`lib/calc`** (most critical): table-driven unit tests with manually calculated examples, covering: unit conversion; materials with waste; batch vs unit composition; channel-specific packaging; frequency normalization; depreciation; overhead with `totalUnit = 0`; profit; BEP (normal, `Σ est = 0`, contribution ≤ 0); payback period (profit ≤ 0); price recommendation (normal, product margin override, `k + margin ≥ 1`, Rp500 rounding); every warning code; overrides.
+- **RLS**: integration tests against local Supabase — user A cannot select/insert/update/delete user B's store data in every table; a user cannot change `plan`.
+- **Validation**: zod schema tests for each entity (including mismatched unit dimension).
+- **AI**: Gemini is mocked; tests for `buildSnapshot`, stable hash, cache hit, quota (including the WIB day boundary), valid output, broken output, unknown IDs.
+- **E2E (Playwright)**: onboarding → add material → add product + price → dashboard shows profit. E2E/dev login uses email/password through the "Masuk (dev)" ("Sign in (dev)") form, which only appears if `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` (local only).
 
-## 10. Tahapan Implementasi
+## 10. Implementation Phases
 
-Setiap tahap bisa di-deploy. Satu implementation plan per tahap.
+Every phase can be deployed. One implementation plan per phase.
 
-1. **Fondasi**: scaffold Next.js, Tailwind, shadcn; skema database + RLS + trigger profil; login Google; middleware; onboarding (tanpa data contoh); `/toko`; layout + navigasi.
-2. **Inti HPP**: `lib/calc` (TDD); halaman bahan, produk + komposisi, biaya operasional, inventaris; dashboard 2D (kartu, peringatan, tabel, checklist).
-3. **Kanal & harga**: kanal + template; harga/estimasi/kompetitor per kanal; kemasan khusus kanal; rekomendasi harga.
-4. **Simulasi what-if**.
-5. **Analisis AI**: `lib/ai`, kuota, cache, riwayat, "Coba di simulasi".
-6. **Visual 3D**: pasang threejs-skills; hero landing; chart 3D + toggle; animasi momen; empty state 3D; fallback.
-7. **Finishing**: data contoh, halaman privasi, polish, deploy production.
+1. **Foundation**: scaffold Next.js, Tailwind, shadcn; database schema + RLS + profile trigger; Google login; middleware; onboarding (without sample data); `/toko`; layout + navigation.
+2. **HPP core**: `lib/calc` (TDD); materials page, products + composition, operating costs, inventory; 2D dashboard (cards, warnings, table, checklist).
+3. **Channels & pricing**: channels + templates; price/estimate/competitor per channel; channel-specific packaging; price recommendation.
+4. **What-if simulation**.
+5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
+6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.
+7. **Finishing**: sample data, privacy page, polish, production deploy.
 
-## 11. Setup Manual (dilakukan pemilik project)
+## 11. Manual Setup (done by the project owner)
 
-- Buat project Supabase (production) dan catat URL + anon key + service role key.
-- Buat OAuth Client di Google Cloud Console; redirect URI ke callback Supabase; aktifkan provider Google di Supabase Auth; tambahkan URL Vercel ke Redirect URLs Supabase.
-- Buat API key Gemini di Google AI Studio.
-- Set env di Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`. Jangan pernah set `NEXT_PUBLIC_ENABLE_DEV_LOGIN` di Vercel.
-- Di Supabase production: nonaktifkan provider Email (hanya Google).
-- Dev lokal: Docker + Supabase CLI (`supabase start`).
+- Create a Supabase project (production) and note the URL + anon key + service role key.
+- Create an OAuth Client in Google Cloud Console; redirect URI to the Supabase callback; enable the Google provider in Supabase Auth; add the Vercel URL to the Supabase Redirect URLs.
+- Create a Gemini API key in Google AI Studio.
+- Set env in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`. Never set `NEXT_PUBLIC_ENABLE_DEV_LOGIN` in Vercel.
+- In Supabase production: disable the Email provider (Google only).
+- Local dev: Docker + Supabase CLI (`supabase start`).
 
-## 12. Di Luar Lingkup v1
+## 12. Out of Scope for v1
 
-- Pencatatan penjualan & pembelian aktual (tahap 2)
-- Multi-anggota toko & peran
-- Payment gateway / langganan Pro
-- Usaha jasa & reseller sebagai tipe produk khusus
-- Satuan rumah tangga (sdm, sdt, gelas)
-- Export PDF/Excel
-- App mobile native
+- Recording actual sales & purchases (phase 2)
+- Multiple store members & roles
+- Payment gateway / Pro subscription
+- Service businesses & resellers as a dedicated product type
+- Household units (sdm, sdt, gelas)
+- PDF/Excel export
+- Native mobile app
