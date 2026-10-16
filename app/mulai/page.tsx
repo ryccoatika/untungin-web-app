@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET(request: NextRequest) {
+export default async function MulaiPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("stores")
@@ -10,6 +10,5 @@ export async function GET(request: NextRequest) {
     .limit(1);
   if (error) throw error;
 
-  const target = data.length === 0 ? "/onboarding" : `/s/${data[0].id}/dashboard`;
-  return NextResponse.redirect(new URL(target, request.url));
+  redirect(data.length === 0 ? "/onboarding" : `/s/${data[0].id}/dashboard`);
 }
