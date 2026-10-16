@@ -42,7 +42,7 @@ export default async function StoreLayout({
           <div className="flex shrink-0 items-center gap-2">
             <LocaleSwitcher />
             <form action={signOutAction}>
-              <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
+              <SubmitButton variant="ghost" pendingText={tAuth("signOutPending")}>
                 {tAuth("signOut")}
               </SubmitButton>
             </form>

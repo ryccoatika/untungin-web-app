@@ -19,9 +19,10 @@ export function LocaleSwitcher({ className }: { className?: string }) {
     startTransition(async () => {
       try {
         await saveLocaleAction(next);
-      } finally {
-        router.replace(`${pathname}${window.location.search}`, { locale: next });
+      } catch {
+        /* saving is best-effort; the URL switch below still applies */
       }
+      router.replace(`${pathname}${window.location.search}`, { locale: next });
     });
   }
 
@@ -36,7 +37,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           key={code}
           type="button"
           lang={code}
-          aria-label={t(code)}
+          aria-label={`${code.toUpperCase()} – ${t(code)}`}
           aria-pressed={code === locale}
           disabled={pending}
           onClick={() => switchTo(code)}

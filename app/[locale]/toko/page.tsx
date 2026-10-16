@@ -21,7 +21,7 @@ export default async function StoresPage() {
         <div className="flex items-center gap-2">
           <LocaleSwitcher />
           <form action={signOutAction}>
-            <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
+            <SubmitButton variant="ghost" pendingText={tAuth("signOutPending")}>
               {tAuth("signOut")}
             </SubmitButton>
           </form>
