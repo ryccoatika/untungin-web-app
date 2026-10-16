@@ -49,7 +49,18 @@ export function OnboardingForm() {
   };
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-6">
+    <form
+      ref={formRef}
+      action={formAction}
+      className="space-y-6"
+      onSubmit={(event) => {
+        // Enter on step 1 must advance, not submit (and skip step 2).
+        if (step === 1) {
+          event.preventDefault();
+          goNext();
+        }
+      }}
+    >
       <p className="text-sm text-muted-foreground">Langkah {step} dari 2</p>
 
       <div hidden={step !== 1} className="space-y-6">

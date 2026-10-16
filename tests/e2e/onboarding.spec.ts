@@ -54,3 +54,12 @@ test("stops a free user at 2 stores", async ({ page }) => {
   await page.getByRole("button", { name: "Buat toko" }).click();
   await expect(page.getByText(/Batas jumlah toko untuk paketmu sudah tercapai/)).toBeVisible();
 });
+
+test("pressing Enter on step 1 goes to step 2 instead of creating the store", async ({ page }) => {
+  await page.getByLabel("Nama toko").fill("Toko Enter");
+  await page.getByLabel("Jenis usaha").selectOption("makanan");
+  await page.getByLabel("Nama toko").press("Enter");
+  await expect(page.getByText("Langkah 2 dari 2")).toBeVisible();
+  await expect(page.getByLabel("Target margin (%)")).toBeVisible();
+  await expect(page).toHaveURL(/\/onboarding$/);
+});
