@@ -302,7 +302,7 @@ Navigation: bottom nav on phones (Dashboard, Produk, Bahan, Lainnya), sidebar on
 
 ### 5.4 Internationalization (i18n)
 - Library: `next-intl` v4 with locales `['id', 'en']`, default `id`, `localePrefix: 'always'`. All pages live in `app/[locale]/…`. Exception: `app/auth/callback` stays outside `[locale]` so the OAuth redirect URI never changes; it redirects to `next`, which already carries the locale prefix.
-- `proxy.ts` runs the `next-intl` middleware first (locale detection, redirect `/x` → `/{locale}/x`), then the Supabase `updateSession`; cookies and headers from both are merged into the final response (including the Supabase no-store headers).
+- `proxy.ts` refreshes the Supabase session first (refreshed cookies are written into the request so next-intl forwards them), then applies auth redirects on the decoded, locale-stripped path, then runs the `next-intl` middleware (locale detection, redirect `/x` → `/{locale}/x`); the Supabase cookies and no-store headers are applied to whatever response is returned.
 - Locale resolution for a path without a prefix: cookie `NEXT_LOCALE` → `Accept-Language` (first supported of `id`/`en`) → `id`. Unsupported browser languages fall back to `id`.
 - Signed-in users: after login, if `profiles.locale` is set and differs from the URL locale, redirect to the saved locale and sync the cookie.
 - Language switcher: an "ID | EN" toggle in the store header, landing, login, onboarding, and `/toko`. It navigates to the same path with the other prefix; for signed-in users a Server Action also saves `profiles.locale`.
@@ -391,7 +391,8 @@ messages/      id.json en.json
 lib/
   calc/        units.ts materials.ts products.ts expenses.ts assets.ts metrics.ts pricing.ts warnings.ts overrides.ts index.ts
   ai/          analyze.ts schema.ts snapshot.ts prompt.ts
-  supabase/    server.ts client.ts middleware.ts
+  supabase/    server.ts client.ts proxy.ts
+  i18n/        paths.ts translate.ts server.ts saved-locale.ts save-locale.ts
   data/        load-store-data.ts (query Supabase → StoreData)
   validation/  zod schema per entity
   config/      plans.ts channel-templates.ts
