@@ -21,7 +21,8 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Called from a Server Component; proxy.ts refreshes the session.
+            // Called from a Server Component; proxy.ts refreshes the session and sets the
+            // no-store headers (next/headers cannot set response headers here).
           }
         },
       },

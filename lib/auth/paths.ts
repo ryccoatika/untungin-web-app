@@ -17,7 +17,10 @@ export function safeNextPath(next: string | null | undefined): string | null {
   try {
     const url = new URL(next, base);
     if (url.origin !== base) return null;
-    return `${url.pathname}${url.search}${url.hash}`;
+    // Dot-segments normalize away (e.g. "/.//x" -> "//x"); re-check the result.
+    const result = `${url.pathname}${url.search}${url.hash}`;
+    if (result.startsWith("//") || result.startsWith("/\\")) return null;
+    return result;
   } catch {
     return null;
   }

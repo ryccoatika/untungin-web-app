@@ -32,6 +32,12 @@ describe("safeNextPath", () => {
     ["/\\evil.example", null],
     ["/\t/evil.example", null],
     ["javascript:alert(1)", null],
+    ["/.//evil.example", null],
+    ["/a/..//evil.example", null],
+    ["/..//evil.example", null],
+    ["/%2e//evil.example", null],
+    ["/./\\evil.example", null],
+    ["/.\t//evil.example", null],
   ])("%j → %j", (input, expected) => {
     expect(safeNextPath(input)).toBe(expected);
   });

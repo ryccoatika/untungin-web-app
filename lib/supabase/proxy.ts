@@ -14,11 +14,15 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
+          );
+          // Auth-cookie responses must not be cached by CDNs/proxies.
+          Object.entries(headers).forEach(([key, value]) =>
+            response.headers.set(key, value),
           );
         },
       },
@@ -47,8 +51,14 @@ export async function updateSession(request: NextRequest) {
   return response;
 }
 
+const CACHE_HEADERS = ["Cache-Control", "Expires", "Pragma"] as const;
+
 function redirectKeepingCookies(url: URL, from: NextResponse) {
   const redirect = NextResponse.redirect(url);
   from.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  CACHE_HEADERS.forEach((name) => {
+    const value = from.headers.get(name);
+    if (value !== null) redirect.headers.set(name, value);
+  });
   return redirect;
 }
