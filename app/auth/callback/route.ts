@@ -1,13 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
-import { withLocale } from "@/lib/i18n/paths";
+import { routing } from "@/i18n/routing";
+import { splitLocale, withLocale } from "@/lib/i18n/paths";
 import { getSavedLocale } from "@/lib/i18n/saved-locale";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = safeNextPath(searchParams.get("next")) ?? DEFAULT_AFTER_LOGIN;
+  const requestedNext = safeNextPath(searchParams.get("next"));
+  const next = requestedNext ?? DEFAULT_AFTER_LOGIN;
 
   if (code) {
     const supabase = await createClient();
@@ -18,6 +20,10 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Unprefixed; the proxy redirects to the detected locale.
-  return NextResponse.redirect(new URL("/login?error=auth", origin));
+  // Keep the locale and the requested destination so a retry lands where the user wanted.
+  const { locale } = splitLocale(next);
+  const nextParam = requestedNext ? `&next=${encodeURIComponent(requestedNext)}` : "";
+  return NextResponse.redirect(
+    new URL(`/${locale ?? routing.defaultLocale}/login?error=auth${nextParam}`, origin),
+  );
 }

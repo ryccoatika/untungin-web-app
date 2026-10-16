@@ -1,9 +1,11 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import type { FormState } from "@/lib/forms";
+import { routing } from "@/i18n/routing";
 import { withLocale } from "@/lib/i18n/paths";
 import { getSavedLocale } from "@/lib/i18n/saved-locale";
 import { createClient } from "@/lib/supabase/server";
@@ -31,6 +33,15 @@ export async function devLoginAction(_prev: FormState, formData: FormData): Prom
   const signIn = await supabase.auth.signInWithPassword({ email, password });
   if (!signIn.error) {
     const saved = signIn.data.user ? await getSavedLocale(supabase, signIn.data.user.id) : null;
+    if (saved) {
+      // A server-action redirect is not a document request, so next-intl will not sync the cookie.
+      // Name and maxAge mirror routing.localeCookie in i18n/routing.ts.
+      (await cookies()).set("NEXT_LOCALE", saved, {
+        path: "/",
+        maxAge: typeof routing.localeCookie === "object" ? routing.localeCookie.maxAge : undefined,
+        sameSite: "lax",
+      });
+    }
     // `next` is already a full same-origin path, so use next/navigation's redirect (no double prefix).
     redirect(saved ? withLocale(next, saved) : next);
   }
