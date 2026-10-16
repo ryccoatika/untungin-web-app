@@ -201,14 +201,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"full_name": string | null,"id": string,"plan": string
+                    "created_at": string,"full_name": string | null,"id": string,"locale": string | null,"plan": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"full_name"?: string | null,"id": string,"plan"?: string
+                    "created_at"?: string,"full_name"?: string | null,"id": string,"locale"?: string | null,"plan"?: string
                   }
                   Update: {
-                    "created_at"?: string,"full_name"?: string | null,"id"?: string,"plan"?: string
+                    "created_at"?: string,"full_name"?: string | null,"id"?: string,"locale"?: string | null,"plan"?: string
                   }
                   Relationships: [
                     
@@ -260,7 +260,7 @@ isOneToOne: false
           }
           Functions: {
             "create_store":
-{ Args: { "p_business_type": string,"p_name": string,"p_operating_days": number,"p_target_margin": number,"p_target_market"?: string }; Returns: string
+{ Args: { "p_business_type": string,"p_default_channel_name"?: string,"p_name": string,"p_operating_days": number,"p_target_margin": number,"p_target_market"?: string }; Returns: string
                            },
 "is_store_owner":
 { Args: { "sid": string }; Returns: boolean
