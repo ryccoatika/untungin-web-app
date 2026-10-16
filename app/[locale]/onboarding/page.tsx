@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { listStores } from "@/lib/data/stores";
 import { OnboardingForm } from "./onboarding-form";

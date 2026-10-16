@@ -4,7 +4,7 @@ import { getStore } from "@/lib/data/stores";
 import { DeleteStoreForm } from "./delete-store-form";
 import { SettingsForm } from "./settings-form";
 
-export default async function SettingsPage({ params }: { params: Promise<{ storeId: string }> }) {
+export default async function SettingsPage({ params }: { params: Promise<{ locale: string; storeId: string }> }) {
   const { storeId } = await params;
   const store = await getStore(storeId);
   if (!store) notFound();

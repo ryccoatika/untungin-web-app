@@ -4,7 +4,7 @@ import { getStore } from "@/lib/data/stores";
 import { formatPercent } from "@/lib/format";
 import { businessTypeLabel } from "@/lib/validation/store";
 
-export default async function DashboardPage({ params }: { params: Promise<{ storeId: string }> }) {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string; storeId: string }> }) {
   const { storeId } = await params;
   const store = await getStore(storeId);
   if (!store) notFound();

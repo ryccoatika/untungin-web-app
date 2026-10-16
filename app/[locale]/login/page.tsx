@@ -3,13 +3,16 @@ import { DevLoginForm } from "./dev-login-form";
 import { GoogleSignInButton } from "./google-button";
 
 export default async function LoginPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ next?: string | string[]; error?: string | string[] }>;
 }) {
+  const { locale } = await params;
   const { next: rawNext, error } = await searchParams;
   const next = Array.isArray(rawNext) ? rawNext[0] : rawNext;
-  const target = safeNextPath(next) ?? DEFAULT_AFTER_LOGIN;
+  const target = safeNextPath(next) ?? `/${locale}${DEFAULT_AFTER_LOGIN}`;
   const devLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
 
   return (

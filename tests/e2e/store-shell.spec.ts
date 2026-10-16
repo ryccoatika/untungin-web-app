@@ -67,9 +67,9 @@ test("signing out returns to the landing page and protects the app", async ({ pa
   await devLogin(page);
   await createStoreViaOnboarding(page, "Toko Keluar");
   await page.getByRole("button", { name: "Keluar" }).click();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/id$/);
   await page.goto("/toko");
-  await expect(page).toHaveURL(/\/login\?next=%2Ftoko$/);
+  await expect(page).toHaveURL(/\/id\/login\?next=%2Fid%2Ftoko$/);
 });
 
 test("long store names do not overflow a phone screen", async ({ page }, testInfo) => {

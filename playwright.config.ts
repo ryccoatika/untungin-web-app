@@ -7,8 +7,8 @@ export default defineConfig({
   timeout: 60_000,
   use: { baseURL: `http://localhost:${PORT}`, trace: "retain-on-failure" },
   projects: [
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    { name: "mobile", use: { ...devices["Pixel 7"], locale: "id-ID" } },
+    { name: "desktop", use: { ...devices["Desktop Chrome"], locale: "id-ID" } },
   ],
   webServer: {
     command: `npm run dev -- --port ${PORT}`,

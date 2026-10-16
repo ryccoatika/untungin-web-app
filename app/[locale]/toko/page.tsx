@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { signOutAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { buttonVariants } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { businessTypeLabel } from "@/lib/validation/store";
 
 export default async function StoresPage() {
   const stores = await listStores();
-  if (stores.length === 0) redirect("/onboarding");
+  if (stores.length === 0) return redirect({ href: "/onboarding", locale: await getLocale() });
 
   return (
     <main className="mx-auto w-full max-w-md space-y-6 px-4 py-10">

@@ -1,10 +1,37 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_AFTER_LOGIN, isProtectedPath } from "@/lib/auth/paths";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import type { NextRequest, NextResponse } from "next/server";
 import type { Database } from "./database.types";
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+type CookieToSet = { name: string; value: string; options: CookieOptions };
+
+/**
+ * Collects the cookies and headers Supabase wants to set during a request.
+ * Request cookies are updated immediately (so downstream Server Components see a
+ * refreshed session); `apply` copies everything onto whatever response the proxy
+ * finally returns (next, rewrite, or redirect).
+ */
+export function createCookieCollector(request: NextRequest) {
+  const cookies: CookieToSet[] = [];
+  const headers: Record<string, string> = {};
+
+  return {
+    setAll(cookiesToSet: CookieToSet[], cacheHeaders: Record<string, string>) {
+      cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+      cookies.push(...cookiesToSet);
+      Object.assign(headers, cacheHeaders);
+    },
+    apply<T extends NextResponse>(response: T): T {
+      cookies.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+      // Auth-cookie responses must not be cached by CDNs/proxies.
+      Object.entries(headers).forEach(([key, value]) => response.headers.set(key, value));
+      return response;
+    },
+  };
+}
+
+/** Refreshes the Supabase session for this request and reports whether a user is signed in. */
+export async function refreshSession(request: NextRequest) {
+  const collector = createCookieCollector(request);
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,16 +41,8 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet, headers) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-          // Auth-cookie responses must not be cached by CDNs/proxies.
-          Object.entries(headers).forEach(([key, value]) =>
-            response.headers.set(key, value),
-          );
+        setAll(cookiesToSet, cacheHeaders) {
+          collector.setAll(cookiesToSet, cacheHeaders);
         },
       },
     },
@@ -31,34 +50,5 @@ export async function updateSession(request: NextRequest) {
 
   // Do not run code between createServerClient and getClaims().
   const { data } = await supabase.auth.getClaims();
-  const isLoggedIn = Boolean(data?.claims);
-  const { pathname, search } = request.nextUrl;
-
-  if (!isLoggedIn && isProtectedPath(pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = `?next=${encodeURIComponent(pathname + search)}`;
-    return redirectKeepingCookies(url, response);
-  }
-
-  if (isLoggedIn && pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = DEFAULT_AFTER_LOGIN;
-    url.search = "";
-    return redirectKeepingCookies(url, response);
-  }
-
-  return response;
-}
-
-const CACHE_HEADERS = ["Cache-Control", "Expires", "Pragma"] as const;
-
-function redirectKeepingCookies(url: URL, from: NextResponse) {
-  const redirect = NextResponse.redirect(url);
-  from.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
-  CACHE_HEADERS.forEach((name) => {
-    const value = from.headers.get(name);
-    if (value !== null) redirect.headers.set(name, value);
-  });
-  return redirect;
+  return { isLoggedIn: Boolean(data?.claims), apply: collector.apply };
 }

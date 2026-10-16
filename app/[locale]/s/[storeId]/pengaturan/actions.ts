@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import type { FormState } from "@/lib/forms";
@@ -57,7 +58,7 @@ export async function updateStoreAction(
     return { message: "Gagal menyimpan. Coba lagi.", values };
   }
 
-  revalidatePath(`/s/${storeId}`, "layout");
+  revalidatePath(`/${await getLocale()}/s/${storeId}`, "layout");
   return { ok: true, message: "Perubahan tersimpan.", values };
 }
 
@@ -81,6 +82,7 @@ export async function deleteStoreAction(
   const { error } = await supabase.from("stores").delete().eq("id", storeId);
   if (error) return { message: "Gagal menghapus toko. Coba lagi.", values };
 
-  revalidatePath("/", "layout");
-  redirect("/mulai");
+  const locale = await getLocale();
+  revalidatePath(`/${locale}`, "layout");
+  return redirect({ href: "/mulai", locale });
 }

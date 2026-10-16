@@ -1,5 +1,5 @@
 import { ChevronsUpDown } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/app/auth/actions";
@@ -13,7 +13,7 @@ export default async function StoreLayout({
   params,
 }: {
   children: ReactNode;
-  params: Promise<{ storeId: string }>;
+  params: Promise<{ locale: string; storeId: string }>;
 }) {
   const { storeId } = await params;
   const store = await getStore(storeId);

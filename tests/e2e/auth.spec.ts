@@ -3,7 +3,7 @@ import { devLogin } from "./helpers";
 
 test("signed-out user is sent to login with a next param", async ({ page }) => {
   await page.goto("/toko");
-  await expect(page).toHaveURL(/\/login\?next=%2Ftoko$/);
+  await expect(page).toHaveURL(/\/id\/login\?next=%2Fid%2Ftoko$/);
   await expect(page.getByRole("button", { name: "Masuk dengan Google" })).toBeVisible();
 });
 
@@ -14,7 +14,7 @@ test("new user lands on onboarding after login", async ({ page }) => {
 
 test("an external next param is ignored", async ({ page }) => {
   await devLogin(page, undefined, "https://evil.example/steal");
-  await expect(page).toHaveURL(/^http:\/\/localhost:3100\/onboarding$/);
+  await expect(page).toHaveURL(/^http:\/\/localhost:3100\/id\/onboarding$/);
 });
 
 test("signed-in user visiting /login is redirected into the app", async ({ page }) => {

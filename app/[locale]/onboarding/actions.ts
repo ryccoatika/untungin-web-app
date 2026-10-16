@@ -1,6 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { redirect } from "@/i18n/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { canCreateStore, PLAN_LIMITS, toPlan } from "@/lib/config/plans";
@@ -71,5 +72,5 @@ export async function createStoreAction(_prev: FormState, formData: FormData): P
     return { message: "Gagal membuat toko. Coba lagi.", values };
   }
 
-  redirect(`/s/${storeId}/dashboard`);
+  return redirect({ href: `/s/${storeId}/dashboard`, locale: await getLocale() });
 }
