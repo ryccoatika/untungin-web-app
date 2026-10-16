@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getStore } from "@/lib/data/stores";
 import { DeleteStoreForm } from "./delete-store-form";
@@ -8,13 +9,14 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
   const { storeId } = await params;
   const store = await getStore(storeId);
   if (!store) notFound();
+  const t = await getTranslations("Settings");
 
   return (
     <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-semibold">Pengaturan toko</h1>
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Data toko</CardTitle>
+          <CardTitle>{t("storeData")}</CardTitle>
         </CardHeader>
         <CardContent>
           <SettingsForm
@@ -31,8 +33,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
       </Card>
       <Card className="border-destructive/40">
         <CardHeader>
-          <CardTitle className="text-destructive">Hapus toko</CardTitle>
-          <CardDescription>Tindakan ini tidak bisa dibatalkan.</CardDescription>
+          <CardTitle className="text-destructive">{t("deleteTitle")}</CardTitle>
+          <CardDescription>{t("deleteDescription")}</CardDescription>
         </CardHeader>
         <CardContent>
           <DeleteStoreForm storeId={store.id} storeName={store.name} />

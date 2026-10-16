@@ -1,11 +1,11 @@
 import { LayoutDashboard, Settings, type LucideIcon } from "lucide-react";
 
-export type StoreNavItem = { label: string; href: string; icon: LucideIcon };
+export type StoreNavItem = { labelKey: "dashboard" | "settings"; href: string; icon: LucideIcon };
 
 export function storeNavItems(storeId: string): StoreNavItem[] {
   return [
-    { label: "Dashboard", href: `/s/${storeId}/dashboard`, icon: LayoutDashboard },
-    { label: "Pengaturan", href: `/s/${storeId}/pengaturan`, icon: Settings },
+    { labelKey: "dashboard", href: `/s/${storeId}/dashboard`, icon: LayoutDashboard },
+    { labelKey: "settings", href: `/s/${storeId}/pengaturan`, icon: Settings },
   ];
 }
 

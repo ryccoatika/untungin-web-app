@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { isNavActive, storeNavItems } from "@/lib/nav";
 
 describe("storeNavItems", () => {
-  it("builds store-scoped links", () => {
-    expect(storeNavItems("abc").map((i) => [i.label, i.href])).toEqual([
-      ["Dashboard", "/s/abc/dashboard"],
-      ["Pengaturan", "/s/abc/pengaturan"],
+  it("builds store-scoped links with label keys", () => {
+    expect(storeNavItems("abc").map((i) => [i.labelKey, i.href])).toEqual([
+      ["dashboard", "/s/abc/dashboard"],
+      ["settings", "/s/abc/pengaturan"],
     ]);
   });
 });

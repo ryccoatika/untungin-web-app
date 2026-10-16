@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { StoreFields } from "@/components/store/store-fields";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ function hasIdentityError(state: FormState) {
 }
 
 export function OnboardingForm() {
+  const t = useTranslations("Onboarding");
   const [state, formAction] = useActionState(createStoreAction, undefined);
   const [step, setStep] = useState<1 | 2>(1);
   const [seenState, setSeenState] = useState(state);
@@ -61,12 +63,12 @@ export function OnboardingForm() {
         }
       }}
     >
-      <p className="text-sm text-muted-foreground">Langkah {step} dari 2</p>
+      <p className="text-sm text-muted-foreground">{t("step", { step })}</p>
 
       <div hidden={step !== 1} className="space-y-6">
         <StoreFields key={`identity-${fieldsKey}`} section="identity" defaults={defaults} errors={state?.fieldErrors} />
         <Button type="button" className="w-full" onClick={goNext}>
-          Lanjut
+          {t("next")}
         </Button>
       </div>
 
@@ -79,10 +81,10 @@ export function OnboardingForm() {
         )}
         <div className="flex gap-3">
           <Button type="button" variant="outline" onClick={() => setStep(1)}>
-            Kembali
+            {t("back")}
           </Button>
-          <SubmitButton className="flex-1" pendingText="Membuat toko…">
-            Buat toko
+          <SubmitButton className="flex-1" pendingText={t("submitPending")}>
+            {t("submit")}
           </SubmitButton>
         </div>
       </div>

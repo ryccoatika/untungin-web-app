@@ -49,18 +49,18 @@ describe("storeInputSchema", () => {
   });
 
   it.each([
-    [{ name: "   " }, "name", "Nama toko wajib diisi"],
-    [{ name: "x".repeat(61) }, "name", "Nama toko maksimal 60 karakter"],
-    [{ businessType: "jasa" }, "businessType", "Pilih jenis usaha"],
-    [{ targetMarket: "kaya" }, "targetMarket", "Pilih target pasar yang tersedia"],
-    [{ targetMarginPct: "" }, "targetMarginPct", "Isi target margin dengan angka"],
-    [{ targetMarginPct: "abc" }, "targetMarginPct", "Isi target margin dengan angka"],
-    [{ targetMarginPct: "100" }, "targetMarginPct", "Target margin harus kurang dari 100%"],
-    [{ targetMarginPct: "-5" }, "targetMarginPct", "Target margin minimal 0%"],
-    [{ operatingDaysPerMonth: "" }, "operatingDaysPerMonth", "Isi jumlah hari buka dengan angka"],
-    [{ operatingDaysPerMonth: "0" }, "operatingDaysPerMonth", "Minimal 1 hari"],
-    [{ operatingDaysPerMonth: "32" }, "operatingDaysPerMonth", "Maksimal 31 hari"],
-    [{ operatingDaysPerMonth: "25,5" }, "operatingDaysPerMonth", "Jumlah hari harus bilangan bulat"],
+    [{ name: "   " }, "name", "store.nameRequired"],
+    [{ name: "x".repeat(61) }, "name", "store.nameTooLong"],
+    [{ businessType: "jasa" }, "businessType", "store.businessTypeInvalid"],
+    [{ targetMarket: "kaya" }, "targetMarket", "store.targetMarketInvalid"],
+    [{ targetMarginPct: "" }, "targetMarginPct", "store.marginNumber"],
+    [{ targetMarginPct: "abc" }, "targetMarginPct", "store.marginNumber"],
+    [{ targetMarginPct: "100" }, "targetMarginPct", "store.marginMax"],
+    [{ targetMarginPct: "-5" }, "targetMarginPct", "store.marginMin"],
+    [{ operatingDaysPerMonth: "" }, "operatingDaysPerMonth", "store.operatingDaysNumber"],
+    [{ operatingDaysPerMonth: "0" }, "operatingDaysPerMonth", "store.operatingDaysMin"],
+    [{ operatingDaysPerMonth: "32" }, "operatingDaysPerMonth", "store.operatingDaysMax"],
+    [{ operatingDaysPerMonth: "25,5" }, "operatingDaysPerMonth", "store.operatingDaysInteger"],
   ])("rejects %j", (patch, field, message) => {
     expect(errorsFor({ ...valid, ...patch })[field]).toBe(message);
   });

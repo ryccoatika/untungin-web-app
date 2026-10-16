@@ -23,3 +23,19 @@ describe("message catalogs", () => {
     }
   });
 });
+
+describe("app-generated data names", () => {
+  it("names the default channel per locale", () => {
+    expect(id.Store.defaultChannelName).toBe("Offline – Tunai");
+    expect(en.Store.defaultChannelName).toBe("Offline – Cash");
+  });
+
+  it("has a validation message for every key the store schema can return", async () => {
+    const { STORE_VALIDATION_KEYS } = await import("@/lib/validation/store");
+    for (const key of STORE_VALIDATION_KEYS) {
+      const [group, name] = key.split(".");
+      expect((id.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();
+      expect((en.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();
+    }
+  });
+});

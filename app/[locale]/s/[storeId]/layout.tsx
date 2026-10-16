@@ -1,4 +1,5 @@
 import { ChevronsUpDown } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
@@ -18,6 +19,8 @@ export default async function StoreLayout({
   const { storeId } = await params;
   const store = await getStore(storeId);
   if (!store) notFound();
+  const t = await getTranslations("StoreShell");
+  const tAuth = await getTranslations("Auth");
 
   return (
     <div className="min-h-dvh md:flex">
@@ -29,15 +32,15 @@ export default async function StoreLayout({
         <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b bg-background px-4 py-3 md:px-8">
           <Link
             href="/toko"
-            aria-label="Ganti toko"
+            aria-label={t("switchStore")}
             className={buttonVariants({ variant: "outline", className: "max-w-[65vw] justify-between gap-2" })}
           >
             <span className="truncate">{store.name}</span>
             <ChevronsUpDown className="size-4 shrink-0 opacity-60" aria-hidden />
           </Link>
           <form action={signOutAction}>
-            <SubmitButton variant="ghost" size="sm" pendingText="Keluar…">
-              Keluar
+            <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
+              {tAuth("signOut")}
             </SubmitButton>
           </form>
         </header>

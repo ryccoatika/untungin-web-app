@@ -1,12 +1,11 @@
+import { useTranslations } from "next-intl";
 import { FieldError } from "@/components/forms/field-error";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   BUSINESS_TYPES,
-  BUSINESS_TYPE_LABELS,
   STORE_DEFAULTS,
   TARGET_MARKETS,
-  TARGET_MARKET_LABELS,
 } from "@/lib/validation/store";
 
 export type StoreFieldDefaults = {
@@ -27,16 +26,20 @@ const selectClass =
   "h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
+  const t = useTranslations("StoreFields");
+  const tType = useTranslations("BusinessType");
+  const tMarket = useTranslations("TargetMarket");
+
   if (section === "identity") {
     return (
       <div className="space-y-4">
         <div className="space-y-1">
-          <Label htmlFor="name">Nama toko</Label>
+          <Label htmlFor="name">{t("name")}</Label>
           <Input id="name" name="name" defaultValue={defaults.name} maxLength={60} required />
           <FieldError errors={errors.name} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="businessType">Jenis usaha</Label>
+          <Label htmlFor="businessType">{t("businessType")}</Label>
           <select
             id="businessType"
             name="businessType"
@@ -45,33 +48,33 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
             className={selectClass}
           >
             <option value="" disabled>
-              Pilih jenis usaha
+              {t("businessTypePlaceholder")}
             </option>
             {BUSINESS_TYPES.map((type) => (
               <option key={type} value={type}>
-                {BUSINESS_TYPE_LABELS[type]}
+                {tType(type)}
               </option>
             ))}
           </select>
           <FieldError errors={errors.businessType} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="targetMarket">Target pasar (opsional)</Label>
+          <Label htmlFor="targetMarket">{t("targetMarket")}</Label>
           <select
             id="targetMarket"
             name="targetMarket"
             defaultValue={defaults.targetMarket ?? ""}
             className={selectClass}
           >
-            <option value="">Belum tahu</option>
+            <option value="">{t("targetMarketUnknown")}</option>
             {TARGET_MARKETS.map((market) => (
               <option key={market} value={market}>
-                {TARGET_MARKET_LABELS[market]}
+                {tMarket(market)}
               </option>
             ))}
           </select>
           <p className="text-xs text-muted-foreground">
-            Dipakai untuk menyesuaikan saran harga.
+            {t("targetMarketHint")}
           </p>
           <FieldError errors={errors.targetMarket} />
         </div>
@@ -82,7 +85,7 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <Label htmlFor="operatingDaysPerMonth">Hari buka per bulan</Label>
+        <Label htmlFor="operatingDaysPerMonth">{t("operatingDays")}</Label>
         <Input
           id="operatingDaysPerMonth"
           name="operatingDaysPerMonth"
@@ -91,12 +94,12 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
           required
         />
         <p className="text-xs text-muted-foreground">
-          Dipakai untuk menghitung biaya harian dan target penjualan per hari.
+          {t("operatingDaysHint")}
         </p>
         <FieldError errors={errors.operatingDaysPerMonth} />
       </div>
       <div className="space-y-1">
-        <Label htmlFor="targetMarginPct">Target margin (%)</Label>
+        <Label htmlFor="targetMarginPct">{t("targetMargin")}</Label>
         <Input
           id="targetMarginPct"
           name="targetMarginPct"
@@ -105,8 +108,7 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
           required
         />
         <p className="text-xs text-muted-foreground">
-          Margin 40% artinya 40% dari harga jual adalah untung. Ini berbeda dengan markup 40%
-          (harga = modal + 40%), yang hanya memberi margin sekitar 29%.
+          {t("targetMarginHint")}
         </p>
         <FieldError errors={errors.targetMarginPct} />
       </div>

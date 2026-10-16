@@ -1,11 +1,13 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useTranslations } from "next-intl";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { StoreFields, type StoreFieldDefaults } from "@/components/store/store-fields";
 import { updateStoreAction } from "./actions";
 
 export function SettingsForm({ storeId, defaults }: { storeId: string; defaults: StoreFieldDefaults }) {
+  const t = useTranslations("Settings");
   const [state, formAction] = useActionState(updateStoreAction.bind(null, storeId), undefined);
   const [seenState, setSeenState] = useState(state);
   const [fieldsKey, setFieldsKey] = useState(0);
@@ -41,8 +43,8 @@ export function SettingsForm({ storeId, defaults }: { storeId: string; defaults:
           {state.message}
         </p>
       )}
-      <SubmitButton className="w-full sm:w-auto" pendingText="Menyimpan…">
-        Simpan perubahan
+      <SubmitButton className="w-full sm:w-auto" pendingText={t("savePending")}>
+        {t("save")}
       </SubmitButton>
     </form>
   );

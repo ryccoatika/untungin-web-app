@@ -11,55 +11,54 @@ export const BUSINESS_TYPES = [
 ] as const;
 export type BusinessType = (typeof BUSINESS_TYPES)[number];
 
-export const BUSINESS_TYPE_LABELS: Record<BusinessType, string> = {
-  makanan: "Makanan",
-  minuman: "Minuman",
-  kue_roti: "Kue & roti",
-  katering: "Katering",
-  produk_olahan: "Produk olahan (sabun, lilin, kerajinan, dll.)",
-  lainnya: "Lainnya",
-};
-
-export function businessTypeLabel(value: string): string {
-  return (BUSINESS_TYPE_LABELS as Record<string, string>)[value] ?? value;
-}
-
 export const TARGET_MARKETS = ["menengah_bawah", "menengah", "menengah_atas"] as const;
 export type TargetMarket = (typeof TARGET_MARKETS)[number];
 
-export const TARGET_MARKET_LABELS: Record<TargetMarket, string> = {
-  menengah_bawah: "Menengah ke bawah",
-  menengah: "Menengah",
-  menengah_atas: "Menengah ke atas",
-};
-
 export const STORE_DEFAULTS = { operatingDaysPerMonth: 26, targetMarginPct: 40 } as const;
 
-export const DUPLICATE_STORE_NAME_MESSAGE = "Kamu sudah punya toko dengan nama ini.";
+export const DUPLICATE_STORE_NAME_KEY = "store.duplicateName";
+export const CONFIRM_MISMATCH_KEY = "store.confirmMismatch";
+
+/** Every message key this module can return (checked against the catalogs in tests). */
+export const STORE_VALIDATION_KEYS = [
+  "store.nameRequired",
+  "store.nameTooLong",
+  "store.businessTypeInvalid",
+  "store.targetMarketInvalid",
+  "store.operatingDaysNumber",
+  "store.operatingDaysInteger",
+  "store.operatingDaysMin",
+  "store.operatingDaysMax",
+  "store.marginNumber",
+  "store.marginMin",
+  "store.marginMax",
+  DUPLICATE_STORE_NAME_KEY,
+  CONFIRM_MISMATCH_KEY,
+] as const;
 
 export const storeInputSchema = z.object({
   name: z
-    .string({ error: "Nama toko wajib diisi" })
+    .string({ error: "store.nameRequired" })
     .trim()
-    .min(1, "Nama toko wajib diisi")
-    .max(60, "Nama toko maksimal 60 karakter"),
-  businessType: z.enum(BUSINESS_TYPES, { error: "Pilih jenis usaha" }),
+    .min(1, "store.nameRequired")
+    .max(60, "store.nameTooLong"),
+  businessType: z.enum(BUSINESS_TYPES, { error: "store.businessTypeInvalid" }),
   targetMarket: z.preprocess(
     (v) => (v === "" || v == null ? null : v),
-    z.enum(TARGET_MARKETS, { error: "Pilih target pasar yang tersedia" }).nullable(),
+    z.enum(TARGET_MARKETS, { error: "store.targetMarketInvalid" }).nullable(),
   ),
   operatingDaysPerMonth: localeNumber(
     z
-      .number({ error: "Isi jumlah hari buka dengan angka" })
-      .int("Jumlah hari harus bilangan bulat")
-      .min(1, "Minimal 1 hari")
-      .max(31, "Maksimal 31 hari"),
+      .number({ error: "store.operatingDaysNumber" })
+      .int("store.operatingDaysInteger")
+      .min(1, "store.operatingDaysMin")
+      .max(31, "store.operatingDaysMax"),
   ),
   targetMarginPct: localeNumber(
     z
-      .number({ error: "Isi target margin dengan angka" })
-      .min(0, "Target margin minimal 0%")
-      .lt(100, "Target margin harus kurang dari 100%"),
+      .number({ error: "store.marginNumber" })
+      .min(0, "store.marginMin")
+      .lt(100, "store.marginMax"),
   ),
 });
 
