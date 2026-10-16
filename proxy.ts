@@ -15,19 +15,19 @@ export async function proxy(request: NextRequest) {
   // The OAuth callback lives outside [locale] so its redirect URI never changes.
   if (pathname.startsWith("/auth/")) return session.apply(NextResponse.next({ request }));
 
-  // next-intl decodes the pathname before routing, so match auth rules on the decoded path too.
-  let decoded = pathname;
-  try {
-    decoded = decodeURI(pathname);
-  } catch {
-    /* malformed escapes: keep raw; next-intl will 404 */
-  }
-  const { locale, rest } = splitLocale(decoded);
+  // Unprefixed or non-canonical paths get a next-intl redirect; the follow-up request is checked then.
+  const response = handleI18nRouting(request);
+  if (response.headers.has("location")) return session.apply(response);
+
+  // Match auth rules on the path next-intl will render, not on the raw URL: it decodes the path,
+  // strips TAB/LF/CR and collapses "//" (e.g. "/id/%09toko" renders /id/toko).
+  const routed = routedPathname(response, pathname);
+  const { locale, rest } = splitLocale(safeDecode(routed));
   if (locale) {
     if (!session.isLoggedIn && isProtectedPath(rest)) {
       const url = request.nextUrl.clone();
       url.pathname = `/${locale}/login`;
-      url.search = `?next=${encodeURIComponent(pathname + search)}`;
+      url.search = `?next=${encodeURIComponent(routed + search)}`;
       return session.apply(NextResponse.redirect(url));
     }
     if (session.isLoggedIn && rest === "/login") {
@@ -38,8 +38,21 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Unprefixed paths are redirected by next-intl to the detected locale.
-  return session.apply(handleI18nRouting(request));
+  return session.apply(response);
+}
+
+/** The pathname a next-intl response renders: its rewrite target, else the request's own. */
+function routedPathname(response: NextResponse, pathname: string): string {
+  const rewrite = response.headers.get("x-middleware-rewrite");
+  return rewrite ? new URL(rewrite).pathname : pathname;
+}
+
+function safeDecode(pathname: string): string {
+  try {
+    return decodeURI(pathname);
+  } catch {
+    return pathname; // malformed escapes: next-intl already forwarded these to Next.js, which 400s
+  }
 }
 
 export const config = {
