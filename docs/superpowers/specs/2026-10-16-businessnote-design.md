@@ -57,6 +57,7 @@ Semua tabel memiliki `id uuid pk default gen_random_uuid()`, `created_at timesta
 - `target_margin_pct numeric not null default 40` — `check (target_margin_pct >= 0 and target_margin_pct < 100)`
 - `operating_days_per_month integer not null default 26` — `check between 1 and 31`
 - `target_market text null` — `check in ('menengah_bawah','menengah','menengah_atas')`; hanya dipakai sebagai konteks AI.
+- Unique index `(owner_id, lower(name))`: satu user tidak boleh punya dua toko bernama sama (juga mencegah toko ganda akibat klik dua kali).
 
 ### 3.2 Bahan
 
@@ -78,8 +79,8 @@ Semua tabel memiliki `id uuid pk default gen_random_uuid()`, `created_at timesta
 - `is_active boolean not null default true`
 
 **`product_materials`**
-- `product_id uuid not null references products(id) on delete cascade`
-- `material_id uuid not null references materials(id) on delete restrict`
+- `product_id uuid not null` — FK komposit `(product_id, store_id) → products(id, store_id)` `on delete cascade`
+- `material_id uuid not null` — FK komposit `(material_id, store_id) → materials(id, store_id)` dengan `on delete no action` (menghapus bahan yang dipakai ditolak; menghapus toko tetap bisa karena dicek di akhir statement)
 - `qty numeric not null check (> 0)`
 - `unit text not null` — harus satu dimensi dengan `materials.purchase_unit`
 - `basis text not null default 'batch'` — `check in ('batch','unit')`. `batch` = takaran untuk satu resep (dibagi `yield_qty`); `unit` = takaran per porsi/unit (misalnya 1 cup, 1 kantong). Default UI: `batch` untuk kategori bahan, `unit` untuk kategori kemasan.
@@ -142,8 +143,8 @@ Total nilai aset dipakai sebagai **modal awal** untuk perhitungan balik modal.
 - `profiles`: select/update hanya `id = auth.uid()`. Role `authenticated` hanya diberi `grant update (full_name)`, sehingga kolom `plan` tidak bisa diubah pengguna.
 - `stores`: semua operasi hanya `owner_id = auth.uid()`; insert dibatasi jumlah toko per plan (dicek di Server Action; RLS tetap menjamin kepemilikan).
 - Tabel ber-`store_id`: semua operasi `is_store_owner(store_id)`.
-- `product_materials` dan `product_channel_prices` juga memiliki `store_id` (didenormalisasi) agar policy sederhana; constraint/trigger memastikan `store_id` sama dengan produk, bahan, dan kanal yang dirujuk.
-- `ai_analyses`: tidak ada policy insert/update/delete untuk pengguna; insert dilakukan Server Action memakai client service role (setelah memverifikasi sesi + kepemilikan toko). Select: `is_store_owner(store_id)`.
+- `product_materials` dan `product_channel_prices` juga memiliki `store_id` (didenormalisasi) agar policy sederhana; **FK komposit** `(x_id, store_id) → tabel(id, store_id)` memastikan produk, bahan, dan kanal yang dirujuk berasal dari toko yang sama.
+- `ai_analyses`: tidak ada policy insert/update/delete untuk pengguna; insert dilakukan Server Action memakai client secret key (`SUPABASE_SECRET_KEY`) (setelah memverifikasi sesi + kepemilikan toko). Select: `is_store_owner(store_id)`.
 - Jalur ke multi-anggota nanti: tambah `store_members`, ubah isi `is_store_owner`.
 
 ### 3.9 Batas per plan
@@ -287,7 +288,7 @@ Navigasi: bottom nav di HP (Dashboard, Produk, Bahan, Lainnya), sidebar di deskt
 ### 5.3 Mutasi & error
 - Semua mutasi lewat Server Actions; input divalidasi zod; error dikembalikan per field dalam bahasa Indonesia.
 - Menghapus bahan yang dipakai produk ditolak (FK `restrict`) dengan pesan "Dipakai di: <daftar produk>".
-- Middleware: route `/s/*`, `/onboarding`, `/toko` butuh sesi. `storeId` yang bukan milik user → 404 (RLS mengembalikan kosong).
+- Proxy (`proxy.ts`, Next.js 16): route `/s/*`, `/onboarding`, `/toko`, `/mulai` butuh sesi; server memakai `auth.getClaims()`, bukan `getSession()`. `storeId` yang bukan milik user → 404 (RLS mengembalikan kosong).
 - Empty state di setiap daftar: penjelasan + contoh + tombol aksi.
 
 ## 6. Fitur AI
@@ -377,8 +378,8 @@ components/
 supabase/
   migrations/
 tests/
-  calc/ ai/ rls/ e2e/
-middleware.ts
+  unit/ rls/ e2e/
+proxy.ts                         (Next.js 16: pengganti middleware.ts)
 ```
 
 ## 9. Testing
@@ -387,7 +388,7 @@ middleware.ts
 - **RLS**: integration test ke Supabase lokal — user A tidak bisa select/insert/update/delete data toko user B di setiap tabel; user tidak bisa mengubah `plan`.
 - **Validasi**: test schema zod untuk tiap entitas (termasuk dimensi satuan tidak cocok).
 - **AI**: Gemini di-mock; test `buildSnapshot`, hash stabil, cache hit, kuota (termasuk batas hari WIB), output valid, output rusak, ID tidak dikenal.
-- **E2E (Playwright)**: onboarding → tambah bahan → tambah produk + harga → dashboard menampilkan laba. Login e2e memakai user email/password yang hanya diaktifkan di environment test.
+- **E2E (Playwright)**: onboarding → tambah bahan → tambah produk + harga → dashboard menampilkan laba. Login e2e/dev memakai email/password lewat form "Masuk (dev)" yang hanya tampil jika `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` (lokal saja).
 
 ## 10. Tahapan Implementasi
 
@@ -406,7 +407,8 @@ Setiap tahap bisa di-deploy. Satu implementation plan per tahap.
 - Buat project Supabase (production) dan catat URL + anon key + service role key.
 - Buat OAuth Client di Google Cloud Console; redirect URI ke callback Supabase; aktifkan provider Google di Supabase Auth; tambahkan URL Vercel ke Redirect URLs Supabase.
 - Buat API key Gemini di Google AI Studio.
-- Set env di Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`.
+- Set env di Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`. Jangan pernah set `NEXT_PUBLIC_ENABLE_DEV_LOGIN` di Vercel.
+- Di Supabase production: nonaktifkan provider Email (hanya Google).
 - Dev lokal: Docker + Supabase CLI (`supabase start`).
 
 ## 12. Di Luar Lingkup v1
