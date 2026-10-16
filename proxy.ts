@@ -20,7 +20,7 @@ export async function proxy(request: NextRequest) {
   if (response.headers.has("location")) return session.apply(response);
 
   // Match auth rules on the path next-intl will render, not on the raw URL: it decodes the path,
-  // strips TAB/LF/CR and collapses "//" (e.g. "/id/%09toko" renders /id/toko).
+  // strips control/space characters and collapses "//" (e.g. "/id/%09toko" renders /id/toko).
   const routed = routedPathname(response, pathname);
   const { locale, rest } = splitLocale(safeDecode(routed));
   if (locale) {

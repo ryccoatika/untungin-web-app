@@ -33,7 +33,8 @@ describe("proxy", () => {
     expect(res.headers.get("location")).toContain("next=");
   });
 
-  // next-intl strips decoded TAB/LF/CR and collapses "//" before rewriting, so these all render protected pages.
+  // next-intl and the URL parser strip decoded control/space characters and collapse "//" before rewriting,
+  // so these all render protected pages.
   it.each([
     "/id/%09toko",
     "/%09id/toko",
@@ -41,6 +42,8 @@ describe("proxy", () => {
     "/id/onboarding%0D",
     "/en//toko",
     "/id/s/abc%0D/dashboard",
+    "/id/toko%20",
+    "/id/toko%00",
   ])("redirects %s to login when signed out", async (path) => {
     const res = await proxy(new NextRequest(`http://localhost${path}`));
     expect(res.status).toBe(307);
