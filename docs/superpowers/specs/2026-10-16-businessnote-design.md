@@ -23,6 +23,7 @@ v1 success criteria:
 | Business model | Freemium is prepared (`plan` column, per-plan limits), payment gateway is outside v1. |
 | Calculation architecture | Pure TypeScript module `lib/calc`, used on the server and in the browser. |
 | AI | Google Gemini, default model **Gemini 3.5 Flash-Lite** (exact ID verified during implementation), via env var. |
+| Language | UI available in **Indonesian (`id`, default) and English (`en`)**. Locale is always in the URL prefix (`/id/...`, `/en/...`). Detection order: saved choice (cookie / `profiles.locale`) → browser `Accept-Language` → `id`. Code comments, README, and docs are in English. |
 | Visual | Three.js (vanilla, using the `cloudai-x/threejs-skills` skill) for the landing page, 3D dashboard chart (with a 2D toggle), certain moments, empty states. Form pages stay 2D. |
 
 ## 2. Stack
@@ -31,12 +32,13 @@ v1 success criteria:
 - Tailwind CSS + shadcn/ui
 - Supabase: Postgres, Auth (Google OAuth), RLS; `@supabase/ssr`; SQL migrations via Supabase CLI in `supabase/migrations`
 - zod (input & AI output validation)
+- `next-intl` v4 (i18n routing, messages, number/currency formatting)
 - `@google/genai` (Gemini SDK)
 - three (vanilla Three.js)
 - Vitest (unit/integration), Playwright (e2e)
 - Deploy: Vercel
 
-The UI is in Indonesian, currency is Rupiah without decimals, mobile-first.
+The UI is bilingual (Indonesian default, English) — see §5.4. Currency is always Rupiah without decimals; number formatting follows the active locale. Mobile-first.
 
 ## 3. Data Model
 
@@ -48,6 +50,7 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 - `id uuid pk references auth.users(id) on delete cascade`
 - `full_name text`
 - `plan text not null default 'free' check (plan in ('free','pro'))`
+- `locale text null check (locale in ('id','en'))` — the user's saved UI language; `null` = not chosen yet
 - Created automatically by a trigger `on auth.users insert`.
 
 **`stores`**
@@ -140,7 +143,7 @@ The total asset value is used as the **initial capital** for the payback period 
 
 - RLS is enabled on all tables.
 - Function `public.is_store_owner(sid uuid) returns boolean` (`security definer`, `stable`): `exists (select 1 from stores where id = sid and owner_id = auth.uid())`.
-- `profiles`: select/update only `id = auth.uid()`. The `authenticated` role is only granted `grant update (full_name)`, so the `plan` column cannot be changed by users.
+- `profiles`: select/update only `id = auth.uid()`. The `authenticated` role is only granted `grant update (full_name, locale)`, so the `plan` column cannot be changed by users.
 - `stores`: all operations only `owner_id = auth.uid()`; inserts are limited by the number of stores per plan (checked in the Server Action as a friendly message, and enforced in the database by the trigger `stores_enforce_limit` that mirrors `lib/config/plans.ts`, SQLSTATE `BN001`; RLS still guarantees ownership).
 - Tables with `store_id`: all operations `is_store_owner(store_id)`.
 - `product_materials` and `product_channel_prices` also have `store_id` (denormalized) to keep policies simple; the **composite FK** `(x_id, store_id) → table(id, store_id)` ensures the referenced product, material, and channel come from the same store.
@@ -261,12 +264,14 @@ Not saved to the database. The simulation page shows the "Sekarang" ("Now") and 
 ## 5. Flow & Pages
 
 ### 5.1 Auth & onboarding
+All routes below live under the locale prefix `/{locale}` (`/id` or `/en`); paths are shown without it.
+
 1. `/` landing: 3D hero, short explanation, "Masuk dengan Google" ("Sign in with Google") button.
 2. `/login` → Supabase Google OAuth → `/auth/callback` (exchange the code for a session).
 3. No store yet → `/onboarding`, a 2-step wizard:
    - store name, business type, target market (optional)
    - operating days per month, target margin (default + explanation of margin vs markup)
-   - The store is created + the "Offline – Tunai" channel.
+   - The store is created + a default cash channel named in the locale active at creation time: "Offline – Tunai" (`id`) or "Offline – Cash" (`en`). After creation it is the user's own data (not re-translated when the language changes; can be renamed). `create_store` receives the name from the app via `p_default_channel_name`. The same rule applies to later app-generated data (channel templates, sample data).
    - Alternative: a **"Coba dengan data contoh"** ("Try with sample data") button creates a demo store (coffee shop) complete with materials, packaging, products, channels (including GoFood + online-only packaging), costs (including owner salary), assets, and competitor prices. Implementation: a single seed function on the server.
 4. Enter the dashboard.
 
@@ -290,10 +295,22 @@ Others: `/toko` (store list, switch, add new), `/privasi` (privacy policy).
 Navigation: bottom nav on phones (Dashboard, Produk, Bahan, Lainnya), sidebar on desktop, store picker in the header.
 
 ### 5.3 Mutations & errors
-- All mutations go through Server Actions; input is validated with zod; errors are returned per field in Indonesian.
+- All mutations go through Server Actions; input is validated with zod; schemas return message keys, and the Server Action translates them into the active locale before returning per-field errors.
 - Deleting a material used by a product is rejected (FK `restrict`) with the message "Dipakai di: <daftar produk>" ("Used in: <product list>").
-- Proxy (`proxy.ts`, Next.js 16): routes `/s/*`, `/onboarding`, `/toko`, `/mulai` require a session; the server uses `auth.getClaims()`, not `getSession()`. A `storeId` that does not belong to the user → 404 (RLS returns empty).
+- Proxy (`proxy.ts`, Next.js 16): routes `/{locale}/s/*`, `/{locale}/onboarding`, `/{locale}/toko`, `/{locale}/mulai` require a session (the locale prefix is stripped before matching); the server uses `auth.getClaims()`, not `getSession()`. A `storeId` that does not belong to the user → 404 (RLS returns empty).
 - Empty state in every list: explanation + example + action button.
+
+### 5.4 Internationalization (i18n)
+- Library: `next-intl` v4 with locales `['id', 'en']`, default `id`, `localePrefix: 'always'`. All pages live in `app/[locale]/…`. Exception: `app/auth/callback` stays outside `[locale]` so the OAuth redirect URI never changes; it redirects to `next`, which already carries the locale prefix.
+- `proxy.ts` runs the `next-intl` middleware first (locale detection, redirect `/x` → `/{locale}/x`), then the Supabase `updateSession`; cookies and headers from both are merged into the final response (including the Supabase no-store headers).
+- Locale resolution for a path without a prefix: cookie `NEXT_LOCALE` → `Accept-Language` (first supported of `id`/`en`) → `id`. Unsupported browser languages fall back to `id`.
+- Signed-in users: after login, if `profiles.locale` is set and differs from the URL locale, redirect to the saved locale and sync the cookie.
+- Language switcher: an "ID | EN" toggle in the store header, landing, login, onboarding, and `/toko`. It navigates to the same path with the other prefix; for signed-in users a Server Action also saves `profiles.locale`.
+- Messages: `messages/id.json` and `messages/en.json`, namespaced per feature (`Auth`, `Onboarding`, `Store`, `Settings`, `Landing`, `Errors`, `Validation`, ...). A unit test asserts both files have exactly the same keys. No user-facing string is hardcoded in components.
+- Labels for enums (business type, target market, categories, frequencies, units) come from messages.
+- Formatting: percentages and numbers use the active locale (`12,5%` in `id`, `12.5%` in `en`); currency is always Rupiah. Number input accepts both `,` and `.` as the decimal separator (as `localeNumber` does today).
+- `<html lang>` follows the active locale.
+- AI output (Phase 5) is generated in the user's active locale.
 
 ## 6. AI Feature
 
@@ -333,7 +350,7 @@ Referenced IDs are validated against the snapshot; a recommendation with an unkn
 
 ### 6.3 Prompt rules
 - Only quote numbers that exist in the snapshot; creating new numbers is forbidden. The impact of figures is calculated by `lib/calc` through simulation.
-- Simple Indonesian, no accounting jargon.
+- Simple language in the user's active locale (Indonesian or English), no accounting jargon.
 - Must address the warnings in `warnings`, especially `NO_OWNER_SALARY` and `LOSS_PRODUCTS`.
 - Uses `competitor_price` and `target_market` as context for price advice.
 
@@ -358,15 +375,19 @@ Referenced IDs are validated against the snapshot; a recommendation with an unkn
 
 ```
 app/
-  (marketing)/page.tsx            landing
-  privasi/page.tsx
-  login/page.tsx
-  auth/callback/route.ts
-  onboarding/page.tsx
-  toko/page.tsx
-  s/[storeId]/
+  auth/callback/route.ts          (outside [locale]: stable OAuth redirect URI)
+  [locale]/
+    page.tsx                      landing
+    privasi/page.tsx
+    login/page.tsx
+    onboarding/page.tsx
+    toko/page.tsx
+    mulai/page.tsx
+    s/[storeId]/
     layout.tsx                    nav + store picker + load StoreData
-    dashboard/ bahan/ produk/ produk/[id]/ biaya/ inventaris/ kanal/ simulasi/ analisis/ pengaturan/
+      dashboard/ bahan/ produk/ produk/[id]/ biaya/ inventaris/ kanal/ simulasi/ analisis/ pengaturan/
+i18n/          routing.ts request.ts navigation.ts
+messages/      id.json en.json
 lib/
   calc/        units.ts materials.ts products.ts expenses.ts assets.ts metrics.ts pricing.ts warnings.ts overrides.ts index.ts
   ai/          analyze.ts schema.ts snapshot.ts prompt.ts
@@ -392,6 +413,7 @@ proxy.ts                         (Next.js 16: replaces middleware.ts)
 - **RLS**: integration tests against local Supabase — user A cannot select/insert/update/delete user B's store data in every table; a user cannot change `plan`.
 - **Validation**: zod schema tests for each entity (including mismatched unit dimension).
 - **AI**: Gemini is mocked; tests for `buildSnapshot`, stable hash, cache hit, quota (including the WIB day boundary), valid output, broken output, unknown IDs.
+- **i18n**: unit test for message key parity; e2e for `Accept-Language: en` → `/en`, unsupported language → `/id`, the switcher changing text and path, the saved choice surviving sign-out/sign-in, `/en/s/...` staying protected, and the default channel name following the locale at creation. Existing e2e tests run in `id` (Playwright locale `id-ID`).
 - **E2E (Playwright)**: onboarding → add material → add product + price → dashboard shows profit. E2E/dev login uses email/password through the "Masuk (dev)" ("Sign in (dev)") form, which only appears if `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` (local only).
 
 ## 10. Implementation Phases
@@ -399,6 +421,7 @@ proxy.ts                         (Next.js 16: replaces middleware.ts)
 Every phase can be deployed. One implementation plan per phase.
 
 1. **Foundation**: scaffold Next.js, Tailwind, shadcn; database schema + RLS + profile trigger; Google login; middleware; onboarding (without sample data); `/toko`; layout + navigation.
+1b. **i18n**: `next-intl`, `app/[locale]` routing, message catalogs (id + en), language switcher, `profiles.locale`, localized validation and formatting, English README/spec.
 2. **HPP core**: `lib/calc` (TDD); materials page, products + composition, operating costs, inventory; 2D dashboard (cards, warnings, table, checklist).
 3. **Channels & pricing**: channels + templates; price/estimate/competitor per channel; channel-specific packaging; price recommendation.
 4. **What-if simulation**.
@@ -408,7 +431,7 @@ Every phase can be deployed. One implementation plan per phase.
 
 ## 11. Manual Setup (done by the project owner)
 
-- Create a Supabase project (production) and note the URL + anon key + service role key.
+- Create a Supabase project (production) and note the URL + publishable key + secret key.
 - Create an OAuth Client in Google Cloud Console; redirect URI to the Supabase callback; enable the Google provider in Supabase Auth; add the Vercel URL to the Supabase Redirect URLs.
 - Create a Gemini API key in Google AI Studio.
 - Set env in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`. Never set `NEXT_PUBLIC_ENABLE_DEV_LOGIN` in Vercel.
