@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createStoreViaOnboarding, devLogin, uniqueEmail } from "./helpers";
 
 test.describe("English browser", () => {
   test.use({ locale: "en-US" });
@@ -63,4 +64,61 @@ test.describe("English public pages", () => {
     await page.goto("/en/does-not-exist");
     await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
   });
+});
+
+test("the switcher changes language, keeps the path, and is remembered", async ({ page }) => {
+  await page.goto("/id");
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/en$/);
+});
+
+test("switching language keeps you signed in and the saved choice follows the account", async ({
+  page,
+  context,
+}) => {
+  const email = uniqueEmail("locale");
+  await devLogin(page, email);
+  await createStoreViaOnboarding(page, "Kedai Bahasa", "12,5");
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/en\/s\/[0-9a-f-]{36}\/dashboard$/);
+  await expect(page.getByText("Calculation basis")).toBeVisible();
+  await expect(page.getByText("12.5%")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await context.clearCookies();
+
+  await devLogin(page, email);
+  await expect(page).toHaveURL(/\/en\/s\/[0-9a-f-]{36}\/dashboard$/);
+  await expect(page.getByText("Calculation basis")).toBeVisible();
+});
+
+test.describe("English forms", () => {
+  test.use({ locale: "en-US" });
+
+  test("validation errors are shown in English", async ({ page }) => {
+    await devLogin(page);
+    await page.goto("/en/onboarding");
+    await page.getByLabel("Store name").fill("English Shop");
+    await page.getByLabel("Business type").selectOption("makanan");
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await page.getByLabel("Target margin (%)").fill("100");
+    await page.getByRole("button", { name: "Create store" }).click();
+    await expect(page.getByText("Target margin must be less than 100%")).toBeVisible();
+  });
+});
+
+test("the switcher fits on a phone header next to a long store name", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await devLogin(page);
+  await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
+  await expect(page.getByRole("button", { name: "English" })).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
 });

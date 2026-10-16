@@ -143,5 +143,6 @@
     "confirmLabel": "Type the store name to confirm",
     "deleteSubmit": "Delete store",
     "deletePending": "Deleting…"
-  }
+  },
+  "LocaleSwitcher": { "label": "Language", "id": "Bahasa Indonesia", "en": "English" }
 }

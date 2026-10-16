@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import { DevLoginForm } from "./dev-login-form";
 import { GoogleSignInButton } from "./google-button";
@@ -19,6 +20,9 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4 py-10">
+      <div className="flex justify-end">
+        <LocaleSwitcher />
+      </div>
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("subtitle")}</p>

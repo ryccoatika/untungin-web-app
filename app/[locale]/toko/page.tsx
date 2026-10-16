@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link, redirect } from "@/i18n/navigation";
 import { signOutAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { listStores } from "@/lib/data/stores";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
@@ -17,11 +18,14 @@ export default async function StoresPage() {
     <main className="mx-auto w-full max-w-md space-y-6 px-4 py-10">
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
-        <form action={signOutAction}>
-          <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
-            {tAuth("signOut")}
-          </SubmitButton>
-        </form>
+        <div className="flex items-center gap-2">
+          <LocaleSwitcher />
+          <form action={signOutAction}>
+            <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
+              {tAuth("signOut")}
+            </SubmitButton>
+          </form>
+        </div>
       </div>
       <ul className="space-y-2">
         {stores.map((store) => (

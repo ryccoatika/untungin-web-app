@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,7 +15,10 @@ export default async function LandingPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-10 px-4 py-16">
       <div className="space-y-4">
-        <p className="text-sm font-medium text-primary">BusinessNote</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-primary">BusinessNote</p>
+          <LocaleSwitcher />
+        </div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t("heading")}</h1>
         <p className="text-lg text-muted-foreground">{t("intro")}</p>
       </div>

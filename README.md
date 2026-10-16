@@ -54,3 +54,12 @@ npm run db:reset && npm run db:types
    - **Never** set `NEXT_PUBLIC_ENABLE_DEV_LOGIN`.
 5. Upgrading a user to Pro (temporary, manual): run
    `update public.profiles set plan = 'pro' where id = '<user-id>';` in the Supabase SQL editor.
+
+## Translations
+
+The UI is available in Indonesian (`id`, default) and English (`en`); every page lives under `/id/...` or `/en/...`.
+
+- Messages: `messages/id.json` and `messages/en.json`. Both files must have the same keys (`tests/unit/messages.test.ts` enforces this).
+- Server Components: `const t = await getTranslations("Namespace")`; Client Components: `const t = useTranslations("Namespace")`.
+- Links and redirects: import `Link`, `redirect`, `usePathname`, `useRouter` from `@/i18n/navigation` and pass unprefixed paths.
+- Zod schemas return message keys under `Validation`; Server Actions translate them with `getValidationTranslator()` + `translateFieldErrors()`.

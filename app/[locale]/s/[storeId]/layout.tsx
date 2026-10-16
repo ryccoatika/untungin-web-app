@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/forms/submit-button";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { StoreNav } from "@/components/store/store-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { getStore } from "@/lib/data/stores";
@@ -33,16 +34,19 @@ export default async function StoreLayout({
           <Link
             href="/toko"
             aria-label={t("switchStore")}
-            className={buttonVariants({ variant: "outline", className: "max-w-[65vw] justify-between gap-2" })}
+            className={buttonVariants({ variant: "outline", className: "min-w-0 flex-1 justify-between gap-2" })}
           >
             <span className="truncate">{store.name}</span>
             <ChevronsUpDown className="size-4 shrink-0 opacity-60" aria-hidden />
           </Link>
-          <form action={signOutAction}>
-            <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
-              {tAuth("signOut")}
-            </SubmitButton>
-          </form>
+          <div className="flex shrink-0 items-center gap-2">
+            <LocaleSwitcher />
+            <form action={signOutAction}>
+              <SubmitButton variant="ghost" size="sm" pendingText={tAuth("signOutPending")}>
+                {tAuth("signOut")}
+              </SubmitButton>
+            </form>
+          </div>
         </header>
         <main className="px-4 py-6 md:px-8">{children}</main>
       </div>

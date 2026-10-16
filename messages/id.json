@@ -143,5 +143,6 @@
     "confirmLabel": "Ketik nama toko untuk konfirmasi",
     "deleteSubmit": "Hapus toko",
     "deletePending": "Menghapus…"
-  }
+  },
+  "LocaleSwitcher": { "label": "Bahasa", "id": "Bahasa Indonesia", "en": "English" }
 }
