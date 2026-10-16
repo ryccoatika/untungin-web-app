@@ -1,6 +1,5 @@
-import { Link } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
-import { redirect } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { signOutAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { buttonVariants } from "@/components/ui/button";

@@ -1,7 +1,6 @@
 "use client";
 
-import { Link } from "@/i18n/navigation";
-import { usePathname } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { isNavActive, storeNavItems } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 

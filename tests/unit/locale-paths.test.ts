@@ -35,6 +35,12 @@ describe("withLocale", () => {
       const result = withLocale(path, "id");
       expect(result.startsWith("/id")).toBe(true);
       expect(result.startsWith("//")).toBe(false);
+      expect(new URL(result, "http://app.invalid").origin).toBe("http://app.invalid");
     },
   );
+
+  it("throws on an unsupported locale", () => {
+    expect(() => withLocale("/toko", "" as never)).toThrow();
+    expect(() => withLocale("/toko", "fr" as never)).toThrow();
+  });
 });

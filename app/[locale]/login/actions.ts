@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import type { FormState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +17,8 @@ export async function devLoginAction(_prev: FormState, formData: FormData): Prom
 
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const next = safeNextPath(String(formData.get("next") ?? "")) ?? DEFAULT_AFTER_LOGIN;
+  const next =
+    safeNextPath(String(formData.get("next") ?? "")) ?? `/${await getLocale()}${DEFAULT_AFTER_LOGIN}`;
 
   if (!email || password.length < 6) {
     return { message: "Isi email dan password (minimal 6 karakter)." };
@@ -31,5 +33,6 @@ export async function devLoginAction(_prev: FormState, formData: FormData): Prom
     }
   }
 
+  // `next` is already a full same-origin path, so the locale-aware redirect would double-prefix it.
   redirect(next);
 }

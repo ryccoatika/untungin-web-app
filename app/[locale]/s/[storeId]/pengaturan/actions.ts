@@ -58,7 +58,7 @@ export async function updateStoreAction(
     return { message: "Gagal menyimpan. Coba lagi.", values };
   }
 
-  revalidatePath(`/${await getLocale()}/s/${storeId}`, "layout");
+  revalidatePath("/[locale]/s/[storeId]", "layout");
   return { ok: true, message: "Perubahan tersimpan.", values };
 }
 
@@ -82,7 +82,6 @@ export async function deleteStoreAction(
   const { error } = await supabase.from("stores").delete().eq("id", storeId);
   if (error) return { message: "Gagal menghapus toko. Coba lagi.", values };
 
-  const locale = await getLocale();
-  revalidatePath(`/${locale}`, "layout");
-  return redirect({ href: "/mulai", locale });
+  revalidatePath("/", "layout");
+  return redirect({ href: "/mulai", locale: await getLocale() });
 }

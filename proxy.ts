@@ -15,15 +15,6 @@ export async function proxy(request: NextRequest) {
   // The OAuth callback lives outside [locale] so its redirect URI never changes.
   if (pathname.startsWith("/auth/")) return session.apply(NextResponse.next({ request }));
 
-  // next-intl would redirect a mis-cased "/ID/..." to "/id/..."; treat it as unknown instead.
-  const first = pathname.split("/")[1] ?? "";
-  if (!splitLocale(pathname).locale && (routing.locales as readonly string[]).includes(first.toLowerCase())) {
-    // An invalid locale segment makes app/[locale]/layout.tsx call notFound().
-    const url = request.nextUrl.clone();
-    url.pathname = "/404";
-    return session.apply(NextResponse.rewrite(url));
-  }
-
   const { locale, rest } = splitLocale(pathname);
   if (locale) {
     if (!session.isLoggedIn && isProtectedPath(rest)) {

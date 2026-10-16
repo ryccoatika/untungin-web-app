@@ -12,8 +12,12 @@ export function splitLocale(pathname: string): { locale: AppLocale | null; rest:
   return { locale: first, rest: rest === "" ? "/" : rest };
 }
 
-/** Puts `path` (which may carry ?query/#hash and an existing prefix) under `locale`. */
+/**
+ * Puts `path` (which may carry ?query/#hash and an existing prefix) under `locale`.
+ * `path` must be a safeNextPath-approved same-origin path; an invalid `locale` throws.
+ */
 export function withLocale(path: string, locale: AppLocale): string {
+  if (!isAppLocale(locale)) throw new Error(`Unsupported locale: ${JSON.stringify(locale)}`);
   const cut = path.search(/[?#]/);
   const pathname = cut === -1 ? path : path.slice(0, cut);
   const suffix = cut === -1 ? "" : path.slice(cut);
