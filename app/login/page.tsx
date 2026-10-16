@@ -5,9 +5,10 @@ import { GoogleSignInButton } from "./google-button";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string | string[]; error?: string | string[] }>;
 }) {
-  const { next, error } = await searchParams;
+  const { next: rawNext, error } = await searchParams;
+  const next = Array.isArray(rawNext) ? rawNext[0] : rawNext;
   const target = safeNextPath(next) ?? DEFAULT_AFTER_LOGIN;
   const devLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
 

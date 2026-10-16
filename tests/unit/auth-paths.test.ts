@@ -25,6 +25,8 @@ describe("safeNextPath", () => {
     ["/toko?x=1#a", "/toko?x=1#a"],
     [null, null],
     [undefined, null],
+    [["/a", "/b"], null],
+    [42, null],
     ["", null],
     ["toko", null],
     ["https://evil.example", null],

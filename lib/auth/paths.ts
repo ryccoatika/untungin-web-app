@@ -9,8 +9,8 @@ export function isProtectedPath(pathname: string): boolean {
 }
 
 /** Returns a same-origin path to redirect to, or null if `next` is unsafe. */
-export function safeNextPath(next: string | null | undefined): string | null {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
+export function safeNextPath(next: unknown): string | null {
+  if (typeof next !== "string" || !next || !next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) {
     return null;
   }
   const base = "http://app.invalid";

@@ -28,3 +28,8 @@ test("unknown pages show the Indonesian 404", async ({ page }) => {
   await page.goto("/halaman-yang-tidak-ada");
   await expect(page.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();
 });
+
+test("repeated next params render the login page instead of crashing", async ({ page }) => {
+  await page.goto("/login?next=/a&next=/b");
+  await expect(page.getByRole("button", { name: "Masuk dengan Google" })).toBeVisible();
+});
