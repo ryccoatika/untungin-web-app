@@ -114,11 +114,23 @@ test.describe("English forms", () => {
 
 test("the switcher fits on a phone header next to a long store name", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
+  await page.setViewportSize({ width: 360, height: 800 });
   await devLogin(page);
   await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
   await expect(page.getByRole("button", { name: "English" })).toBeVisible();
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
+  const overflow = () =>
+    page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  expect(await overflow()).toBeLessThanOrEqual(0);
+});
+
+test("a language chosen on the login page survives the next-path prefix", async ({ page }) => {
+  await page.goto("/id/toko");
+  await expect(page).toHaveURL(/\/id\/login\?next=/);
+  await page.getByRole("button", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/en\/login/);
+  await devLogin(page, uniqueEmail("loginlang"));
+  await expect(page).toHaveURL(/\/en\/onboarding$/);
 });

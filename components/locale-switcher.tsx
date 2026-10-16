@@ -17,8 +17,11 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   function switchTo(next: AppLocale) {
     if (next === locale) return;
     startTransition(async () => {
-      await saveLocaleAction(next);
-      router.replace(`${pathname}${window.location.search}`, { locale: next });
+      try {
+        await saveLocaleAction(next);
+      } finally {
+        router.replace(`${pathname}${window.location.search}`, { locale: next });
+      }
     });
   }
 
@@ -38,7 +41,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
           disabled={pending}
           onClick={() => switchTo(code)}
           className={cn(
-            "h-9 min-w-10 rounded px-2 font-medium",
+            "h-10 min-w-10 rounded px-2 font-medium",
             code === locale ? "bg-primary text-primary-foreground" : "text-muted-foreground",
           )}
         >

@@ -62,4 +62,5 @@ The UI is available in Indonesian (`id`, default) and English (`en`); every page
 - Messages: `messages/id.json` and `messages/en.json`. Both files must have the same keys (`tests/unit/messages.test.ts` enforces this).
 - Server Components: `const t = await getTranslations("Namespace")`; Client Components: `const t = useTranslations("Namespace")`.
 - Links and redirects: import `Link`, `redirect`, `usePathname`, `useRouter` from `@/i18n/navigation` and pass unprefixed paths.
+- Intentional exceptions: `app/[locale]/login/actions.ts` and `app/auth/callback/route.ts` redirect to already-prefixed same-origin paths with `next/navigation` / `NextResponse.redirect`, because the locale-aware `redirect` would double-prefix them.
 - Zod schemas return message keys under `Validation`; Server Actions translate them with `getValidationTranslator()` + `translateFieldErrors()`.

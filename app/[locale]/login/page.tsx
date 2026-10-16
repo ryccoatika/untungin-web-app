@@ -1,4 +1,7 @@
+import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { withLocale } from "@/lib/i18n/paths";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import { DevLoginForm } from "./dev-login-form";
@@ -15,7 +18,10 @@ export default async function LoginPage({
   const t = await getTranslations("Auth");
   const { next: rawNext, error } = await searchParams;
   const next = Array.isArray(rawNext) ? rawNext[0] : rawNext;
-  const target = safeNextPath(next) ?? `/${locale}${DEFAULT_AFTER_LOGIN}`;
+  const target = withLocale(
+    safeNextPath(next) ?? DEFAULT_AFTER_LOGIN,
+    hasLocale(routing.locales, locale) ? locale : routing.defaultLocale,
+  );
   const devLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
 
   return (

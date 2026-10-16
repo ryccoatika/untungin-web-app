@@ -34,7 +34,7 @@ export default async function StoreLayout({
           <Link
             href="/toko"
             aria-label={t("switchStore")}
-            className={buttonVariants({ variant: "outline", className: "min-w-0 flex-1 justify-between gap-2" })}
+            className={buttonVariants({ variant: "outline", className: "min-w-0 flex-1 justify-between gap-2 md:max-w-md md:flex-none" })}
           >
             <span className="truncate">{store.name}</span>
             <ChevronsUpDown className="size-4 shrink-0 opacity-60" aria-hidden />
