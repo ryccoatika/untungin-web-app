@@ -12,7 +12,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ stor
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">{store.name}</h1>
+        <h1 className="text-2xl font-semibold [overflow-wrap:anywhere]">{store.name}</h1>
         <p className="text-sm text-muted-foreground">{businessTypeLabel(store.business_type)}</p>
       </div>
       <Card>

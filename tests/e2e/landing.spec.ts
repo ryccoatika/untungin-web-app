@@ -24,3 +24,9 @@ test("landing has no horizontal scroll on a phone", async ({ page }, testInfo) =
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("uses the Geist font", async ({ page }) => {
+  await page.goto("/");
+  const family = await page.evaluate(() => getComputedStyle(document.documentElement).fontFamily);
+  expect(family).toContain("Geist");
+});

@@ -14,7 +14,7 @@ export function DeleteStoreForm({ storeId, storeName }: { storeId: string; store
     <form action={formAction} className="space-y-4">
       <p className="text-sm text-muted-foreground">
         Semua bahan, produk, biaya, inventaris, dan analisis di toko ini akan terhapus permanen.
-        Ketik <span className="font-medium text-foreground">{storeName}</span> untuk melanjutkan.
+        Ketik <span className="font-medium text-foreground [overflow-wrap:anywhere]">{storeName}</span> untuk melanjutkan.
       </p>
       <div className="space-y-1">
         <Label htmlFor="confirmName">Ketik nama toko untuk konfirmasi</Label>

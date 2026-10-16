@@ -71,3 +71,18 @@ test("signing out returns to the landing page and protects the app", async ({ pa
   await page.goto("/toko");
   await expect(page).toHaveURL(/\/login\?next=%2Ftoko$/);
 });
+
+test("long store names do not overflow a phone screen", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await devLogin(page);
+  await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
+  const overflow = () =>
+    page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  const dashboardUrl = page.url();
+  await page.goto("/toko");
+  expect(await overflow()).toBeLessThanOrEqual(0);
+  await page.goto(dashboardUrl.replace("/dashboard", "/pengaturan"));
+  await expect(page.getByLabel("Ketik nama toko untuk konfirmasi")).toBeVisible();
+  expect(await overflow()).toBeLessThanOrEqual(0);
+});

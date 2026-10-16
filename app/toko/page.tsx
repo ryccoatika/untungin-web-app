@@ -11,7 +11,7 @@ export default async function StoresPage() {
   if (stores.length === 0) redirect("/onboarding");
 
   return (
-    <main className="mx-auto max-w-md space-y-6 px-4 py-10">
+    <main className="mx-auto w-full max-w-md space-y-6 px-4 py-10">
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">Toko kamu</h1>
         <form action={signOutAction}>
@@ -27,7 +27,7 @@ export default async function StoresPage() {
               href={`/s/${store.id}/dashboard`}
               className="block rounded-lg border p-4 transition-colors hover:bg-accent"
             >
-              <p className="font-medium">{store.name}</p>
+              <p className="truncate font-medium">{store.name}</p>
               <p className="text-sm text-muted-foreground">{businessTypeLabel(store.business_type)}</p>
             </Link>
           </li>
