@@ -26,6 +26,7 @@ export function SetupChecklist({ items }: { items: ChecklistItem[] }) {
                 <span className={cn("min-w-0", item.done && "text-muted-foreground line-through")}>
                   {t(`items.${item.key}`)}
                 </span>
+                {item.optional && <span className="shrink-0 text-xs text-muted-foreground">{t("optional")}</span>}
                 <span className="sr-only">{item.done ? t("done") : t("todo")}</span>
               </Link>
             </li>

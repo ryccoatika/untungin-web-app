@@ -101,6 +101,8 @@ All tables have `id uuid pk default gen_random_uuid()`, `created_at timestamptz 
 
 Channel templates (file `lib/config/channel-templates.ts`, not a table): Offline – QRIS, GoFood, GrabFood, ShopeeFood, Shopee, Tokopedia, TikTok Shop. The default commission values in the template are verified during implementation and marked in the UI as "perkiraan, cek di dashboard merchant kamu" ("estimate, check in your merchant dashboard"). Users can always edit them.
 
+Template fees verified October 2026 (estimates, excluding PPN): Offline – QRIS 0%; GoFood 20% + Rp1.000; GrabFood 30%; ShopeeFood 20%; Shopee 9% + Rp1.250; Tokopedia 8%; TikTok Shop 8%. Template names are brand names and are stored as-is. Duplicate channel names (case-insensitive) are refused, and a store always keeps at least one channel.
+
 **`product_channel_prices`**
 - `product_id uuid not null references products(id) on delete cascade`
 - `channel_id uuid not null references sales_channels(id) on delete cascade`
@@ -390,12 +392,13 @@ app/
 i18n/          routing.ts request.ts navigation.ts
 messages/      id.json en.json
 lib/
-  calc/        units.ts types.ts materials.ts products.ts expenses.ts assets.ts metrics.ts warnings.ts index.ts (pricing.ts: Phase 3, overrides.ts: Phase 4)
+  calc/        units.ts types.ts materials.ts products.ts expenses.ts assets.ts metrics.ts warnings.ts pricing.ts index.ts (overrides.ts: Phase 4)
   ai/          analyze.ts schema.ts snapshot.ts prompt.ts
   supabase/    server.ts client.ts proxy.ts
   i18n/        paths.ts translate.ts server.ts saved-locale.ts save-locale.ts
   data/        store-data.ts (fetchStoreData: Supabase → StoreData) load-store-data.ts (per-request cache) stores.ts
   dashboard/   checklist.ts
+  forms-server.ts (parseForm)
   validation/  zod schema per entity
   config/      plans.ts channel-templates.ts
   seed/        demo-store.ts
@@ -428,6 +431,7 @@ Every phase can be deployed. One implementation plan per phase.
 2. **HPP core**: `lib/calc` (TDD); materials page, products + composition, operating costs, inventory; 2D dashboard (cards, warnings, table, checklist).
    Phase 2 notes: price and monthly sales estimate are entered per existing channel (only the default channel until Phase 3); competitor price, channel-specific composition rows, and the price recommendation arrive with Phase 3. The checklist's product step requires a composition plus a price with a sales estimate. On phones the bottom nav is Dashboard, Produk, Bahan, Lainnya; "Lainnya" links Biaya, Inventaris, Pengaturan.
 3. **Channels & pricing**: channels + templates; price/estimate/competitor per channel; channel-specific packaging; price recommendation.
+   Phase 3 notes: a composition row's channel is fixed after creation; the checklist's channels step is optional; the recommendation uses full cost when sales estimates exist, otherwise material cost (and says so).
 4. **What-if simulation**.
 5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
 6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.

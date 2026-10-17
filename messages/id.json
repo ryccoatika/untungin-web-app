@@ -479,12 +479,14 @@
     "intro": "Lengkapi langkah ini supaya hitunganmu akurat.",
     "done": "(selesai)",
     "todo": "(belum)",
+    "optional": "(opsional)",
     "items": {
       "materials": "Catat bahan & kemasan",
       "products": "Buat produk lengkap dengan komposisi, harga, dan perkiraan penjualan",
       "expenses": "Isi biaya operasional",
       "ownerSalary": "Hitung gaji kamu sendiri",
-      "assets": "Catat inventaris"
+      "assets": "Catat inventaris",
+      "channels": "Tambah kanal online (GoFood, Shopee, …)"
     }
   }
 }

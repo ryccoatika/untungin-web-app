@@ -479,12 +479,14 @@
     "intro": "Complete these steps so your numbers are accurate.",
     "done": "(done)",
     "todo": "(to do)",
+    "optional": "(optional)",
     "items": {
       "materials": "Add materials & packaging",
       "products": "Create a product with composition, price and sales estimate",
       "expenses": "Add operating costs",
       "ownerSalary": "Count your own salary",
-      "assets": "Add your inventory"
+      "assets": "Add your inventory",
+      "channels": "Add online channels (GoFood, Shopee, …)"
     }
   }
 }
