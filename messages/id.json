@@ -191,6 +191,7 @@
       "expenses": "Biaya",
       "assets": "Inventaris",
       "simulation": "Simulasi",
+      "analysis": "Analisis AI",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
@@ -199,6 +200,7 @@
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
       "simulation": "Coba ubah harga dan penjualan tanpa mengubah datamu",
+      "analysis": "Saran dari AI berdasarkan angka tokomu",
       "settings": "Ubah data toko atau hapus toko"
     }
   },
@@ -229,6 +231,7 @@
     "add": "Tambah toko"
   },
   "Dashboard": {
+    "tryAnalysis": "Analisis usahaku",
     "trySimulation": "Coba simulasi",
     "basis": "Dasar perhitungan",
     "operatingDays": "Hari buka per bulan",
@@ -526,6 +529,41 @@
       "ownerSalary": "Hitung gaji kamu sendiri",
       "assets": "Catat inventaris",
       "channels": "Tambah kanal online (GoFood, Shopee, …)"
+    }
+  },
+  "Analysis": {
+    "title": "Analisis AI",
+    "intro": "AI membaca angka tokomu lalu memberi saran sederhana. Cek dampaknya di simulasi sebelum mengubah apa pun.",
+    "analyze": "Analisis usahaku",
+    "analyzing": "Menganalisis… (bisa sampai 30 detik)",
+    "quota": "Sisa kuota hari ini: {remaining} dari {limit}",
+    "quotaUsedUp": "Kuota hari ini habis. Kuota baru mulai pukul 00.00 WIB.",
+    "privacy": "Saat kamu menekan tombol, data tokomu (nama toko, produk, bahan, kanal, harga dan biaya) dikirim ke Google Gemini untuk dianalisis. Hasilnya disimpan di akunmu.",
+    "disclaimer": "Saran AI bisa keliru. Angka dampaknya dihitung oleh aplikasi lewat simulasi.",
+    "none": "Belum ada analisis. Tekan tombol di atas untuk mulai.",
+    "latest": "Analisis terakhir",
+    "createdAt": "Dibuat {date}",
+    "stale": "Data atau bahasamu sudah berubah sejak analisis ini. Analisis lagi untuk saran yang sesuai.",
+    "unreadable": "Analisis ini tidak bisa ditampilkan.",
+    "history": "Riwayat",
+    "summary": "Ringkasan",
+    "highlights": "Yang sudah bagus",
+    "issues": "Yang perlu diperbaiki",
+    "recommendations": "Saran",
+    "priority": {"tinggi": "Penting", "sedang": "Sedang", "rendah": "Rendah"},
+    "relatedProducts": "Produk terkait",
+    "trySimulation": "Coba di simulasi",
+    "emptyTitle": "Belum ada yang bisa dianalisis",
+    "emptyBody": "Tambahkan produk dengan resep dan harga jual dulu, lalu kembali ke sini.",
+    "emptyAction": "Ke halaman produk",
+    "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor.",
+    "result": {
+      "created": "Analisis selesai.",
+      "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
+      "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
+      "failed": "Analisis gagal, coba lagi.",
+      "notConfigured": "Analisis AI belum disiapkan di server ini.",
+      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
     }
   }
 }

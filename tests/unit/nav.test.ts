@@ -13,6 +13,7 @@ describe("store navigation", () => {
       ["expenses", "/s/abc/biaya"],
       ["assets", "/s/abc/inventaris"],
       ["simulation", "/s/abc/simulasi"],
+      ["analysis", "/s/abc/analisis"],
       ["settings", "/s/abc/pengaturan"],
     ]);
   });
@@ -29,6 +30,7 @@ describe("store navigation", () => {
       ["expenses", "/s/abc/biaya"],
       ["assets", "/s/abc/inventaris"],
       ["simulation", "/s/abc/simulasi"],
+      ["analysis", "/s/abc/analisis"],
       ["settings", "/s/abc/pengaturan"],
     ]);
   });
@@ -39,6 +41,7 @@ describe("store navigation", () => {
     ["/s/abc/biaya", true],
     ["/s/abc/inventaris/123", true],
     ["/s/abc/simulasi", true],
+    ["/s/abc/analisis", true],
     ["/s/abc/pengaturan", true],
     ["/s/abc/produk", false],
   ])("Lainnya is active on %s → %s", (pathname, expected) => {

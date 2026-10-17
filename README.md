@@ -73,6 +73,9 @@ npm run db:reset && npm run db:types
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SECRET_KEY` (server only)
+   - `GEMINI_API_KEY` (server only, from Google AI Studio; without it the analysis page says AI isn't set up)
+   - `GEMINI_MODEL` (optional, default `gemini-3.5-flash-lite`)
+   - Store data is sent to Google Gemini when a user asks for an analysis.
    - Project → Settings → Domains: add `untungin.ryccoatika.com`, then at the DNS provider for `ryccoatika.com`
      create the `CNAME` record Vercel shows (host `untungin`). Vercel issues the HTTPS certificate once DNS resolves.
 5. Upgrading a user to Pro (temporary, manual): run

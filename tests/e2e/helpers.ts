@@ -58,7 +58,7 @@ export async function savedLocale(email: string): Promise<string | null> {
   return profile?.locale ?? null;
 }
 
-function adminClient() {
+export function adminClient() {
   return createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SECRET_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
@@ -181,4 +181,20 @@ export async function addTemplateChannel(page: Page, name: string) {
 /** The price block of one channel on a product page. */
 export function priceSection(page: Page, channelName: string) {
   return page.locator("section").filter({ has: page.getByRole("heading", { name: channelName, exact: true }) });
+}
+
+/** The auth user id for an e2e email, read with the admin API. */
+export async function userIdByEmail(email: string): Promise<string> {
+  const { data, error } = await adminClient().auth.admin.listUsers({ perPage: 1000 });
+  if (error) throw error;
+  const user = data.users.find((candidate) => candidate.email === email);
+  if (!user) throw new Error(`No user ${email}`);
+  return user.id;
+}
+
+/** The id of the store currently open in `page`. */
+export function storeIdFromUrl(page: Page): string {
+  const match = page.url().match(/\/s\/([0-9a-f-]{36})\//);
+  if (!match) throw new Error(`Not on a store page: ${page.url()}`);
+  return match[1];
 }

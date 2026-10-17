@@ -53,4 +53,16 @@ describe("fetchStoreData", () => {
     });
     expect(await fetchStoreData(other.client, storeId)).toBeNull();
   });
+
+  it("returns rows created in one statement in id order", async () => {
+    const owner = await createTestUser("data-order");
+    const storeId = await createStore(owner, "Kedai Urut");
+    const row = (name: string) => ({ store_id: storeId, name, category: "bahan" as const, purchase_qty: 1, purchase_unit: "kg" as const, purchase_price: 1000 });
+    const { error } = await owner.client.from("materials").insert([row("A"), row("B"), row("C"), row("D")]);
+    expect(error).toBeNull();
+
+    const data = await fetchStoreData(owner.client, storeId);
+    const ids = data!.materials.map((material) => material.id);
+    expect(ids).toEqual([...ids].sort());
+  });
 });
