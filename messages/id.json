@@ -129,7 +129,8 @@
       "qtyPositive": "Jumlah harus lebih dari 0",
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
-      "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)"
+      "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)",
+      "channelInvalid": "Pilih kanal yang ada"
     },
     "price": {
       "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
@@ -409,7 +410,11 @@
     "noMaterials": "Belum ada bahan untuk dipilih.",
     "goToMaterials": "Tambah bahan dulu",
     "rowCost": "{cost}/porsi",
-    "deleteRow": "Hapus {material} dari komposisi"
+    "deleteRow": "Hapus {material} dari komposisi",
+    "channel": "Dipakai di",
+    "allChannels": "Semua kanal",
+    "channelHint": "Pilih satu kanal untuk kemasan khusus, misalnya bubble wrap hanya untuk pesanan online.",
+    "onlyChannel": "Hanya di {channel}"
   },
   "Products": {
     "title": "Produk",

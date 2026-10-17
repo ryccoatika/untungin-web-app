@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, signIn, storeUrl } from "./helpers";
+import { addCompositionRow, addMaterial, addProduct, addTemplateChannel, createStoreViaOnboarding, priceSection, signIn, storeUrl } from "./helpers";
 
 let productUrl = "";
 
@@ -71,4 +71,22 @@ test("changing a used material's unit to another kind is refused", async ({ page
   await expect(page.getByText("Tersimpan.")).toBeVisible();
   await page.goto(productUrl);
   await expect(row(page, "Gula")).toContainText("Rp300/porsi");
+});
+
+test("packaging used only in one channel raises only that channel's cost", async ({ page }) => {
+  await page.goto(storeUrl(page, "kanal"));
+  await addTemplateChannel(page, "GoFood");
+  await page.goto(storeUrl(page, "bahan"));
+  await addMaterial(page, { name: "Bubble wrap", qty: "100", unit: "pcs", price: "20.000", category: "kemasan" });
+  await page.goto(productUrl);
+  await addCompositionRow(page, { material: "Gula", qty: "200" });
+  await addCompositionRow(page, { material: "Bubble wrap", qty: "1", channel: "GoFood" });
+  await expect(row(page, "Bubble wrap")).toContainText("Hanya di GoFood");
+
+  for (const [channel, cost] of [["Offline – Tunai", "Rp300"], ["GoFood", "Rp500"]] as const) {
+    const section = priceSection(page, channel);
+    await section.getByLabel("Harga jual (Rp)").fill("5.000");
+    await section.getByLabel("Perkiraan terjual / bulan").fill("100");
+    await expect(section).toContainText(cost);
+  }
 });

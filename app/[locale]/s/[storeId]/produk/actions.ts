@@ -71,7 +71,7 @@ export async function deleteProductAction(storeId: string, productId: string): P
   return redirect({ href: `/s/${storeId}/produk`, locale: await getLocale() });
 }
 
-const ROW_FIELDS = ["materialId", "qty", "unit", "basis"] as const;
+const ROW_FIELDS = ["materialId", "qty", "unit", "basis", "channelId"] as const;
 
 type Supabase = Awaited<ReturnType<typeof requireUser>>["supabase"];
 
@@ -104,10 +104,22 @@ export async function addCompositionRowAction(
   const fieldErrors = await rowErrors(supabase, storeId, parsed.input.materialId, parsed.input.unit);
   if (fieldErrors) return { fieldErrors, values: parsed.values };
 
+  if (parsed.input.channelId) {
+    const { data: channel } = await supabase
+      .from("sales_channels")
+      .select("id")
+      .eq("id", parsed.input.channelId)
+      .eq("store_id", storeId)
+      .maybeSingle();
+    if (!channel) {
+      const tValidation = await getValidationTranslator();
+      return { fieldErrors: { channelId: [tValidation("composition.channelInvalid")] }, values: parsed.values };
+    }
+  }
+
   const { error } = await supabase.from("product_materials").insert({
     store_id: storeId,
     product_id: productId,
-    channel_id: null,
     ...toCompositionColumns(parsed.input),
   });
   if (error) return { message: tCommon("saveFailed"), values: parsed.values };

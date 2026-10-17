@@ -32,9 +32,9 @@ export default async function ProductPage({ params }: { params: Params }) {
   const locale = await getLocale();
   const tComposition = await getTranslations("Composition");
   const materials = mapById(data.materials);
-  // Phase 2 rows are shared by every channel; channel-specific rows arrive with the channel page (Phase 3).
+  const channelNames = new Map(data.channels.map((c) => [c.id, c.name]));
   const rows: EditorRow[] = data.composition
-    .filter((row) => row.productId === product.id && row.channelId === null)
+    .filter((row) => row.productId === product.id)
     .map((row) => {
       const material = materials.get(row.materialId);
       const usable = material && sameDimension(row.unit, material.purchaseUnit);
@@ -46,6 +46,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         qty: row.qty,
         unit: row.unit,
         basis: row.basis,
+        channelName: row.channelId ? (channelNames.get(row.channelId) ?? null) : null,
         costPerUnit: row.basis === "batch" ? perBatch / product.yieldQty : perBatch,
       };
     });
@@ -108,6 +109,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         <CardContent>
           <CompositionEditor
             rows={rows}
+            channels={data.channels.map(({ id, name }) => ({ id, name }))}
             materials={data.materials.map(({ id, name, category, purchaseUnit }) => ({ id, name, category, purchaseUnit }))}
             addAction={addCompositionRowAction.bind(null, data.store.id, product.id)}
             updateActions={Object.fromEntries(

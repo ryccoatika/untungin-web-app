@@ -129,7 +129,8 @@
       "qtyPositive": "The amount must be more than 0",
       "unitInvalid": "Choose a unit",
       "basisInvalid": "Choose how it is counted",
-      "unitDimension": "This unit doesn't match the material (weight, volume, or count)"
+      "unitDimension": "This unit doesn't match the material (weight, volume, or count)",
+      "channelInvalid": "Choose an existing channel"
     },
     "price": {
       "priceNumber": "Enter the price as a whole number, e.g. 15,000",
@@ -409,7 +410,11 @@
     "noMaterials": "No materials to choose from yet.",
     "goToMaterials": "Add materials first",
     "rowCost": "{cost}/unit",
-    "deleteRow": "Remove {material} from the composition"
+    "deleteRow": "Remove {material} from the composition",
+    "channel": "Used in",
+    "allChannels": "All channels",
+    "channelHint": "Pick one channel for packaging used only there, e.g. bubble wrap only for online orders.",
+    "onlyChannel": "Only in {channel}"
   },
   "Products": {
     "title": "Products",

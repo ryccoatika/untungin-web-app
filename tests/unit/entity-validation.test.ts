@@ -84,7 +84,7 @@ describe("compositionInputSchema", () => {
   const row = { materialId: "6f1c3c1e-2d4b-4f7a-9c1a-1b2c3d4e5f60", qty: "200", unit: "g", basis: "batch" };
 
   it("parses a row", () => {
-    expect(compositionInputSchema.parse(row)).toEqual({ ...row, qty: 200 });
+    expect(compositionInputSchema.parse(row)).toEqual({ ...row, qty: 200, channelId: null });
   });
 
   it.each([
@@ -95,6 +95,13 @@ describe("compositionInputSchema", () => {
     [{ basis: "resep" }, "basis", "composition.basisInvalid"],
   ])("%j → %s: %s", (patch, field, key) => {
     expect(errorsFor(compositionInputSchema, { ...row, ...patch })[field]).toBe(key);
+  });
+
+  it("accepts an optional channel", () => {
+    const channelId = "7a1c3c1e-2d4b-4f7a-9c1a-1b2c3d4e5f61";
+    expect(compositionInputSchema.parse({ ...row, channelId }).channelId).toBe(channelId);
+    expect(compositionInputSchema.parse({ ...row, channelId: "" }).channelId).toBeNull();
+    expect(errorsFor(compositionInputSchema, { ...row, channelId: "gofood" }).channelId).toBe("composition.channelInvalid");
   });
 
   it("rejects a unit from another dimension than the material", () => {
