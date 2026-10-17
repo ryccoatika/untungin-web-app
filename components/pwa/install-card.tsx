@@ -6,7 +6,10 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { installHint, type InstallHint } from "@/lib/pwa";
 
-type InstallPromptEvent = Event & { prompt: () => Promise<unknown> };
+type InstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+};
 
 const noopSubscribe = () => () => {};
 
@@ -15,7 +18,7 @@ function deviceHint(): InstallHint {
   const standalone =
     window.matchMedia("(display-mode: standalone)").matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true;
-  return installHint(navigator.userAgent, standalone);
+  return installHint(navigator.userAgent, standalone, navigator.maxTouchPoints);
 }
 
 /** Card on the Lainnya page that helps install the app; renders nothing once it runs as an installed app. */
@@ -61,8 +64,16 @@ export function InstallCard() {
           <Button
             type="button"
             disabled={!promptEvent}
-            onClick={() => {
-              void promptEvent?.prompt();
+            onClick={async () => {
+              // The event works once: take it and clear it so the button disables until a new one arrives.
+              const event = promptEvent;
+              setPromptEvent(null);
+              try {
+                await event?.prompt();
+                await event?.userChoice; // outcome ignored: `appinstalled` hides the card
+              } catch {
+                // prompt() already used or the browser refused; nothing to do
+              }
             }}
           >
             <Download aria-hidden />

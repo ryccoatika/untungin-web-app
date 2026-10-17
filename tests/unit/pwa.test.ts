@@ -18,6 +18,9 @@ describe("installHint", () => {
   it("iPhone Chrome also installs through Share", () => expect(installHint(IPHONE_CHROME, false)).toBe("ios"));
   it("Android Chrome uses the install prompt", () => expect(installHint(ANDROID_CHROME, false)).toBe("prompt"));
   it("desktop Chrome uses the install prompt", () => expect(installHint(DESKTOP_CHROME, false)).toBe("prompt"));
+  it("iPad in desktop mode (Mac UA, touch points) installs through Share", () =>
+    expect(installHint(DESKTOP_CHROME.replace("Chrome/123.0.0.0 ", ""), false, 5)).toBe("ios"));
+  it("a real Mac with no touch points uses the install prompt", () => expect(installHint(DESKTOP_CHROME, false, 0)).toBe("prompt"));
   it("is hidden when already installed", () => {
     for (const ua of [IPHONE_SAFARI, ANDROID_CHROME, DESKTOP_CHROME]) expect(installHint(ua, true)).toBe("hidden");
   });
