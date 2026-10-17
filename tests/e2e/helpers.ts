@@ -131,3 +131,12 @@ export async function addAsset(
   // The success message of a previous add stays visible, so also wait for the form to reset.
   await expect(form.getByLabel("Nama barang")).toHaveValue("");
 }
+
+export async function addProduct(page: Page, p: { name: string; yieldQty: string; category?: string }) {
+  const form = page.locator("#add-product");
+  await form.getByLabel("Nama produk").fill(p.name);
+  await form.getByLabel("Hasil per resep").fill(p.yieldQty);
+  if (p.category) await form.getByLabel("Kategori (opsional)").fill(p.category);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await page.waitForURL(/\/produk\/[0-9a-f-]{36}$/);
+}

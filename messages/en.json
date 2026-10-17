@@ -331,5 +331,28 @@
     "emptyAction": "Add your first item",
     "created": "Item added.",
     "delete": "Delete item"
+  },
+  "LineStatus": { "red": "Loss", "yellow": "Below target", "green": "On target" },
+  "Products": {
+    "title": "Products",
+    "intro": "The products you sell. Open a product to fill in its composition and price.",
+    "addTitle": "Add product",
+    "details": "Product details",
+    "name": "Product name",
+    "namePlaceholder": "E.g. Iced milk coffee",
+    "category": "Category (optional)",
+    "categoryPlaceholder": "E.g. Drinks",
+    "yieldQty": "Yield per recipe",
+    "yieldHint": "How many portions or units does one batch (one recipe) make? E.g. 10 cups.",
+    "targetMargin": "Own target margin (%)",
+    "targetMarginHint": "Leave empty to use the store target ({pct}).",
+    "isActive": "Still on sale",
+    "inactive": "Not on sale",
+    "noPrice": "No price yet",
+    "materialCostValue": "Material cost {cost}",
+    "emptyTitle": "No products yet",
+    "emptyBody": "Add the products you sell, then fill in their materials. E.g. Iced milk coffee, 1 recipe = 10 cups.",
+    "emptyAction": "Add your first product",
+    "delete": "Delete product"
   }
 }

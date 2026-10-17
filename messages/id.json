@@ -331,5 +331,28 @@
     "emptyAction": "Tambah barang pertama",
     "created": "Barang ditambahkan.",
     "delete": "Hapus barang"
+  },
+  "LineStatus": { "red": "Rugi", "yellow": "Di bawah target", "green": "Sesuai target" },
+  "Products": {
+    "title": "Produk",
+    "intro": "Produk yang kamu jual. Buka produk untuk mengisi komposisi dan harga.",
+    "addTitle": "Tambah produk",
+    "details": "Data produk",
+    "name": "Nama produk",
+    "namePlaceholder": "Contoh: Es kopi susu",
+    "category": "Kategori (opsional)",
+    "categoryPlaceholder": "Contoh: Minuman",
+    "yieldQty": "Hasil per resep",
+    "yieldHint": "Satu kali membuat (satu resep) jadi berapa porsi atau unit? Contoh: 10 gelas.",
+    "targetMargin": "Target margin khusus (%)",
+    "targetMarginHint": "Kosongkan untuk memakai target toko ({pct}).",
+    "isActive": "Masih dijual",
+    "inactive": "Tidak dijual",
+    "noPrice": "Belum ada harga",
+    "materialCostValue": "HPP bahan {cost}",
+    "emptyTitle": "Belum ada produk",
+    "emptyBody": "Tambahkan produk yang kamu jual, lalu isi komposisi bahannya. Contoh: Es kopi susu, 1 resep = 10 gelas.",
+    "emptyAction": "Tambah produk pertama",
+    "delete": "Hapus produk"
   }
 }
