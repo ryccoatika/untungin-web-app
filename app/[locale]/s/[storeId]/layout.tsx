@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/app/auth/actions";
+import { BrandLogo } from "@/components/brand-logo";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { StoreNav } from "@/components/store/store-nav";
@@ -26,7 +27,7 @@ export default async function StoreLayout({
   return (
     <div className="min-h-dvh md:flex">
       <aside className="hidden w-60 shrink-0 border-r p-4 md:block">
-        <p className="mb-4 px-3 text-sm font-semibold">Untungin</p>
+        <BrandLogo size="sm" className="mb-4 px-3" />
         <StoreNav storeId={store.id} variant="sidebar" />
       </aside>
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
