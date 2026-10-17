@@ -147,7 +147,16 @@ export async function updateCompositionRowAction(
   if (!isUuid(storeId) || !isUuid(productId) || !isUuid(rowId)) return { message: tCommon("notFound"), values: parsed.values };
 
   const { supabase } = await requireUser();
-  const fieldErrors = await rowErrors(supabase, storeId, parsed.input.materialId, parsed.input.unit);
+  // Validate against the row's stored material, never the posted (client-controlled) materialId.
+  const { data: existing } = await supabase
+    .from("product_materials")
+    .select("material_id")
+    .eq("id", rowId)
+    .eq("product_id", productId)
+    .eq("store_id", storeId)
+    .maybeSingle();
+  if (!existing) return { message: tCommon("saveFailed"), values: parsed.values };
+  const fieldErrors = await rowErrors(supabase, storeId, existing.material_id, parsed.input.unit);
   if (fieldErrors) return { fieldErrors, values: parsed.values };
 
   // The material of an existing row never changes; only amount, unit and basis.
