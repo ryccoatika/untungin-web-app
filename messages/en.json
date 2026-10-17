@@ -172,7 +172,17 @@
     "menu": "Store menu",
     "nav": {
       "dashboard": "Dashboard",
-      "settings": "Settings"
+      "products": "Products",
+      "materials": "Materials",
+      "expenses": "Costs",
+      "assets": "Inventory",
+      "settings": "Settings",
+      "more": "More"
+    },
+    "moreDescriptions": {
+      "expenses": "Rent, electricity, wages and other running costs",
+      "assets": "Equipment and furniture, your starting capital",
+      "settings": "Edit or delete the store"
     }
   },
   "StoreList": {

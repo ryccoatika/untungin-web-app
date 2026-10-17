@@ -172,7 +172,17 @@
     "menu": "Menu toko",
     "nav": {
       "dashboard": "Dashboard",
-      "settings": "Pengaturan"
+      "products": "Produk",
+      "materials": "Bahan",
+      "expenses": "Biaya",
+      "assets": "Inventaris",
+      "settings": "Pengaturan",
+      "more": "Lainnya"
+    },
+    "moreDescriptions": {
+      "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
+      "assets": "Alat dan perlengkapan, modal awal usahamu",
+      "settings": "Ubah data toko atau hapus toko"
     }
   },
   "StoreList": {

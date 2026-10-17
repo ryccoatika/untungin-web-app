@@ -1,12 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { isNavActive, storeNavItems } from "@/lib/nav";
+import { bottomNavItems, isMoreActive, isNavActive, moreNavItems, storeNavItems } from "@/lib/nav";
 
-describe("storeNavItems", () => {
-  it("builds store-scoped links with label keys", () => {
-    expect(storeNavItems("abc").map((i) => [i.labelKey, i.href])).toEqual([
+const pairs = (items: { labelKey: string; href: string }[]) => items.map((i) => [i.labelKey, i.href]);
+
+describe("store navigation", () => {
+  it("lists every page in the sidebar", () => {
+    expect(pairs(storeNavItems("abc"))).toEqual([
       ["dashboard", "/s/abc/dashboard"],
+      ["products", "/s/abc/produk"],
+      ["materials", "/s/abc/bahan"],
+      ["expenses", "/s/abc/biaya"],
+      ["assets", "/s/abc/inventaris"],
       ["settings", "/s/abc/pengaturan"],
     ]);
+  });
+
+  it("puts four items in the phone bar, the rest behind Lainnya", () => {
+    expect(pairs(bottomNavItems("abc"))).toEqual([
+      ["dashboard", "/s/abc/dashboard"],
+      ["products", "/s/abc/produk"],
+      ["materials", "/s/abc/bahan"],
+      ["more", "/s/abc/lainnya"],
+    ]);
+    expect(pairs(moreNavItems("abc"))).toEqual([
+      ["expenses", "/s/abc/biaya"],
+      ["assets", "/s/abc/inventaris"],
+      ["settings", "/s/abc/pengaturan"],
+    ]);
+  });
+
+  it.each([
+    ["/s/abc/lainnya", true],
+    ["/s/abc/biaya", true],
+    ["/s/abc/inventaris/123", true],
+    ["/s/abc/pengaturan", true],
+    ["/s/abc/produk", false],
+  ])("Lainnya is active on %s → %s", (pathname, expected) => {
+    expect(isMoreActive(pathname, "abc")).toBe(expected);
   });
 });
 
