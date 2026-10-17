@@ -7,7 +7,6 @@ import type { FormAction } from "@/lib/forms";
 import { FormMessage } from "./form-message";
 import { SubmitButton } from "./submit-button";
 
-
 /** Two-step delete: the first click asks for confirmation, the second runs `action`. */
 export function DeleteButton({ action, label }: { action: FormAction; label: string }) {
   const t = useTranslations("Common");

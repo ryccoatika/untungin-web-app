@@ -14,7 +14,6 @@ import type { FormAction } from "@/lib/forms";
 
 export type ExpenseFormDefaults = Partial<Record<"name" | "category" | "amount" | "frequency", string>>;
 
-
 type Props = { action: FormAction; defaults?: ExpenseFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function ExpenseForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {

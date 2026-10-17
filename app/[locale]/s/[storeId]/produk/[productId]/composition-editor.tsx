@@ -218,36 +218,36 @@ function AddRowFields({
       </div>
       {material && (
         <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
-              <div className="space-y-1">
-                <Label htmlFor="composition-qty">{t("qty")}</Label>
-                <Input id="composition-qty" name="qty" inputMode="decimal" defaultValue={echoed ? defaults.qty : undefined} />
-                <FieldError errors={errors.qty} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="composition-unit">{t("unit")}</Label>
-                {/* Keyed by material so the default follows the chosen material. */}
-                <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit}>
-                  {unitsOf(dimensionOf(material.purchaseUnit)).map((unit) => (
-                    <option key={unit} value={unit}>
-                      {tUnits(unit)}
-                    </option>
-                  ))}
-                </NativeSelect>
-                <FieldError errors={errors.unit} />
-              </div>
-              <div className="col-span-2 space-y-1 sm:col-span-1">
-                <Label htmlFor="composition-basis">{t("basis")}</Label>
-                <NativeSelect key={`basis-${materialId}`} id="composition-basis" name="basis" defaultValue={defaultBasis}>
-                  {BASES.map((basis) => (
-                    <option key={basis} value={basis}>
-                      {tBasis(basis)}
-                    </option>
-                  ))}
-                </NativeSelect>
-                <FieldError errors={errors.basis} />
-              </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
+            <div className="space-y-1">
+              <Label htmlFor="composition-qty">{t("qty")}</Label>
+              <Input id="composition-qty" name="qty" inputMode="decimal" defaultValue={echoed ? defaults.qty : undefined} />
+              <FieldError errors={errors.qty} />
             </div>
+            <div className="space-y-1">
+              <Label htmlFor="composition-unit">{t("unit")}</Label>
+              {/* Keyed by material so the default follows the chosen material. */}
+              <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit}>
+                {unitsOf(dimensionOf(material.purchaseUnit)).map((unit) => (
+                  <option key={unit} value={unit}>
+                    {tUnits(unit)}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldError errors={errors.unit} />
+            </div>
+            <div className="col-span-2 space-y-1 sm:col-span-1">
+              <Label htmlFor="composition-basis">{t("basis")}</Label>
+              <NativeSelect key={`basis-${materialId}`} id="composition-basis" name="basis" defaultValue={defaultBasis}>
+                {BASES.map((basis) => (
+                  <option key={basis} value={basis}>
+                    {tBasis(basis)}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldError errors={errors.basis} />
+            </div>
+          </div>
           {channels.length > 1 && (
             <div className="space-y-1">
               <Label htmlFor="composition-channel">{t("channel")}</Label>

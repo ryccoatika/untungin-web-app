@@ -12,7 +12,6 @@ import type { FormAction } from "@/lib/forms";
 
 export type ProductFormDefaults = Partial<Record<"name" | "category" | "yieldQty" | "targetMarginPct" | "isActive", string>>;
 
-
 type Props = {
   action: FormAction;
   mode: "create" | "edit";

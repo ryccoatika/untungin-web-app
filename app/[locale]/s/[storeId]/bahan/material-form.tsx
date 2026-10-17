@@ -18,7 +18,6 @@ export type MaterialFormDefaults = Partial<
   Record<"name" | "category" | "purchaseQty" | "purchaseUnit" | "purchasePrice" | "wastePct", string>
 >;
 
-
 type Props = { action: FormAction; defaults?: MaterialFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function MaterialForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {

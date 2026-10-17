@@ -14,7 +14,6 @@ import type { FormAction } from "@/lib/forms";
 
 export type AssetFormDefaults = Partial<Record<"name" | "category" | "qty" | "unitPrice" | "usefulLifeMonths", string>>;
 
-
 type Props = { action: FormAction; defaults?: AssetFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function AssetForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {
