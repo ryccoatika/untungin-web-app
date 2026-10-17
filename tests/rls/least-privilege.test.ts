@@ -53,6 +53,45 @@ describe("signed-in users keep normal access to their own data", () => {
   });
 });
 
+describe("signed-in users get read-only access where the deploy checklist says SELECT only", () => {
+  let user: TestUser;
+  let storeId: string;
+  const denied = (error: { code?: string; message?: string } | null) =>
+    error?.code === "42501" || /permission denied/i.test(error?.message ?? "");
+
+  beforeAll(async () => {
+    user = await createTestUser("lp-readonly");
+    storeId = await createStore(user, "Toko Baca");
+  });
+
+  it("can select but not write ai_usage", async () => {
+    expect((await user.client.from("ai_usage").select("id").limit(1)).error).toBeNull();
+    expect(denied((await user.client.from("ai_usage").insert({ user_id: user.id })).error)).toBe(true);
+    expect(denied((await user.client.from("ai_usage").update({ user_id: user.id }).eq("user_id", user.id)).error)).toBe(true);
+    expect(denied((await user.client.from("ai_usage").delete().eq("user_id", user.id)).error)).toBe(true);
+  });
+
+  it("can select but not write ai_analyses", async () => {
+    expect((await user.client.from("ai_analyses").select("id").limit(1)).error).toBeNull();
+    const insert = await user.client
+      .from("ai_analyses")
+      .insert({ store_id: storeId, user_id: user.id, model: "m", snapshot_hash: "h", input_snapshot: {}, output: {} });
+    expect(denied(insert.error)).toBe(true);
+    expect(denied((await user.client.from("ai_analyses").delete().eq("store_id", storeId)).error)).toBe(true);
+  });
+
+  it("can select profiles but not insert, delete or update other columns", async () => {
+    expect((await user.client.from("profiles").select("id").eq("id", user.id)).error).toBeNull();
+    expect(denied((await user.client.from("profiles").insert({ id: user.id })).error)).toBe(true);
+    expect(denied((await user.client.from("profiles").delete().eq("id", user.id)).error)).toBe(true);
+    expect(denied((await user.client.from("profiles").update({ id: user.id }).eq("id", user.id)).error)).toBe(true);
+  });
+
+  it("can change locale on their profile", async () => {
+    expect((await user.client.from("profiles").update({ locale: "en" }).eq("id", user.id)).error).toBeNull();
+  });
+});
+
 describe("the server role keeps what the AI feature needs", () => {
   it("can insert and delete AI usage and analyses", async () => {
     const user = await createTestUser("lp-ai");

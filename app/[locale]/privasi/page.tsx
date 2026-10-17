@@ -62,6 +62,7 @@ export default async function PrivacyPage() {
         </ul>,
       )}
       {section(t("storageTitle"), <p>{t("storageBody")}</p>)}
+      {section(t("locationTitle"), <p>{t("locationBody")}</p>)}
       {section(t("deleteTitle"), <p>{t("deleteBody")}</p>)}
       {section(t("rightsTitle"), <p>{t.rich("rightsBody", { email: OPERATOR.email, mail })}</p>)}
     </main>

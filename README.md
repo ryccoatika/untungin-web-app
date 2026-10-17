@@ -42,7 +42,8 @@ Without this, the Google button fails locally with `Unsupported provider: provid
 ```bash
 npm test              # unit
 npm run test:rls      # RLS; needs local Supabase running
-npm run test:e2e      # Playwright; needs local Supabase running
+npm run build         # e2e runs against the production build: build first
+npm run test:e2e      # Playwright; starts `next start -p 3100` (or reuses one); needs local Supabase running
 ```
 
 E2E tests never go through Google: `signIn()` in `tests/e2e/helpers.ts` creates a user with the admin API, signs in

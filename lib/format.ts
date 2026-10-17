@@ -45,3 +45,8 @@ export function formatDateTime(iso: string, locale: AppLocale): string {
     timeZone: "Asia/Jakarta",
   }).format(new Date(iso));
 }
+
+/** Splits a formatted number after each "." or "," so a line can only wrap between digit groups. */
+export function splitAfterSeparators(text: string): string[] {
+  return text.match(/[^.,]*[.,]|[^.,]+$/g) ?? [];
+}

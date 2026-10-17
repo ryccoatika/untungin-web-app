@@ -44,7 +44,7 @@ export default async function OnboardingPage() {
       )}
       {isFirstStore && (
         <details className="rounded-lg border border-destructive/40 p-4 text-sm">
-          <summary className="cursor-pointer font-medium text-destructive">{ta("deleteTitle")}</summary>
+          <summary className="flex min-h-10 cursor-pointer items-center font-medium text-destructive">{ta("deleteTitle")}</summary>
           <div className="mt-4 space-y-4">
             <p className="text-muted-foreground">{ta("deleteDescription")}</p>
             {email ? <DeleteAccountForm email={email} /> : <p className="text-destructive">{ta("noEmail")}</p>}
