@@ -16,6 +16,7 @@ test("a new store shows the checklist and no broken numbers", async ({ page }) =
   await createStoreViaOnboarding(page, "Toko Kosong");
   await expect(page.getByText("Langkah awal")).toBeVisible();
   await expect(page.getByRole("link", { name: /Catat bahan & kemasan/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Tambah kanal online/ })).toContainText("(opsional)");
   await expect(page.getByTestId("metric-netProfit")).toHaveText("—");
   await expect(page.getByTestId("metric-bep")).toHaveText("—");
   await expect(page.getByTestId("metric-payback")).toHaveText("—");

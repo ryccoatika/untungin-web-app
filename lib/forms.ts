@@ -17,3 +17,6 @@ export function rawValues(formData: FormData, names: readonly string[]): Record<
   }
   return values;
 }
+
+/** A Server Action used with useActionState. */
+export type FormAction = (prev: FormState, formData: FormData) => Promise<FormState>;

@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import { BASE_UNIT, BASES, dimensionOf, unitsOf, type Basis, type MaterialCategory, type Unit } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 
 export type EditorMaterial = { id: string; name: string; category: MaterialCategory; purchaseUnit: Unit };
 export type EditorRow = {
@@ -22,22 +22,23 @@ export type EditorRow = {
   qty: number;
   unit: Unit;
   basis: Basis;
+  channelName: string | null;
   /** Cost of this row per sold unit (batch rows already divided by the yield). */
   costPerUnit: number;
 };
-
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
+export type EditorChannel = { id: string; name: string };
 
 type Props = {
   rows: EditorRow[];
+  channels: EditorChannel[];
   materials: EditorMaterial[];
-  addAction: Action;
-  updateActions: Record<string, Action>;
-  deleteActions: Record<string, Action>;
+  addAction: FormAction;
+  updateActions: Record<string, FormAction>;
+  deleteActions: Record<string, FormAction>;
   materialsHref: string;
 };
 
-export function CompositionEditor({ rows, materials, addAction, updateActions, deleteActions, materialsHref }: Props) {
+export function CompositionEditor({ rows, channels, materials, addAction, updateActions, deleteActions, materialsHref }: Props) {
   const t = useTranslations("Composition");
   const materialsById = new Map(materials.map((material) => [material.id, material]));
 
@@ -66,7 +67,7 @@ export function CompositionEditor({ rows, materials, addAction, updateActions, d
           </Link>
         </p>
       ) : (
-        <AddRowForm materials={materials} action={addAction} />
+        <AddRowForm materials={materials} channels={channels} action={addAction} />
       )}
     </div>
   );
@@ -80,8 +81,8 @@ function RowEditor({
 }: {
   row: EditorRow;
   material: EditorMaterial | undefined;
-  updateAction: Action;
-  deleteAction: Action;
+  updateAction: FormAction;
+  deleteAction: FormAction;
 }) {
   const t = useTranslations("Composition");
   const tCommon = useTranslations("Common");
@@ -99,7 +100,10 @@ function RowEditor({
   return (
     <li className="space-y-3 p-4">
       <div className="flex items-start justify-between gap-3">
-        <p className="min-w-0 font-medium [overflow-wrap:anywhere]">{row.materialName}</p>
+        <div className="min-w-0">
+          <p className="font-medium [overflow-wrap:anywhere]">{row.materialName}</p>
+          {row.channelName && <p className="text-xs text-muted-foreground">{t("onlyChannel", { channel: row.channelName })}</p>}
+        </div>
         <p className="shrink-0 text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>
       </div>
       <form action={formAction} className="space-y-2">
@@ -153,7 +157,7 @@ function RowEditor({
   );
 }
 
-function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action: Action }) {
+function AddRowForm({ materials, channels, action }: { materials: EditorMaterial[]; channels: EditorChannel[]; action: FormAction }) {
   const tCommon = useTranslations("Common");
   const t = useTranslations("Composition");
   const [state, formAction] = useActionState(action, undefined);
@@ -161,7 +165,7 @@ function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action
 
   return (
     <form id="add-composition" action={formAction} className="space-y-3 rounded-lg border border-dashed p-4">
-      <AddRowFields key={key} materials={materials} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
+      <AddRowFields key={key} materials={materials} channels={channels} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
       <FormMessage state={state} />
       <SubmitButton className="w-full sm:w-auto" pendingText={tCommon("addPending")}>
         {t("add")}
@@ -172,10 +176,12 @@ function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action
 
 function AddRowFields({
   materials,
+  channels,
   defaults,
   errors,
 }: {
   materials: EditorMaterial[];
+  channels: EditorChannel[];
   defaults: Record<string, string>;
   errors: Record<string, string[] | undefined>;
 }) {
@@ -211,35 +217,52 @@ function AddRowFields({
         <FieldError errors={errors.materialId} />
       </div>
       {material && (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
-          <div className="space-y-1">
-            <Label htmlFor="composition-qty">{t("qty")}</Label>
-            <Input id="composition-qty" name="qty" inputMode="decimal" defaultValue={echoed ? defaults.qty : undefined} />
-            <FieldError errors={errors.qty} />
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)]">
+            <div className="space-y-1">
+              <Label htmlFor="composition-qty">{t("qty")}</Label>
+              <Input id="composition-qty" name="qty" inputMode="decimal" defaultValue={echoed ? defaults.qty : undefined} />
+              <FieldError errors={errors.qty} />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="composition-unit">{t("unit")}</Label>
+              {/* Keyed by material so the default follows the chosen material. */}
+              <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit}>
+                {unitsOf(dimensionOf(material.purchaseUnit)).map((unit) => (
+                  <option key={unit} value={unit}>
+                    {tUnits(unit)}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldError errors={errors.unit} />
+            </div>
+            <div className="col-span-2 space-y-1 sm:col-span-1">
+              <Label htmlFor="composition-basis">{t("basis")}</Label>
+              <NativeSelect key={`basis-${materialId}`} id="composition-basis" name="basis" defaultValue={defaultBasis}>
+                {BASES.map((basis) => (
+                  <option key={basis} value={basis}>
+                    {tBasis(basis)}
+                  </option>
+                ))}
+              </NativeSelect>
+              <FieldError errors={errors.basis} />
+            </div>
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="composition-unit">{t("unit")}</Label>
-            {/* Keyed by material so the default follows the chosen material. */}
-            <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit}>
-              {unitsOf(dimensionOf(material.purchaseUnit)).map((unit) => (
-                <option key={unit} value={unit}>
-                  {tUnits(unit)}
-                </option>
-              ))}
-            </NativeSelect>
-            <FieldError errors={errors.unit} />
-          </div>
-          <div className="col-span-2 space-y-1 sm:col-span-1">
-            <Label htmlFor="composition-basis">{t("basis")}</Label>
-            <NativeSelect key={`basis-${materialId}`} id="composition-basis" name="basis" defaultValue={defaultBasis}>
-              {BASES.map((basis) => (
-                <option key={basis} value={basis}>
-                  {tBasis(basis)}
-                </option>
-              ))}
-            </NativeSelect>
-            <FieldError errors={errors.basis} />
-          </div>
+          {channels.length > 1 && (
+            <div className="space-y-1">
+              <Label htmlFor="composition-channel">{t("channel")}</Label>
+              <NativeSelect id="composition-channel" name="channelId" defaultValue={echoed ? (defaults.channelId ?? "") : ""}>
+                <option value="">{t("allChannels")}</option>
+                {channels.map((channel) => (
+                  <option key={channel.id} value={channel.id}>
+                    {channel.name}
+                  </option>
+                ))}
+              </NativeSelect>
+              <p className="text-xs text-muted-foreground">{t("channelHint")}</p>
+              <FieldError errors={errors.channelId} />
+            </div>
+          )}
         </div>
       )}
     </fieldset>

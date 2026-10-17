@@ -12,6 +12,7 @@ export const COMPOSITION_VALIDATION_KEYS = [
   "composition.qtyPositive",
   "composition.unitInvalid",
   "composition.basisInvalid",
+  "composition.channelInvalid",
   COMPOSITION_UNIT_MISMATCH_KEY,
 ] as const;
 
@@ -20,6 +21,10 @@ export const compositionInputSchema = z.object({
   qty: localeNumber(z.number({ error: "composition.qtyNumber" }).positive("composition.qtyPositive")),
   unit: z.enum(UNITS, { error: "composition.unitInvalid" }),
   basis: z.enum(BASES, { error: "composition.basisInvalid" }),
+  channelId: z.preprocess(
+    (value) => (value === "" || value == null ? null : value),
+    z.string().refine(isUuid, "composition.channelInvalid").nullable(),
+  ),
 });
 
 export type CompositionInput = z.infer<typeof compositionInputSchema>;
@@ -30,5 +35,5 @@ export function compositionUnitError(materialUnit: Unit, unit: Unit): string | n
 }
 
 export function toCompositionColumns(input: CompositionInput) {
-  return { material_id: input.materialId, qty: input.qty, unit: input.unit, basis: input.basis };
+  return { material_id: input.materialId, qty: input.qty, unit: input.unit, basis: input.basis, channel_id: input.channelId };
 }

@@ -18,7 +18,7 @@ import {
 } from "../actions";
 import { ProductForm } from "../product-form";
 import { CompositionEditor, type EditorRow } from "./composition-editor";
-import { PriceForm } from "./price-form";
+import { PriceSection } from "./price-section";
 
 type Params = Promise<{ locale: string; storeId: string; productId: string }>;
 
@@ -32,9 +32,9 @@ export default async function ProductPage({ params }: { params: Params }) {
   const locale = await getLocale();
   const tComposition = await getTranslations("Composition");
   const materials = mapById(data.materials);
-  // Phase 2 rows are shared by every channel; channel-specific rows arrive with the channel page (Phase 3).
+  const channelNames = new Map(data.channels.map((c) => [c.id, c.name]));
   const rows: EditorRow[] = data.composition
-    .filter((row) => row.productId === product.id && row.channelId === null)
+    .filter((row) => row.productId === product.id)
     .map((row) => {
       const material = materials.get(row.materialId);
       const usable = material && sameDimension(row.unit, material.purchaseUnit);
@@ -46,12 +46,13 @@ export default async function ProductPage({ params }: { params: Params }) {
         qty: row.qty,
         unit: row.unit,
         basis: row.basis,
+        channelName: row.channelId ? (channelNames.get(row.channelId) ?? null) : null,
         costPerUnit: row.basis === "batch" ? perBatch / product.yieldQty : perBatch,
       };
     });
   const tPricing = await getTranslations("Pricing");
   const { error: calcError } = tryAnalyzeStore(data);
-  const hasComposition = rows.length > 0;
+  const hasComposition = data.composition.some((row) => row.productId === product.id && row.channelId === null);
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -80,26 +81,23 @@ export default async function ProductPage({ params }: { params: Params }) {
               {tPricing("noComposition")}
             </p>
           )}
-          {data.channels.map((channel) => {
-            const saved = data.prices.find((row) => row.productId === product.id && row.channelId === channel.id);
-            return (
-              <section key={channel.id} className="space-y-3">
-                <h3 className="font-medium [overflow-wrap:anywhere]">{channel.name}</h3>
-                <PriceForm
-                  id={`price-${channel.id}`}
-                  action={savePriceAction.bind(null, data.store.id, product.id, channel.id)}
-                  data={data}
-                  productId={product.id}
-                  channel={channel}
-                  inactive={!product.isActive}
-                  defaults={{
-                    price: saved ? String(saved.price) : "",
-                    estMonthlySales: saved ? String(saved.estMonthlySales) : "",
-                  }}
-                />
-              </section>
-            );
-          })}
+          <PriceSection
+            data={data}
+            productId={product.id}
+            inactive={!product.isActive}
+            entries={data.channels.map((channel) => {
+              const saved = data.prices.find((row) => row.productId === product.id && row.channelId === channel.id);
+              return {
+                channel,
+                action: savePriceAction.bind(null, data.store.id, product.id, channel.id),
+                defaults: {
+                  price: saved ? String(saved.price) : "",
+                  estMonthlySales: saved ? String(saved.estMonthlySales) : "",
+                  competitorPrice: saved?.competitorPrice == null ? "" : String(saved.competitorPrice),
+                },
+              };
+            })}
+          />
         </CardContent>
       </Card>
 
@@ -111,6 +109,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         <CardContent>
           <CompositionEditor
             rows={rows}
+            channels={data.channels.map(({ id, name }) => ({ id, name }))}
             materials={data.materials.map(({ id, name, category, purchaseUnit }) => ({ id, name, category, purchaseUnit }))}
             addAction={addCompositionRowAction.bind(null, data.store.id, product.id)}
             updateActions={Object.fromEntries(

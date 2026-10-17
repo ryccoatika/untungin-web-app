@@ -11,16 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BASE_UNIT, dimensionOf, MATERIAL_CATEGORIES, UNITS, unitCost } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 import { materialInputSchema } from "@/lib/validation/material";
 
 export type MaterialFormDefaults = Partial<
   Record<"name" | "category" | "purchaseQty" | "purchaseUnit" | "purchasePrice" | "wastePct", string>
 >;
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
-
-type Props = { action: Action; defaults?: MaterialFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
+type Props = { action: FormAction; defaults?: MaterialFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function MaterialForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {
   const [state, formAction] = useActionState(action, undefined);

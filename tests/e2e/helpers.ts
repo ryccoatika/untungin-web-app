@@ -141,22 +141,44 @@ export async function addProduct(page: Page, p: { name: string; yieldQty: string
   await page.waitForURL(/\/produk\/[0-9a-f-]{36}$/);
 }
 
-export async function addCompositionRow(page: Page, r: { material: string; qty: string; unit?: string; basis?: "batch" | "unit" }) {
+export async function addCompositionRow(page: Page, r: { material: string; qty: string; unit?: string; basis?: "batch" | "unit"; channel?: string }) {
   const form = page.locator("#add-composition");
   await form.getByLabel("Bahan", { exact: true }).selectOption({ label: r.material });
   await form.getByLabel("Jumlah").fill(r.qty);
   if (r.unit) await form.getByLabel("Satuan").selectOption(r.unit);
   if (r.basis) await form.getByLabel("Dihitung").selectOption(r.basis);
+  if (r.channel) await form.getByLabel("Dipakai di").selectOption({ label: r.channel });
   await form.getByRole("button", { name: "Tambah ke komposisi" }).click();
   await expect(page.getByText("Bahan ditambahkan ke komposisi.")).toBeVisible();
   // The success message of a previous add stays visible, so also wait for the form to reset.
   await expect(form.getByLabel("Bahan", { exact: true })).toHaveValue("");
 }
 
-export async function setPrice(page: Page, p: { price: string; est: string }) {
-  const form = page.locator("form[id^='price-']").first();
+export async function setPrice(page: Page, p: { price: string; est: string; competitor?: string; channel?: string }) {
+  const form = p.channel ? priceSection(page, p.channel) : page.locator("form[id^='price-']").first();
   await form.getByLabel("Harga jual (Rp)").fill(p.price);
   await form.getByLabel("Perkiraan terjual / bulan").fill(p.est);
+  if (p.competitor !== undefined) await form.getByLabel("Harga pesaing (Rp, opsional)").fill(p.competitor);
   await form.getByRole("button", { name: "Simpan harga" }).click();
-  await expect(page.getByText("Harga tersimpan.")).toBeVisible();
+  await expect(form.getByText("Harga tersimpan.")).toBeVisible();
+}
+
+export async function addChannel(page: Page, c: { name: string; commissionPct: string; fixedFee?: string }) {
+  const form = page.locator("#add-channel");
+  await form.getByLabel("Nama kanal").fill(c.name);
+  await form.getByLabel("Komisi (%)").fill(c.commissionPct);
+  if (c.fixedFee) await form.getByLabel("Biaya per pesanan (Rp)").fill(c.fixedFee);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Kanal ditambahkan.")).toBeVisible();
+  await expect(form.getByLabel("Nama kanal")).toHaveValue("");
+}
+
+export async function addTemplateChannel(page: Page, name: string) {
+  await page.getByRole("button", { name: new RegExp(`^${name} ·`) }).click();
+  await expect(page.getByRole("link", { name: new RegExp(`^${name}`) })).toBeVisible();
+}
+
+/** The price block of one channel on a product page. */
+export function priceSection(page: Page, channelName: string) {
+  return page.locator("section").filter({ has: page.getByRole("heading", { name: channelName, exact: true }) });
 }

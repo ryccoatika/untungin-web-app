@@ -7,6 +7,7 @@ export * from "./assets";
 export * from "./expenses";
 export * from "./materials";
 export * from "./metrics";
+export * from "./pricing";
 export * from "./products";
 export * from "./types";
 export * from "./units";

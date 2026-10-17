@@ -9,6 +9,7 @@ describe("store navigation", () => {
       ["dashboard", "/s/abc/dashboard"],
       ["products", "/s/abc/produk"],
       ["materials", "/s/abc/bahan"],
+      ["channels", "/s/abc/kanal"],
       ["expenses", "/s/abc/biaya"],
       ["assets", "/s/abc/inventaris"],
       ["settings", "/s/abc/pengaturan"],
@@ -23,6 +24,7 @@ describe("store navigation", () => {
       ["more", "/s/abc/lainnya"],
     ]);
     expect(pairs(moreNavItems("abc"))).toEqual([
+      ["channels", "/s/abc/kanal"],
       ["expenses", "/s/abc/biaya"],
       ["assets", "/s/abc/inventaris"],
       ["settings", "/s/abc/pengaturan"],
@@ -31,6 +33,7 @@ describe("store navigation", () => {
 
   it.each([
     ["/s/abc/lainnya", true],
+    ["/s/abc/kanal/123", true],
     ["/s/abc/biaya", true],
     ["/s/abc/inventaris/123", true],
     ["/s/abc/pengaturan", true],

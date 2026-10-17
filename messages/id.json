@@ -103,7 +103,7 @@
       "nameRequired": "Nama bahan wajib diisi",
       "nameTooLong": "Nama bahan maksimal 80 karakter",
       "categoryInvalid": "Pilih jenis bahan",
-      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "qtyPositive": "Jumlah beli harus lebih dari 0",
       "unitInvalid": "Pilih satuan",
       "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
@@ -117,7 +117,7 @@
       "nameRequired": "Nama produk wajib diisi",
       "nameTooLong": "Nama produk maksimal 80 karakter",
       "categoryTooLong": "Kategori maksimal 40 karakter",
-      "yieldNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "yieldNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "yieldPositive": "Hasil per resep harus lebih dari 0",
       "marginNumber": "Isi margin dengan angka",
       "marginMin": "Margin tidak boleh negatif",
@@ -125,17 +125,30 @@
     },
     "composition": {
       "materialRequired": "Pilih bahan",
-      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "qtyPositive": "Jumlah harus lebih dari 0",
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
-      "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)"
+      "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)",
+      "channelInvalid": "Pilih kanal yang ada"
     },
     "price": {
       "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
       "priceMin": "Harga tidak boleh negatif",
       "salesNumber": "Isi perkiraan terjual dengan angka bulat",
-      "salesMin": "Tidak boleh negatif"
+      "salesMin": "Tidak boleh negatif",
+      "competitorNumber": "Isi harga pesaing dengan angka bulat, contoh 15.000",
+      "competitorMin": "Harga pesaing tidak boleh negatif"
+    },
+    "channel": {
+      "nameRequired": "Nama kanal wajib diisi",
+      "nameTooLong": "Nama kanal maksimal 60 karakter",
+      "commissionNumber": "Isi komisi dengan angka, contoh 20",
+      "commissionMin": "Komisi tidak boleh negatif",
+      "commissionMax": "Komisi harus kurang dari 100%",
+      "feeNumber": "Isi biaya per pesanan dengan angka bulat, contoh 1.000",
+      "feeMin": "Biaya tidak boleh negatif",
+      "duplicate": "Kanal dengan nama ini sudah ada"
     },
     "expense": {
       "nameRequired": "Nama biaya wajib diisi",
@@ -174,16 +187,40 @@
       "dashboard": "Dashboard",
       "products": "Produk",
       "materials": "Bahan",
+      "channels": "Kanal",
       "expenses": "Biaya",
       "assets": "Inventaris",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
     "moreDescriptions": {
+      "channels": "GoFood, Shopee, QRIS, dan tempat jualan lain",
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
       "settings": "Ubah data toko atau hapus toko"
     }
+  },
+  "Channels": {
+    "title": "Kanal penjualan",
+    "intro": "Tempat kamu berjualan: offline, ojek online, atau marketplace. Komisi dan biaya per pesanan dipakai untuk menghitung uang yang benar-benar kamu terima.",
+    "addTitle": "Tambah kanal sendiri",
+    "editTitle": "Ubah kanal",
+    "name": "Nama kanal",
+    "namePlaceholder": "Contoh: Titip di warung",
+    "commissionPct": "Komisi (%)",
+    "fixedFee": "Biaya per pesanan (Rp)",
+    "feeHint": "Potongan tetap per pesanan, misalnya biaya layanan. Isi 0 jika tidak ada.",
+    "feeNone": "Tanpa potongan",
+    "feePct": "Komisi {pct}",
+    "feeFixed": "{fee}/pesanan",
+    "feeBoth": "Komisi {pct} + {fee}/pesanan",
+    "templatesTitle": "Tambah dari daftar",
+    "templatesHint": "Perkiraan Oktober 2026, belum termasuk PPN. Cek angka pastinya di dashboard merchant kamu, lalu ubah jika perlu.",
+    "created": "Kanal ditambahkan.",
+    "templateExists": "{name} sudah ada di kanalmu.",
+    "delete": "Hapus kanal",
+    "deleteWarning": "Menghapus kanal juga menghapus harga produk dan kemasan khusus di kanal ini.",
+    "lastChannel": "Kanal terakhir tidak bisa dihapus. Tambahkan kanal lain dulu."
   },
   "StoreList": {
     "title": "Toko kamu",
@@ -373,7 +410,11 @@
     "noMaterials": "Belum ada bahan untuk dipilih.",
     "goToMaterials": "Tambah bahan dulu",
     "rowCost": "{cost}/porsi",
-    "deleteRow": "Hapus {material} dari komposisi"
+    "deleteRow": "Hapus {material} dari komposisi",
+    "channel": "Dipakai di",
+    "allChannels": "Semua kanal",
+    "channelHint": "Pilih satu kanal untuk kemasan khusus, misalnya bubble wrap hanya untuk pesanan online.",
+    "onlyChannel": "Hanya di {channel}"
   },
   "Products": {
     "title": "Produk",
@@ -415,7 +456,14 @@
     "inactivePreview": "Produk ini sedang tidak dijual, jadi tidak dihitung di dashboard.",
     "pricePlaceholder": "15.000",
     "noComposition": "Komposisi produk ini masih kosong, jadi HPP bahan masih Rp0. Isi komposisinya dulu.",
-    "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung."
+    "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung.",
+    "competitorPrice": "Harga pesaing (Rp, opsional)",
+    "competitorHint": "Harga produk serupa di tempat lain, untuk perbandingan.",
+    "competitor": "Harga pesaing",
+    "recommendation": "Harga rekomendasi: {price}",
+    "recommendationNoOverhead": "Belum termasuk biaya operasional — isi perkiraan penjualan supaya lebih akurat.",
+    "recommendationImpossible": "Komisi + target margin terlalu besar, tidak ada harga wajar yang memenuhi. Turunkan target margin atau pakai kanal lain.",
+    "useRecommendation": "Pakai harga rekomendasi"
   },
   "Warnings": {
     "NET_LOSS": "Usahamu rugi per bulan: biaya tetap lebih besar dari laba kotor.",
@@ -431,12 +479,14 @@
     "intro": "Lengkapi langkah ini supaya hitunganmu akurat.",
     "done": "(selesai)",
     "todo": "(belum)",
+    "optional": "(opsional)",
     "items": {
       "materials": "Catat bahan & kemasan",
       "products": "Buat produk lengkap dengan komposisi, harga, dan perkiraan penjualan",
       "expenses": "Isi biaya operasional",
       "ownerSalary": "Hitung gaji kamu sendiri",
-      "assets": "Catat inventaris"
+      "assets": "Catat inventaris",
+      "channels": "Tambah kanal online (GoFood, Shopee, …)"
     }
   }
 }

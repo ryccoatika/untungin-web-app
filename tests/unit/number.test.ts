@@ -50,7 +50,23 @@ describe("localeNumber", () => {
     expect(qty.parse(input)).toBe(expected);
   });
 
-  it.each(["1.000", "1.500", "1.000.000", "1e308", "0x10", "-5", "Infinity", "1,2,3", "1.2.3", "abc", "1.000,5,1"])(
+  it.each([
+    ["0.125", 0.125],
+    ["0,125", 0.125],
+    ["0,5", 0.5],
+    ["-5", -5],
+    ["-1,5", -1.5],
+    ["- 2", -2],
+    ["-0", 0],
+  ])("reads %j as %d", (input, expected) => {
+    expect(localeNumber(z.number()).parse(input)).toBe(expected);
+  });
+
+  it.each(["1,000", "12,500", "1,000,000", "-1.000", "--5", "1e3", "0x10"])("rejects the ambiguous or invalid %j", (input) => {
+    expect(localeNumber(z.number({ error: "nan" })).safeParse(input).error?.issues[0].message).toBe("nan");
+  });
+
+  it.each(["1.000", "1.500", "1.000.000", "1e308", "0x10", "Infinity", "1,2,3", "1.2.3", "abc", "1.000,5,1"])(
     "rejects %j",
     (input) => {
       const result = qty.safeParse(input);

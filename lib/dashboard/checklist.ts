@@ -1,13 +1,13 @@
 import type { StoreData } from "@/lib/calc";
 
-export const CHECKLIST_KEYS = ["materials", "products", "expenses", "ownerSalary", "assets"] as const;
+export const CHECKLIST_KEYS = ["materials", "products", "expenses", "ownerSalary", "assets", "channels"] as const;
 export type ChecklistKey = (typeof CHECKLIST_KEYS)[number];
-export type ChecklistItem = { key: ChecklistKey; done: boolean; href: string };
+export type ChecklistItem = { key: ChecklistKey; done: boolean; href: string; optional: boolean };
 
-/** Setup steps shown on the dashboard until every one is done (spec §5.2). */
+/** Setup steps shown on the dashboard until every required step is done, optional steps excluded (spec §5.2). */
 export function setupChecklist(data: StoreData): ChecklistItem[] {
   const base = `/s/${data.store.id}`;
-  const withComposition = new Set(data.composition.map((row) => row.productId));
+  const withComposition = new Set(data.composition.filter((row) => row.channelId === null).map((row) => row.productId));
   // A product is "done" once the dashboard can show its profit.
   const productReady = data.products.some(
     (product) =>
@@ -21,6 +21,7 @@ export function setupChecklist(data: StoreData): ChecklistItem[] {
     expenses: data.expenses.some((expense) => expense.category !== "gaji_pemilik"),
     ownerSalary: data.expenses.some((expense) => expense.category === "gaji_pemilik"),
     assets: data.assets.length > 0,
+    channels: data.channels.length > 1,
   };
   const href: Record<ChecklistKey, string> = {
     materials: `${base}/bahan`,
@@ -28,6 +29,7 @@ export function setupChecklist(data: StoreData): ChecklistItem[] {
     expenses: `${base}/biaya`,
     ownerSalary: `${base}/biaya`,
     assets: `${base}/inventaris`,
+    channels: `${base}/kanal`,
   };
-  return CHECKLIST_KEYS.map((key) => ({ key, done: done[key], href: href[key] }));
+  return CHECKLIST_KEYS.map((key) => ({ key, done: done[key], href: href[key], optional: key === "channels" }));
 }

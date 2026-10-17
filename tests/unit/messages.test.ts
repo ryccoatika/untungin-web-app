@@ -38,6 +38,7 @@ describe("app-generated data names", () => {
       import("@/lib/validation/product").then((m) => m.PRODUCT_VALIDATION_KEYS),
       import("@/lib/validation/composition").then((m) => m.COMPOSITION_VALIDATION_KEYS),
       import("@/lib/validation/price").then((m) => m.PRICE_VALIDATION_KEYS),
+      import("@/lib/validation/channel").then((m) => m.CHANNEL_VALIDATION_KEYS),
       import("@/lib/validation/expense").then((m) => m.EXPENSE_VALIDATION_KEYS),
       import("@/lib/validation/asset").then((m) => m.ASSET_VALIDATION_KEYS),
     ]);

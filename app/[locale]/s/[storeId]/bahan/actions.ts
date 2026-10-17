@@ -1,31 +1,21 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
-import { z } from "zod";
 import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { isUnit, sameDimension } from "@/lib/calc";
 import { revalidateStore } from "@/lib/data/revalidate";
-import { rawValues, type FormState } from "@/lib/forms";
+import { type FormState } from "@/lib/forms";
+import { parseForm } from "@/lib/forms-server";
 import { getValidationTranslator } from "@/lib/i18n/server";
-import { translateFieldErrors } from "@/lib/i18n/translate";
 import { isUuid } from "@/lib/uuid";
 import { MATERIAL_UNIT_IN_USE_KEY, materialInputSchema, toMaterialColumns } from "@/lib/validation/material";
 
 const FIELDS = ["name", "category", "purchaseQty", "purchaseUnit", "purchasePrice", "wastePct"] as const;
 
-async function parseMaterial(formData: FormData) {
-  const values = rawValues(formData, FIELDS);
-  const parsed = materialInputSchema.safeParse(values);
-  if (parsed.success) return { values, input: parsed.data, error: undefined };
-  const tValidation = await getValidationTranslator();
-  const fieldErrors = translateFieldErrors(z.flattenError(parsed.error).fieldErrors, tValidation);
-  return { values, input: undefined, error: { fieldErrors, values } satisfies FormState };
-}
-
 export async function createMaterialAction(storeId: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const tCommon = await getTranslations("Common");
-  const parsed = await parseMaterial(formData);
+  const parsed = await parseForm(materialInputSchema, formData, FIELDS);
   if (parsed.error) return parsed.error;
   if (!isUuid(storeId)) return { message: tCommon("notFound"), values: parsed.values };
 
@@ -45,7 +35,7 @@ export async function updateMaterialAction(
   formData: FormData,
 ): Promise<FormState> {
   const tCommon = await getTranslations("Common");
-  const parsed = await parseMaterial(formData);
+  const parsed = await parseForm(materialInputSchema, formData, FIELDS);
   if (parsed.error) return parsed.error;
   if (!isUuid(storeId) || !isUuid(materialId)) return { message: tCommon("notFound"), values: parsed.values };
 

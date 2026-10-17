@@ -1,30 +1,19 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
-import { z } from "zod";
 import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { revalidateStore } from "@/lib/data/revalidate";
-import { rawValues, type FormState } from "@/lib/forms";
-import { getValidationTranslator } from "@/lib/i18n/server";
-import { translateFieldErrors } from "@/lib/i18n/translate";
+import { type FormState } from "@/lib/forms";
+import { parseForm } from "@/lib/forms-server";
 import { isUuid } from "@/lib/uuid";
 import { assetInputSchema, toAssetColumns } from "@/lib/validation/asset";
 
 const FIELDS = ["name", "category", "qty", "unitPrice", "usefulLifeMonths"] as const;
 
-async function parseAsset(formData: FormData) {
-  const values = rawValues(formData, FIELDS);
-  const parsed = assetInputSchema.safeParse(values);
-  if (parsed.success) return { values, input: parsed.data, error: undefined };
-  const tValidation = await getValidationTranslator();
-  const fieldErrors = translateFieldErrors(z.flattenError(parsed.error).fieldErrors, tValidation);
-  return { values, input: undefined, error: { fieldErrors, values } satisfies FormState };
-}
-
 export async function createAssetAction(storeId: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const tCommon = await getTranslations("Common");
-  const parsed = await parseAsset(formData);
+  const parsed = await parseForm(assetInputSchema, formData, FIELDS);
   if (parsed.error) return parsed.error;
   if (!isUuid(storeId)) return { message: tCommon("notFound"), values: parsed.values };
 
@@ -43,7 +32,7 @@ export async function updateAssetAction(
   formData: FormData,
 ): Promise<FormState> {
   const tCommon = await getTranslations("Common");
-  const parsed = await parseAsset(formData);
+  const parsed = await parseForm(assetInputSchema, formData, FIELDS);
   if (parsed.error) return parsed.error;
   if (!isUuid(storeId) || !isUuid(assetId)) return { message: tCommon("notFound"), values: parsed.values };
 

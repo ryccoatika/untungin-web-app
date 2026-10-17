@@ -43,7 +43,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         </p>
       )}
 
-      {checklist.some((item) => !item.done) && <SetupChecklist items={checklist} />}
+      {checklist.some((item) => !item.done && !item.optional) && <SetupChecklist items={checklist} />}
 
       {analysis && (
         <>

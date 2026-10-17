@@ -56,7 +56,7 @@ describe("storeInputSchema", () => {
     [{ targetMarginPct: "" }, "targetMarginPct", "store.marginNumber"],
     [{ targetMarginPct: "abc" }, "targetMarginPct", "store.marginNumber"],
     [{ targetMarginPct: "100" }, "targetMarginPct", "store.marginMax"],
-    [{ targetMarginPct: "-5" }, "targetMarginPct", "store.marginNumber"],
+    [{ targetMarginPct: "-5" }, "targetMarginPct", "store.marginMin"],
     [{ operatingDaysPerMonth: "" }, "operatingDaysPerMonth", "store.operatingDaysNumber"],
     [{ operatingDaysPerMonth: "0" }, "operatingDaysPerMonth", "store.operatingDaysMin"],
     [{ operatingDaysPerMonth: "32" }, "operatingDaysPerMonth", "store.operatingDaysMax"],
