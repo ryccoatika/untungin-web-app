@@ -25,7 +25,7 @@ export function OwnerNameForm({ current }: { current: string }) {
             <Input
               id={`${id}-owner`}
               name="ownerName"
-              maxLength={200}
+              maxLength={80}
               autoComplete="name"
               // Remount on every result so the saved value (not React's reset) fills the field.
               key={state?.values?.ownerName ?? current}
