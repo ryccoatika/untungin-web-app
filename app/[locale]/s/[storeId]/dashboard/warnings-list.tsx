@@ -7,7 +7,16 @@ const LISTED: WarningCode[] = ["LOSS_PRODUCTS", "BELOW_TARGET", "COMPETITOR_GAP"
 const MAX_LINES = 3;
 const SERIOUS: WarningCode[] = ["NET_LOSS", "LOSS_PRODUCTS", "NEGATIVE_CONTRIBUTION"];
 
-export function WarningsList({ warnings, lineLabel }: { warnings: StoreWarning[]; lineLabel: (ref: LineRef) => string }) {
+/** Shared by the dashboard and the simulation: a sentence, then at most three product/channel lines. */
+export function WarningsList({
+  warnings,
+  lineLabel,
+  title,
+}: {
+  warnings: StoreWarning[];
+  lineLabel: (ref: LineRef) => string;
+  title?: string;
+}) {
   const t = useTranslations("Dashboard");
   const tWarnings = useTranslations("Warnings");
   if (warnings.length === 0) return null;
@@ -15,7 +24,7 @@ export function WarningsList({ warnings, lineLabel }: { warnings: StoreWarning[]
   return (
     <section aria-labelledby="warnings-title" className="space-y-2">
       <h2 id="warnings-title" className="text-lg font-semibold">
-        {t("warningsTitle")}
+        {title ?? t("warningsTitle")}
       </h2>
       <ul className="space-y-2">
         {warnings.map((warning) => (
@@ -30,20 +39,20 @@ export function WarningsList({ warnings, lineLabel }: { warnings: StoreWarning[]
           >
             <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
             <div className="min-w-0 space-y-1">
-              {warning.lines.length > 0 && LISTED.includes(warning.code) ? (
+              {LISTED.includes(warning.code) ? (
                 <>
                   <p>{tWarnings(`${warning.code}_intro` as "BELOW_TARGET_intro")}</p>
-                  <ul className="list-disc space-y-0.5 pl-5">
+                  {warning.lines.length > 0 && <ul className="list-disc space-y-0.5 pl-5">
                     {warning.lines.slice(0, MAX_LINES).map((ref) => (
                       <li key={`${ref.productId}:${ref.channelId}`}>{lineLabel(ref)}</li>
                     ))}
-                  </ul>
+                  </ul>}
                   {warning.lines.length > MAX_LINES && (
                     <p className="font-medium">{tWarnings("moreLines", { count: warning.lines.length - MAX_LINES })}</p>
                   )}
                 </>
               ) : (
-                <p>{tWarnings(warning.code, { products: warning.lines.map(lineLabel).join(", ") })}</p>
+                <p>{tWarnings(warning.code as "NET_LOSS")}</p>
               )}
             </div>
           </li>

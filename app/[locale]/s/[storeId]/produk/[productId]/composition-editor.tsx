@@ -1,5 +1,6 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { FieldError } from "@/components/forms/field-error";
@@ -100,13 +101,26 @@ function RowEditor({
   return (
     // The two forms stay separate but are `contents`, so fields and both buttons are cells of one grid:
     // two columns on phones, one row (fields, Simpan, Hapus) from md.
-    <li className="grid grid-cols-2 items-start gap-x-2 gap-y-2 p-3 sm:p-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1.8fr)_auto_auto]">
+    <li className="grid grid-cols-2 items-start gap-x-2 gap-y-2 p-3 sm:p-4 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1.8fr)_auto]">
       <div className="col-span-full flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-medium [overflow-wrap:anywhere]">{row.materialName}</p>
           {row.channelName && <p className="text-xs text-muted-foreground">{t("onlyChannel", { channel: row.channelName })}</p>}
         </div>
-        <p className="shrink-0 text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>
+        <div className="flex shrink-0 items-center gap-1">
+          <p className="text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>
+          <form action={deleteFormAction}>
+            <SubmitButton
+              variant="ghost"
+              size="icon"
+              className="-my-1 text-destructive"
+              pendingText="…"
+              aria-label={t("deleteRow", { material: row.materialName })}
+            >
+              <Trash2 aria-hidden />
+            </SubmitButton>
+          </form>
+        </div>
       </div>
       <form action={formAction} className="contents">
         <input type="hidden" name="materialId" value={row.materialId} />
@@ -127,7 +141,7 @@ function RowEditor({
             </NativeSelect>
             <FieldError errors={errors.unit} />
           </div>
-          <div className="col-span-2 space-y-1 md:col-span-1">
+          <div className="space-y-1">
             <Label htmlFor={id("basis")}>{t("basis")}</Label>
             <NativeSelect id={id("basis")} name="basis" defaultValue={current.basis}>
               {BASES.map((basis) => (
@@ -144,25 +158,15 @@ function RowEditor({
             <FormMessage state={state} />
           </div>
         )}
-        <SubmitButton variant="outline" className="w-full md:mt-6 md:w-auto" aria-label={t("saveRow", { material: row.materialName })} pendingText={tCommon("savePending")}>
+        <SubmitButton variant="outline" className="w-full self-end md:mt-6 md:w-auto md:self-start" aria-label={t("saveRow", { material: row.materialName })} pendingText={tCommon("savePending")}>
           {tCommon("save")}
         </SubmitButton>
       </form>
-      <form action={deleteFormAction} className="contents">
-        <SubmitButton
-          variant="ghost"
-          className="w-full text-destructive md:mt-6 md:w-auto"
-          pendingText={tCommon("deletePending")}
-          aria-label={t("deleteRow", { material: row.materialName })}
-        >
-          {tCommon("delete")}
-        </SubmitButton>
-        {deleteState && !deleteState.ok && (
-          <div className="order-last col-span-full">
-            <FormMessage state={deleteState} />
-          </div>
-        )}
-      </form>
+      {deleteState && !deleteState.ok && (
+        <div className="col-span-full">
+          <FormMessage state={deleteState} />
+        </div>
+      )}
     </li>
   );
 }

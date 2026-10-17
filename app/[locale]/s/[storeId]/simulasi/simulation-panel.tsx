@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { WarningsList } from "../dashboard/warnings-list";
 import { StatusBadge } from "@/components/store/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,6 @@ function paramsToQuery(params: { forEach: (fn: (value: string, key: string) => v
 
 export function SimulationPanel({ data }: { data: StoreData }) {
   const t = useTranslations("Simulation");
-  const tWarnings = useTranslations("Warnings");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const [overrides, setOverrides] = useState<Overrides>(() => parseOverrides(paramsToQuery(searchParams)));
@@ -312,20 +312,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
         </Card>
       )}
 
-      {warnings.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">{t("warningsTitle")}</h2>
-          <ul className="space-y-2">
-            {warnings.map((warning) => (
-              <li key={warning.code} className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm [overflow-wrap:anywhere]">
-                {tWarnings(warning.code, {
-                  products: warning.lines.map(lineLabel).join(", "),
-                })}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <WarningsList warnings={warnings} lineLabel={lineLabel} title={t("warningsTitle")} />
     </div>
   );
 }

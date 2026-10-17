@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { StoreAnalysis, StoreData } from "@/lib/calc";
 import { formatPercent, formatRupiah } from "@/lib/format";
 
-/** One row per product and channel; stacked on phones, columns from `lg`. */
+/** One row per product and channel; stacked on phones, two-column cards from `md`, table columns from `lg`. */
 export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data: StoreData }) {
   const t = useTranslations("Dashboard");
   const locale = useLocale();
@@ -29,9 +29,9 @@ export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data
               <span>{t("margin")}</span>
               <span>{t("status")}</span>
             </div>
-            <ul className="divide-y rounded-lg border">
+            <ul className="divide-y rounded-lg border md:grid md:grid-cols-2 md:gap-3 md:divide-y-0 md:border-0 lg:block lg:gap-0 lg:divide-y lg:rounded-lg lg:border">
               {analysis.lines.map((line) => (
-                <li key={`${line.productId}:${line.channelId}`}>
+                <li key={`${line.productId}:${line.channelId}`} className="md:rounded-lg md:border lg:rounded-none lg:border-0">
                   <Link
                     href={`/s/${data.store.id}/produk/${line.productId}`}
                     className={`grid gap-1 px-2 py-3 hover:bg-accent/60 ${columns}`}
