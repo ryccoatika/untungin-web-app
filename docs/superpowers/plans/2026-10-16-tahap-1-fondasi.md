@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js 16.4, React 19, TypeScript strict, Tailwind CSS 4, shadcn/ui, `@supabase/ssr` 0.12, `@supabase/supabase-js` 2.118, Supabase CLI 2.121 (local stack in Docker), zod 4, Vitest 5, Playwright.
 
-**Spec:** `docs/superpowers/specs/2026-10-16-businessnote-design.md` (sections 2, 3, 5.1, 5.2 `pengaturan`, 5.3, 8, 9, 10 item 1, 11)
+**Spec:** `docs/superpowers/specs/2026-10-16-untungin-design.md` (sections 2, 3, 5.1, 5.2 `pengaturan`, 5.3, 8, 9, 10 item 1, 11)
 
 ## Global Constraints
 
@@ -3267,7 +3267,7 @@ Replace `README.md`:
 
 Web app untuk pemula usaha: hitung HPP, harga jual, biaya operasional, laba, BEP, dan balik modal.
 
-Spec: `docs/superpowers/specs/2026-10-16-businessnote-design.md`
+Spec: `docs/superpowers/specs/2026-10-16-untungin-design.md`
 
 ## Development lokal
 

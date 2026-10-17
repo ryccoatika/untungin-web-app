@@ -4,7 +4,7 @@ Web app for first-time sellers: calculate COGS (HPP), selling price, operating c
 
 Production: https://untungin.ryccoatika.com
 
-Spec: `docs/superpowers/specs/2026-10-16-businessnote-design.md`
+Spec: `docs/superpowers/specs/2026-10-16-untungin-design.md`
 
 ## Local development
 
