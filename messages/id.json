@@ -191,6 +191,7 @@
       "expenses": "Biaya",
       "assets": "Inventaris",
       "simulation": "Simulasi",
+      "analysis": "Analisis AI",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
@@ -199,6 +200,7 @@
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
       "simulation": "Coba ubah harga dan penjualan tanpa mengubah datamu",
+      "analysis": "Saran dari AI berdasarkan angka tokomu",
       "settings": "Ubah data toko atau hapus toko"
     }
   },
@@ -253,7 +255,8 @@
     "status": "Status",
     "withoutPrice": "Belum ada harga: {products}",
     "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi angkanya belum bisa dihitung.",
-    "calcErrorAction": "Perbaiki"
+    "calcErrorAction": "Perbaiki",
+    "tryAnalysis": "Analisis usahaku"
   },
   "Settings": {
     "title": "Pengaturan toko",
@@ -303,8 +306,19 @@
     "pcs": "buah (pcs)",
     "lusin": "lusin (12 pcs)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin" },
-  "MaterialCategory": { "bahan": "Bahan baku", "kemasan": "Kemasan" },
+  "UnitShort": {
+    "g": "g",
+    "ons": "ons",
+    "kg": "kg",
+    "ml": "ml",
+    "l": "l",
+    "pcs": "pcs",
+    "lusin": "lusin"
+  },
+  "MaterialCategory": {
+    "bahan": "Bahan baku",
+    "kemasan": "Kemasan"
+  },
   "Materials": {
     "title": "Bahan & kemasan",
     "intro": "Semua yang kamu beli untuk membuat produk: bahan baku dan kemasan.",
@@ -340,7 +354,12 @@
     "pemasaran": "Pemasaran",
     "lainnya": "Lainnya"
   },
-  "Frequency": { "harian": "per hari", "mingguan": "per minggu", "bulanan": "per bulan", "tahunan": "per tahun" },
+  "Frequency": {
+    "harian": "per hari",
+    "mingguan": "per minggu",
+    "bulanan": "per bulan",
+    "tahunan": "per tahun"
+  },
   "Expenses": {
     "title": "Biaya operasional",
     "intro": "Biaya rutin di luar bahan: sewa, listrik, gaji, dan lainnya.",
@@ -396,8 +415,15 @@
     "created": "Barang ditambahkan.",
     "delete": "Hapus barang"
   },
-  "LineStatus": { "red": "Rugi", "yellow": "Di bawah target", "green": "Sesuai target" },
-  "Basis": { "batch": "Per resep (dibagi hasil)", "unit": "Per porsi/unit" },
+  "LineStatus": {
+    "red": "Rugi",
+    "yellow": "Di bawah target",
+    "green": "Sesuai target"
+  },
+  "Basis": {
+    "batch": "Per resep (dibagi hasil)",
+    "unit": "Per porsi/unit"
+  },
   "Composition": {
     "title": "Komposisi",
     "intro": "Bahan dan kemasan untuk produk ini. 1 resep = {yield} porsi/unit.",
@@ -536,6 +562,35 @@
       "failed": "Analisis gagal, coba lagi.",
       "notConfigured": "Analisis AI belum disiapkan di server ini.",
       "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
-    }
+    },
+    "title": "Analisis AI",
+    "intro": "AI membaca angka tokomu lalu memberi saran sederhana. Cek dampaknya di simulasi sebelum mengubah apa pun.",
+    "analyze": "Analisis usahaku",
+    "analyzing": "Menganalisis… (bisa sampai 30 detik)",
+    "quota": "Sisa kuota hari ini: {remaining} dari {limit}",
+    "quotaUsedUp": "Kuota hari ini habis. Kuota baru mulai pukul 00.00 WIB.",
+    "privacy": "Saat kamu menekan tombol, data tokomu (nama toko, produk, bahan, kanal, harga dan biaya) dikirim ke Google Gemini untuk dianalisis. Hasilnya disimpan di akunmu.",
+    "disclaimer": "Saran AI bisa keliru. Angka dampaknya dihitung oleh aplikasi lewat simulasi.",
+    "none": "Belum ada analisis. Tekan tombol di atas untuk mulai.",
+    "latest": "Analisis terakhir",
+    "createdAt": "Dibuat {date}",
+    "stale": "Datamu sudah berubah sejak analisis ini. Analisis lagi untuk saran yang sesuai.",
+    "unreadable": "Analisis ini tidak bisa ditampilkan.",
+    "history": "Riwayat",
+    "summary": "Ringkasan",
+    "highlights": "Yang sudah bagus",
+    "issues": "Yang perlu diperbaiki",
+    "recommendations": "Saran",
+    "priority": {
+      "tinggi": "Penting",
+      "sedang": "Sedang",
+      "rendah": "Rendah"
+    },
+    "relatedProducts": "Produk terkait",
+    "trySimulation": "Coba di simulasi",
+    "emptyTitle": "Belum ada yang bisa dianalisis",
+    "emptyBody": "Tambahkan produk dengan resep dan harga jual dulu, lalu kembali ke sini.",
+    "emptyAction": "Ke halaman produk",
+    "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor."
   }
 }

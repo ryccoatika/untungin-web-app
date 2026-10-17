@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPercent, formatNumber, formatRupiah } from "@/lib/format";
+import { formatPercent, formatNumber, formatRupiah, formatDateTime } from "@/lib/format";
 
 describe("formatPercent", () => {
   it.each([
@@ -47,3 +47,11 @@ describe("formatRupiah", () => {
   });
 });
 
+
+describe("formatDateTime", () => {
+  it("shows Jakarta time in the locale", () => {
+    // 2026-10-17 01:05 UTC = 08:05 WIB
+    expect(formatDateTime("2026-10-17T01:05:00.000Z", "id")).toBe("17 Okt 2026, 08.05");
+    expect(formatDateTime("2026-10-17T01:05:00.000Z", "en")).toBe("Oct 17, 2026, 8:05 AM");
+  });
+});

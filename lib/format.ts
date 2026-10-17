@@ -18,3 +18,12 @@ export function formatRupiah(value: number, locale: AppLocale, maximumFractionDi
   const negative = value < 0 && /[1-9]/.test(amount);
   return `${negative ? "-" : ""}Rp${amount}`;
 }
+
+/** Date and time of a saved event, always in Asia/Jakarta (the app's day boundary, spec §6.1). */
+export function formatDateTime(iso: string, locale: AppLocale): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Asia/Jakarta",
+  }).format(new Date(iso));
+}

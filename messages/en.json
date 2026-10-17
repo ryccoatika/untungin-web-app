@@ -191,6 +191,7 @@
       "expenses": "Costs",
       "assets": "Inventory",
       "simulation": "Simulation",
+      "analysis": "AI analysis",
       "settings": "Settings",
       "more": "More"
     },
@@ -199,6 +200,7 @@
       "expenses": "Rent, electricity, wages and other running costs",
       "assets": "Equipment and furniture, your starting capital",
       "simulation": "Try other prices and sales without changing your data",
+      "analysis": "Advice from AI based on your store's numbers",
       "settings": "Edit or delete the store"
     }
   },
@@ -253,7 +255,8 @@
     "status": "Status",
     "withoutPrice": "No price yet: {products}",
     "calcError": "A composition row in {product} uses a unit that doesn't match its material, so the numbers can't be calculated yet.",
-    "calcErrorAction": "Fix it"
+    "calcErrorAction": "Fix it",
+    "tryAnalysis": "Analyze my business"
   },
   "Settings": {
     "title": "Store settings",
@@ -303,8 +306,19 @@
     "pcs": "piece (pcs)",
     "lusin": "dozen (12 pcs)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen" },
-  "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
+  "UnitShort": {
+    "g": "g",
+    "ons": "ons",
+    "kg": "kg",
+    "ml": "ml",
+    "l": "l",
+    "pcs": "pcs",
+    "lusin": "dozen"
+  },
+  "MaterialCategory": {
+    "bahan": "Ingredient",
+    "kemasan": "Packaging"
+  },
   "Materials": {
     "title": "Materials & packaging",
     "intro": "Everything you buy to make your products: ingredients and packaging.",
@@ -340,7 +354,12 @@
     "pemasaran": "Marketing",
     "lainnya": "Other"
   },
-  "Frequency": { "harian": "per day", "mingguan": "per week", "bulanan": "per month", "tahunan": "per year" },
+  "Frequency": {
+    "harian": "per day",
+    "mingguan": "per week",
+    "bulanan": "per month",
+    "tahunan": "per year"
+  },
   "Expenses": {
     "title": "Operating costs",
     "intro": "Running costs besides materials: rent, electricity, wages and more.",
@@ -396,8 +415,15 @@
     "created": "Item added.",
     "delete": "Delete item"
   },
-  "LineStatus": { "red": "Loss", "yellow": "Below target", "green": "On target" },
-  "Basis": { "batch": "Per recipe (split by yield)", "unit": "Per unit" },
+  "LineStatus": {
+    "red": "Loss",
+    "yellow": "Below target",
+    "green": "On target"
+  },
+  "Basis": {
+    "batch": "Per recipe (split by yield)",
+    "unit": "Per unit"
+  },
   "Composition": {
     "title": "Composition",
     "intro": "Materials and packaging for this product. 1 recipe = {yield} units.",
@@ -536,6 +562,35 @@
       "failed": "Analysis failed, try again.",
       "notConfigured": "AI analysis isn't set up on this server yet.",
       "unavailable": "This store can't be analysed yet. Reload the page and try again."
-    }
+    },
+    "title": "AI analysis",
+    "intro": "AI reads your store's numbers and gives simple advice. Check the effect in the simulation before you change anything.",
+    "analyze": "Analyze my business",
+    "analyzing": "Analysing… (can take up to 30 seconds)",
+    "quota": "Analyses left today: {remaining} of {limit}",
+    "quotaUsedUp": "You've used today's analyses. New ones start at 00:00 WIB.",
+    "privacy": "When you press the button, your store data (store name, products, materials, channels, prices and costs) is sent to Google Gemini for analysis. The result is saved in your account.",
+    "disclaimer": "AI advice can be wrong. The app calculates the effect of a change in the simulation.",
+    "none": "No analysis yet. Press the button above to start.",
+    "latest": "Latest analysis",
+    "createdAt": "Made {date}",
+    "stale": "Your data has changed since this analysis. Analyse again for advice that fits.",
+    "unreadable": "This analysis can't be shown.",
+    "history": "History",
+    "summary": "Summary",
+    "highlights": "What's going well",
+    "issues": "What to fix",
+    "recommendations": "Advice",
+    "priority": {
+      "tinggi": "Important",
+      "sedang": "Medium",
+      "rendah": "Low"
+    },
+    "relatedProducts": "Related products",
+    "trySimulation": "Try in simulation",
+    "emptyTitle": "Nothing to analyse yet",
+    "emptyBody": "Add a product with a recipe and a selling price first, then come back here.",
+    "emptyAction": "Go to products",
+    "calcError": "Some product data needs fixing first. See the dashboard."
   }
 }

@@ -435,6 +435,7 @@ Every phase can be deployed. One implementation plan per phase.
 4. **What-if simulation**.
    Phase 4 notes: sliders −50%…+100% (wider when the URL asks for more); per-material fields replace the all-materials change; the page keeps the scenario in the address bar via `history.replaceState`; navigation in the sidebar and the phone 'Lainnya' page, plus a 'Coba simulasi' button on the dashboard.
 5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
+   Phase 5 notes: usage is counted in an `ai_usage` ledger (survives store deletion) through `claim_ai_usage`, which claims atomically; a failed run gives its usage back; the cache check runs before the quota check, and the snapshot includes the locale; the page shows the latest analysis, up to 10 older ones, the remaining quota and the privacy note; suggestions whose ids no longer exist lose their "Coba di simulasi" button; navigation in the sidebar and on "Lainnya", plus an "Analisis usahaku" button on the dashboard.
 6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
 

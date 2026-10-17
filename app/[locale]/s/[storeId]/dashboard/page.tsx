@@ -50,9 +50,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <>
           <MetricCards analysis={analysis} />
           {analysis.lines.length > 0 && (
-            <Link href={`/s/${data.store.id}/simulasi`} className={buttonVariants({ variant: "outline" })}>
-              {t("trySimulation")}
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/s/${data.store.id}/simulasi`} className={buttonVariants({ variant: "outline" })}>
+                {t("trySimulation")}
+              </Link>
+              <Link href={`/s/${data.store.id}/analisis`} className={buttonVariants({ variant: "outline" })}>
+                {t("tryAnalysis")}
+              </Link>
+            </div>
           )}
           <WarningsList warnings={analysis.warnings} lineLabel={lineLabel} />
           <ProductLines analysis={analysis} data={data} />
