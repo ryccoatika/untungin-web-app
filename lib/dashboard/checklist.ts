@@ -4,7 +4,7 @@ export const CHECKLIST_KEYS = ["materials", "products", "expenses", "ownerSalary
 export type ChecklistKey = (typeof CHECKLIST_KEYS)[number];
 export type ChecklistItem = { key: ChecklistKey; done: boolean; href: string; optional: boolean };
 
-/** Setup steps shown on the dashboard until every one is done (spec §5.2). */
+/** Setup steps shown on the dashboard until every required step is done, optional steps excluded (spec §5.2). */
 export function setupChecklist(data: StoreData): ChecklistItem[] {
   const base = `/s/${data.store.id}`;
   const withComposition = new Set(data.composition.map((row) => row.productId));

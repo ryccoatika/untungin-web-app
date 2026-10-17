@@ -7,7 +7,7 @@ const done = (data: Parameters<typeof setupChecklist>[0]) =>
 
 describe("setupChecklist", () => {
   it("is all to-do for an empty store, in spec order, with store links", () => {
-    const empty = { ...fixture(), materials: [], products: [], composition: [], prices: [], expenses: [], assets: [] };
+    const empty = { ...fixture(), channels: fixture().channels.slice(0, 1), materials: [], products: [], composition: [], prices: [], expenses: [], assets: [] };
     expect(setupChecklist(empty)).toEqual([
       { key: "materials", done: false, href: "/s/store/bahan", optional: false },
       { key: "products", done: false, href: "/s/store/produk", optional: false },
