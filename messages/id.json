@@ -96,7 +96,9 @@
       "duplicateName": "Kamu sudah punya toko dengan nama ini.",
       "confirmMismatch": "Nama toko tidak cocok."
     },
-    "common": { "amountTooLarge": "Angka terlalu besar" },
+    "common": {
+      "amountTooLarge": "Angka terlalu besar"
+    },
     "material": {
       "nameRequired": "Nama bahan wajib diisi",
       "nameTooLong": "Nama bahan maksimal 80 karakter",
@@ -195,6 +197,31 @@
     "deleteSubmit": "Hapus toko",
     "deletePending": "Menghapus…"
   },
-  "LocaleSwitcher": { "label": "Bahasa", "id": "Bahasa Indonesia", "en": "English" },
-  "Theme": { "trigger": "Tema: {mode}", "system": "Ikuti perangkat", "light": "Terang", "dark": "Gelap" }
+  "LocaleSwitcher": {
+    "label": "Bahasa",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "Theme": {
+    "trigger": "Tema: {mode}",
+    "system": "Ikuti perangkat",
+    "light": "Terang",
+    "dark": "Gelap"
+  },
+  "Common": {
+    "save": "Simpan",
+    "savePending": "Menyimpan…",
+    "add": "Tambah",
+    "addPending": "Menambah…",
+    "delete": "Hapus",
+    "deletePending": "Menghapus…",
+    "deleteConfirm": "Yakin ingin menghapus? Ini tidak bisa dibatalkan.",
+    "cancel": "Batal",
+    "edit": "Ubah",
+    "back": "Kembali",
+    "saved": "Tersimpan.",
+    "saveFailed": "Gagal menyimpan. Coba lagi.",
+    "deleteFailed": "Gagal menghapus. Coba lagi.",
+    "notFound": "Data tidak ditemukan."
+  }
 }

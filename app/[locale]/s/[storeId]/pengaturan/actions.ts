@@ -5,7 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
-import type { FormState } from "@/lib/forms";
+import { rawValues, type FormState } from "@/lib/forms";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { translateFieldErrors } from "@/lib/i18n/translate";
 import { isUuid } from "@/lib/uuid";
@@ -24,15 +24,6 @@ const STORE_FIELD_NAMES = [
   "operatingDaysPerMonth",
   "targetMarginPct",
 ] as const;
-
-function rawValues(formData: FormData, names: readonly string[]): Record<string, string> {
-  const values: Record<string, string> = {};
-  for (const field of names) {
-    const value = formData.get(field);
-    if (typeof value === "string") values[field] = value;
-  }
-  return values;
-}
 
 export async function updateStoreAction(
   storeId: string,

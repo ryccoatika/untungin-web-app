@@ -96,7 +96,9 @@
       "duplicateName": "You already have a store with this name.",
       "confirmMismatch": "The store name does not match."
     },
-    "common": { "amountTooLarge": "That number is too large" },
+    "common": {
+      "amountTooLarge": "That number is too large"
+    },
     "material": {
       "nameRequired": "Material name is required",
       "nameTooLong": "Material name can be at most 80 characters",
@@ -195,6 +197,31 @@
     "deleteSubmit": "Delete store",
     "deletePending": "Deleting…"
   },
-  "LocaleSwitcher": { "label": "Language", "id": "Bahasa Indonesia", "en": "English" },
-  "Theme": { "trigger": "Theme: {mode}", "system": "Follow device", "light": "Light", "dark": "Dark" }
+  "LocaleSwitcher": {
+    "label": "Language",
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  },
+  "Theme": {
+    "trigger": "Theme: {mode}",
+    "system": "Follow device",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "Common": {
+    "save": "Save",
+    "savePending": "Saving…",
+    "add": "Add",
+    "addPending": "Adding…",
+    "delete": "Delete",
+    "deletePending": "Deleting…",
+    "deleteConfirm": "Delete this for sure? This can't be undone.",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "back": "Back",
+    "saved": "Saved.",
+    "saveFailed": "Could not save. Try again.",
+    "deleteFailed": "Could not delete. Try again.",
+    "notFound": "Not found."
+  }
 }

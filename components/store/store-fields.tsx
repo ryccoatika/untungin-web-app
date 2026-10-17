@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { FieldError } from "@/components/forms/field-error";
+import { NativeSelect } from "@/components/forms/native-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,9 +23,6 @@ type Props = {
   errors?: Record<string, string[] | undefined>;
 };
 
-const selectClass =
-  "h-10 w-full rounded-md border border-input bg-background px-3 text-base dark:bg-input/30 md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
 export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
   const t = useTranslations("StoreFields");
   const tType = useTranslations("BusinessType");
@@ -40,12 +38,11 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
         </div>
         <div className="space-y-1">
           <Label htmlFor="businessType">{t("businessType")}</Label>
-          <select
+          <NativeSelect
             id="businessType"
             name="businessType"
             defaultValue={defaults.businessType ?? ""}
             required
-            className={selectClass}
           >
             <option value="" disabled>
               {t("businessTypePlaceholder")}
@@ -55,16 +52,15 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
                 {tType(type)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
           <FieldError errors={errors.businessType} />
         </div>
         <div className="space-y-1">
           <Label htmlFor="targetMarket">{t("targetMarket")}</Label>
-          <select
+          <NativeSelect
             id="targetMarket"
             name="targetMarket"
             defaultValue={defaults.targetMarket ?? ""}
-            className={selectClass}
           >
             <option value="">{t("targetMarketUnknown")}</option>
             {TARGET_MARKETS.map((market) => (
@@ -72,7 +68,7 @@ export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
                 {tMarket(market)}
               </option>
             ))}
-          </select>
+          </NativeSelect>
           <p className="text-xs text-muted-foreground">
             {t("targetMarketHint")}
           </p>
