@@ -249,6 +249,14 @@ describe("prompt", () => {
     expect(text).not.toContain("per month unless a field says otherwise");
   });
 
+  it("asks for Rupiah formatting and explains every unit", () => {
+    const id = systemInstruction("id");
+    expect(id).toContain("Rp80.000");
+    expect(systemInstruction("en")).toContain("Rp80,000");
+    for (const field of ["totalCapital", "fixedFee", "totalUnits"]) expect(id).toContain(field);
+    expect(id).toMatch(/totalCapital[^.]*one-off/);
+  });
+
   it("sends the snapshot as JSON", () => {
     const snapshot = { locale: "id", store: { name: "Toko" } } as unknown as AnalysisSnapshot;
     expect(userPrompt(snapshot)).toContain('"name":"Toko"');

@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
 import { StatusBadge } from "@/components/store/status-badge";
 import { Button } from "@/components/ui/button";
+import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +19,8 @@ import {
   type Recommendation,
   type StoreData,
 } from "@/lib/calc";
-import { formatPercent, formatRupiah } from "@/lib/format";
+import type { AppLocale } from "@/i18n/routing";
+import { formatPercent, formatRupiah, groupDigits } from "@/lib/format";
 import type { FormAction } from "@/lib/forms";
 import { priceInputSchema } from "@/lib/validation/price";
 
@@ -127,7 +129,7 @@ function PriceFields({
   errors: Record<string, string[] | undefined>;
 }) {
   const t = useTranslations("Pricing");
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
   const priceRef = useRef<HTMLInputElement>(null);
   // The typed values live in state; the preview is derived, so it follows new `data` after other saves.
   const [values, setValues] = useState<Record<string, unknown>>(defaults);
@@ -139,8 +141,9 @@ function PriceFields({
 
   function applyRecommendation() {
     if (recommendation?.kind !== "price" || !priceRef.current) return;
-    priceRef.current.value = String(recommendation.price);
-    setValues((current) => ({ ...current, price: String(recommendation.price) }));
+    const grouped = groupDigits(recommendation.price, locale);
+    priceRef.current.value = grouped;
+    setValues((current) => ({ ...current, price: grouped }));
   }
 
   return (
@@ -154,11 +157,10 @@ function PriceFields({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label htmlFor={field("price")}>{t("price")}</Label>
-          <Input
+          <MoneyInput
             ref={priceRef}
             id={field("price")}
             name="price"
-            inputMode="numeric"
             defaultValue={defaults.price}
             placeholder={t("pricePlaceholder")}
           />
@@ -171,7 +173,7 @@ function PriceFields({
         </div>
         <div className="col-span-2 space-y-1">
           <Label htmlFor={field("competitor")}>{t("competitorPrice")}</Label>
-          <Input id={field("competitor")} name="competitorPrice" inputMode="numeric" defaultValue={defaults.competitorPrice} />
+          <MoneyInput id={field("competitor")} name="competitorPrice" defaultValue={defaults.competitorPrice} />
           <p className="text-xs text-muted-foreground">{t("competitorHint")}</p>
           <FieldError errors={errors.competitorPrice} />
         </div>

@@ -7,6 +7,7 @@ import { FormMessage } from "@/components/forms/form-message";
 import { NativeSelect } from "@/components/forms/native-select";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
+import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EXPENSE_CATEGORIES, FREQUENCIES } from "@/lib/calc";
@@ -47,7 +48,7 @@ export function ExpenseForm({ action, defaults = {}, submitLabel, pendingLabel, 
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
           <div className="space-y-1">
             <Label htmlFor={`${id ?? "expense"}-amount`}>{t("amount")}</Label>
-            <Input id={`${id ?? "expense"}-amount`} name="amount" inputMode="numeric" defaultValue={current.amount} placeholder={t("amountPlaceholder")} />
+            <MoneyInput id={`${id ?? "expense"}-amount`} name="amount" defaultValue={current.amount} placeholder={t("amountPlaceholder")} />
             <FieldError errors={errors.amount} />
           </div>
           <div className="space-y-1">

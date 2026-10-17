@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
+import { GroupedNumber } from "@/components/store/grouped-number";
 import { Card, CardContent } from "@/components/ui/card";
 import type { StoreAnalysis } from "@/lib/calc";
 import { formatNumber, formatRupiah } from "@/lib/format";
@@ -52,14 +53,14 @@ export function MetricCards({ analysis }: { analysis: StoreAnalysis }) {
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {metrics.map((metric) => (
-        <Card key={metric.key}>
+        <Card key={metric.key} className="min-w-0">
           <CardContent className="space-y-1">
             <p className="text-sm text-muted-foreground">{metric.label}</p>
             <p
               data-testid={`metric-${metric.key}`}
-              className={cn("text-lg font-semibold [overflow-wrap:anywhere] sm:text-xl", metric.negative && "text-destructive")}
+              className={cn("break-normal text-base font-semibold tabular-nums sm:text-xl", metric.negative && "text-destructive")}
             >
-              {metric.value}
+              <GroupedNumber text={metric.value} />
             </p>
             {metric.hint && <p className="text-xs text-muted-foreground">{metric.hint}</p>}
           </CardContent>

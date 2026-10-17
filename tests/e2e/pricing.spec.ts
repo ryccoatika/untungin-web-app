@@ -24,7 +24,7 @@ test("previews HPP and margin while typing, then saves", async ({ page }) => {
   await form.getByRole("button", { name: "Simpan harga" }).click();
   await expect(page.getByText("Harga tersimpan.")).toBeVisible();
   await page.reload();
-  await expect(page.locator("form[id^='price-']").first().getByLabel("Harga jual (Rp)")).toHaveValue("5000");
+  await expect(page.locator("form[id^='price-']").first().getByLabel("Harga jual (Rp)")).toHaveValue("5.000");
 });
 
 test("a price below cost shows a loss before saving", async ({ page }) => {

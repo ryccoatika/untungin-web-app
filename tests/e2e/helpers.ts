@@ -50,11 +50,9 @@ export async function googleSignInNext(page: Page, buttonName: string): Promise<
 
 /** The locale saved on the user's profile, read with the admin API. */
 export async function savedLocale(email: string): Promise<string | null> {
-  const admin = adminClient();
-  const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
-  const user = data.users.find((candidate) => candidate.email === email);
-  if (!user) return null;
-  const { data: profile } = await admin.from("profiles").select("locale").eq("id", user.id).single();
+  const id = await userIdByEmail(email).catch(() => null);
+  if (!id) return null;
+  const { data: profile } = await adminClient().from("profiles").select("locale").eq("id", id).single();
   return profile?.locale ?? null;
 }
 
@@ -183,13 +181,17 @@ export function priceSection(page: Page, channelName: string) {
   return page.locator("section").filter({ has: page.getByRole("heading", { name: channelName, exact: true }) });
 }
 
-/** The auth user id for an e2e email, read with the admin API. */
+/** The auth user id for an e2e email, read with the admin API (pages through every user). */
 export async function userIdByEmail(email: string): Promise<string> {
-  const { data, error } = await adminClient().auth.admin.listUsers({ perPage: 1000 });
-  if (error) throw error;
-  const user = data.users.find((candidate) => candidate.email === email);
-  if (!user) throw new Error(`No user ${email}`);
-  return user.id;
+  const admin = adminClient();
+  const perPage = 1000;
+  for (let page = 1; ; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+    const user = data.users.find((candidate) => candidate.email === email);
+    if (user) return user.id;
+    if (data.users.length < perPage) throw new Error(`No user ${email}`);
+  }
 }
 
 /** The id of the store currently open in `page`. */

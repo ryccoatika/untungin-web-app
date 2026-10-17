@@ -1,4 +1,5 @@
 import type { AppLocale } from "@/i18n/routing";
+import { parseWholeNumber } from "@/lib/validation/number";
 
 const INTL_LOCALE: Record<AppLocale, string> = { id: "id-ID", en: "en-US" };
 
@@ -10,6 +11,15 @@ export function formatPercent(value: number, locale: AppLocale): string {
 
 export function formatNumber(value: number, locale: AppLocale, maximumFractionDigits = 2): string {
   return new Intl.NumberFormat(INTL_LOCALE[locale], { maximumFractionDigits }).format(value);
+}
+
+/** A Rupiah field's value with the locale's thousands separator ("18.000" id, "18,000" en); unreadable input is returned unchanged. */
+export function groupDigits(raw: string | number | undefined | null, locale: AppLocale): string {
+  if (raw === undefined || raw === null) return "";
+  const text = String(raw);
+  const value = typeof raw === "number" ? raw : parseWholeNumber(text);
+  if (value === undefined || !Number.isFinite(value) || !Number.isInteger(value) || value < 0) return text;
+  return formatNumber(value, locale, 0);
 }
 
 /** Rupiah with the locale's separators: "Rp15.000" (id), "Rp15,000" (en). No sign on values that round to 0. */
@@ -34,4 +44,9 @@ export function formatDateTime(iso: string, locale: AppLocale): string {
     timeStyle: "short",
     timeZone: "Asia/Jakarta",
   }).format(new Date(iso));
+}
+
+/** Splits a formatted number after each "." or "," so a line can only wrap between digit groups. */
+export function splitAfterSeparators(text: string): string[] {
+  return text.match(/[^.,]*[.,]|[^.,]+$/g) ?? [];
 }

@@ -1,6 +1,8 @@
 import type { AppLocale } from "@/i18n/routing";
 import type { AnalysisSnapshot } from "./snapshot";
 
+const RUPIAH_EXAMPLE: Record<AppLocale, string> = { id: "Rp80.000", en: "Rp80,000" };
+
 const LANGUAGE: Record<AppLocale, string> = {
   id: "Bahasa Indonesia (casual, friendly, use \"kamu\")",
   en: "English (casual, friendly)",
@@ -11,9 +13,10 @@ export function systemInstruction(locale: AppLocale): string {
   return [
     "You are a friendly business coach for first-time small food and drink sellers in Indonesia.",
     "You get one JSON snapshot of a seller's store: products with their cost and price per sales channel, materials, sales channels, fixed costs, totals and warnings.",
-    "Units: in products[].lines[], price, competitorPrice, materialCost, fullCost, netPrice and contribution are Rupiah per unit sold; estMonthlySales is units sold per month. materials[].purchasePrice is Rupiah for purchaseQty purchaseUnit. totals (revenue, costs, netProfit) and fixedCosts are Rupiah per month. bepUnitsMonthly/bepUnitsDaily are units sold; paybackMonths is months; every *Pct field is a percentage. Ids are opaque strings.",
+    "Units: in products[].lines[], price, competitorPrice, materialCost, fullCost, netPrice and contribution are Rupiah per unit sold; estMonthlySales is units sold per month. materials[].purchasePrice is Rupiah for purchaseQty purchaseUnit. totals (revenue, costs, netProfit) and fixedCosts are Rupiah per month. bepUnitsMonthly/bepUnitsDaily are units sold; paybackMonths is months; every *Pct field is a percentage. totals.totalCapital is a one-off Rupiah amount (what the equipment cost), not per month; channels[].fixedFee is Rupiah per order; totals.totalUnits is units sold per month. Ids are opaque strings.",
     `Write every text field in ${LANGUAGE[locale]}. Use simple words; avoid accounting jargon.`,
     "Rules:",
+    `- Write money the way the user reads it: "${RUPIAH_EXAMPLE[locale]}" in ${locale === "id" ? "Indonesian" : "English"}, never bare digits like 80000.`,
     "- Only quote numbers that appear in the snapshot. Never calculate or invent new numbers; the app computes the effect of a change in its simulation.",
     "- Address every warning in `warnings`, especially NO_OWNER_SALARY (the owner pays themselves nothing) and LOSS_PRODUCTS (products that lose money on each sale).",
     "- Use `competitorPrice` and `store.targetMarket` as context for price advice.",

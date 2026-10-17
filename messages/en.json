@@ -4,6 +4,7 @@
     "description": "Calculate COGS, selling prices, operating costs, and your business profit with ease."
   },
   "Landing": {
+    "accountDeleted": "Your account and all its data have been deleted.",
     "heading": "Know whether your business makes money from day one.",
     "intro": "Calculate COGS from ingredients, operating costs, and equipment depreciation. Get the right selling price and see when you'll earn your capital back — no accounting knowledge needed.",
     "features": {
@@ -53,7 +54,13 @@
     "next": "Next",
     "back": "Back",
     "submit": "Create store",
-    "submitPending": "Creating store…"
+    "submitPending": "Creating store…",
+    "or": "or",
+    "demoTitle": "Not ready to enter your own data?",
+    "demoBody": "Explore a complete sample coffee shop first: materials, packaging, products, GoFood, costs including your salary, and equipment. You can change or delete it later.",
+    "demoButton": "Try with sample data",
+    "demoPending": "Preparing the sample…",
+    "demoFailed": "The sample data couldn't be created. Try again."
   },
   "StoreFields": {
     "name": "Store name",
@@ -553,7 +560,7 @@
     "analyzing": "Analyzing… (can take up to 30 seconds)",
     "quota": "Analyses left today: {remaining} of {limit}",
     "quotaUsedUp": "You've used today's analyses. New ones start at 00:00 WIB.",
-    "privacy": "When you press the button, your store data (store name, products, materials, channels, prices and costs) is sent to Google Gemini for analysis. The result is saved in your account.",
+    "privacy": "When you press the button, your store data (store name, business type, target market, operating days, target margin, products, materials, channels, prices, estimated sales, competitor prices, costs and calculated totals) is sent to Google Gemini for analysis. The result is saved in your account.",
     "disclaimer": "AI advice can be wrong. The app calculates the effect of a change in the simulation.",
     "none": "No analysis yet. Press the button above to start.",
     "latest": "Latest analysis",
@@ -580,5 +587,43 @@
       "notConfigured": "AI analysis isn't set up on this server yet.",
       "unavailable": "This store can't be analyzed yet. Reload the page and try again."
     }
+  },
+  "Account": {
+    "deleteTitle": "Delete account",
+    "deleteDescription": "All your stores and data are deleted for good. This can't be undone.",
+    "deleteWarning": "The account <addr>{email}</addr> and all its stores, materials, products, costs, equipment and AI analyses will be deleted. Type your email to continue.",
+    "confirmLabel": "Type your email to confirm",
+    "confirmMismatch": "That email doesn't match your account.",
+    "deleteSubmit": "Delete my account",
+    "deletePending": "Deleting account…",
+    "deleteFailed": "The account couldn't be deleted. Try again or contact us.",
+    "noEmail": "We couldn't read your account email. Contact us to delete the account."
+  },
+  "Privacy": {
+    "title": "Privacy policy",
+    "updated": "Last updated: 18 October 2026",
+    "intro": "Untungin helps you work out your cost of goods, prices and profit. This page explains what data we keep, why, and how you delete it.",
+    "whoTitle": "Who we are",
+    "whoBody": "Untungin is run by {name}. Questions or requests about your data: <mail>{email}</mail>.",
+    "dataTitle": "Data we keep",
+    "dataAccount": "Account: your name, email and basic Google profile info (such as your profile picture), and your language choice.",
+    "dataStore": "Business data you enter: stores, materials, products, recipes, prices, sales channels, costs and equipment.",
+    "dataAi": "AI analyses you ask for, with the summary of your store's numbers sent for each one, and a record of your daily quota use.",
+    "useTitle": "What it's for",
+    "useBody": "Only to run Untungin for you: calculating, saving and showing your data. We don't sell data or use it for ads.",
+    "thirdTitle": "Third-party services",
+    "thirdSupabase": "Supabase hosts the database and handles sign-in.",
+    "thirdGoogle": "Google is used for sign-in (Google Sign-In).",
+    "thirdGemini": "Google Gemini receives a summary of your store's numbers (store name, business type, target market, operating days, target margin, products, materials, channels, prices, estimated sales, competitor prices, costs and calculated totals such as revenue, profit and break-even) only when you press \"Analyze my business\". Google processes it under the Gemini API terms. If Untungin uses the free tier of the Gemini API, Google may use the data sent to improve its products, and people may review it.",
+    "thirdVercel": "Vercel runs this app.",
+    "storageTitle": "Cookies and on-device storage",
+    "storageBody": "Cookies keep you signed in and remember your language. On your device we also keep your theme, the 3D/2D chart view, and a note that the first-profit celebration has been shown. There are no ad or tracking cookies.",
+    "locationTitle": "Where and how long",
+    "locationBody": "Your data is stored and processed by Supabase (Singapore region), Vercel and Google, which may be outside Indonesia. Data is kept until you delete the store or your account (AI analyses go with their store).",
+    "deleteTitle": "Deleting data",
+    "deleteBody": "You can delete a store or your whole account at any time in Store settings, or on the setup page if you have no store yet. Deleting the account permanently removes all your stores and data.",
+    "rightsTitle": "Your rights",
+    "rightsBody": "You can see, correct and delete your data, as Indonesia's Personal Data Protection Law provides. Most of it you can do in the app; for anything else, contact <mail>{email}</mail>.",
+    "link": "Privacy policy"
   }
 }

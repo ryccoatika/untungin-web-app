@@ -7,6 +7,7 @@ import { FormMessage } from "@/components/forms/form-message";
 import { NativeSelect } from "@/components/forms/native-select";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
+import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BASE_UNIT, dimensionOf, MATERIAL_CATEGORIES, UNITS, unitCost } from "@/lib/calc";
@@ -95,7 +96,7 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
       </div>
       <div className="space-y-1">
         <Label htmlFor="material-price">{t("purchasePrice")}</Label>
-        <Input id="material-price" name="purchasePrice" inputMode="numeric" defaultValue={defaults.purchasePrice} placeholder={t("pricePlaceholder")} />
+        <MoneyInput id="material-price" name="purchasePrice" defaultValue={defaults.purchasePrice} placeholder={t("pricePlaceholder")} />
         <FieldError errors={errors.purchasePrice} />
       </div>
       <div className="space-y-1">

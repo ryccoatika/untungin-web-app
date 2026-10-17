@@ -42,7 +42,8 @@ Without this, the Google button fails locally with `Unsupported provider: provid
 ```bash
 npm test              # unit
 npm run test:rls      # RLS; needs local Supabase running
-npm run test:e2e      # Playwright; needs local Supabase running
+npm run build         # e2e runs against the production build: build first
+npm run test:e2e      # Playwright; starts `next start -p 3100` (or reuses one); needs local Supabase running
 ```
 
 E2E tests never go through Google: `signIn()` in `tests/e2e/helpers.ts` creates a user with the admin API, signs in
@@ -80,6 +81,10 @@ npm run db:reset && npm run db:types
      create the `CNAME` record Vercel shows (host `untungin`). Vercel issues the HTTPS certificate once DNS resolves.
 5. Upgrading a user to Pro (temporary, manual): run
    `update public.profiles set plan = 'pro' where id = '<user-id>';` in the Supabase SQL editor.
+
+## Deploying
+
+Follow the ordered [production deploy checklist](docs/deploy.md) (Supabase, Google, Gemini, Vercel, smoke test).
 
 ## Translations
 

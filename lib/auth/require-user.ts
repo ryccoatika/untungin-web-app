@@ -7,5 +7,6 @@ export async function requireUser() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   if (error || !data?.claims?.sub) return redirect({ href: "/login", locale: await getLocale() });
-  return { supabase, userId: data.claims.sub };
+  const email = typeof data.claims.email === "string" ? data.claims.email : null;
+  return { supabase, userId: data.claims.sub, email };
 }

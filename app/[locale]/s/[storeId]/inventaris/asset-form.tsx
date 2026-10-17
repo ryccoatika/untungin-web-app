@@ -7,6 +7,7 @@ import { FormMessage } from "@/components/forms/form-message";
 import { NativeSelect } from "@/components/forms/native-select";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
+import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ASSET_CATEGORIES } from "@/lib/calc";
@@ -52,7 +53,7 @@ export function AssetForm({ action, defaults = {}, submitLabel, pendingLabel, id
           </div>
           <div className="space-y-1">
             <Label htmlFor={field("unitPrice")}>{t("unitPrice")}</Label>
-            <Input id={field("unitPrice")} name="unitPrice" inputMode="numeric" defaultValue={current.unitPrice} placeholder={t("unitPricePlaceholder")} />
+            <MoneyInput id={field("unitPrice")} name="unitPrice" defaultValue={current.unitPrice} placeholder={t("unitPricePlaceholder")} />
             <FieldError errors={errors.unitPrice} />
           </div>
         </div>

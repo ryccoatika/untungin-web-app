@@ -6,6 +6,7 @@ import { FieldError } from "@/components/forms/field-error";
 import { FormMessage } from "@/components/forms/form-message";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
+import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { FormAction } from "@/lib/forms";
@@ -38,7 +39,7 @@ export function ChannelForm({ action, defaults = {}, submitLabel, pendingLabel, 
           </div>
           <div className="space-y-1">
             <Label htmlFor={field("fee")}>{t("fixedFee")}</Label>
-            <Input id={field("fee")} name="fixedFee" inputMode="numeric" defaultValue={current.fixedFee ?? "0"} />
+            <MoneyInput id={field("fee")} name="fixedFee" defaultValue={current.fixedFee ?? "0"} />
             <FieldError errors={errors.fixedFee} />
           </div>
         </div>
