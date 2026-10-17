@@ -1,5 +1,6 @@
 import {
   Armchair,
+  FlaskConical,
   Ellipsis,
   LayoutDashboard,
   Package,
@@ -10,7 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type NavLabelKey = "dashboard" | "products" | "materials" | "channels" | "expenses" | "assets" | "settings" | "more";
+export type NavLabelKey = "dashboard" | "products" | "materials" | "channels" | "expenses" | "assets" | "simulation" | "settings" | "more";
 export type StoreNavItem = { labelKey: NavLabelKey; href: string; icon: LucideIcon };
 
 type PageKey = Exclude<NavLabelKey, "more">;
@@ -22,10 +23,11 @@ const PAGES: Record<PageKey, { path: string; icon: LucideIcon }> = {
   channels: { path: "kanal", icon: Store },
   expenses: { path: "biaya", icon: Receipt },
   assets: { path: "inventaris", icon: Armchair },
+  simulation: { path: "simulasi", icon: FlaskConical },
   settings: { path: "pengaturan", icon: Settings },
 };
 
-const MORE_KEYS = ["channels", "expenses", "assets", "settings"] as const;
+const MORE_KEYS = ["channels", "expenses", "assets", "simulation", "settings"] as const;
 export type MoreNavKey = (typeof MORE_KEYS)[number];
 
 function item<K extends PageKey>(storeId: string, key: K): StoreNavItem & { labelKey: K } {
@@ -34,7 +36,7 @@ function item<K extends PageKey>(storeId: string, key: K): StoreNavItem & { labe
 
 /** Desktop sidebar: every store page. */
 export function storeNavItems(storeId: string): StoreNavItem[] {
-  return (["dashboard", "products", "materials", "channels", "expenses", "assets", "settings"] as const).map((key) => item(storeId, key));
+  return (["dashboard", "products", "materials", "channels", "expenses", "assets", "simulation", "settings"] as const).map((key) => item(storeId, key));
 }
 
 /** Phone bottom bar (spec §5.2): Dashboard, Produk, Bahan, Lainnya. */

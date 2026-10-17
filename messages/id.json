@@ -190,6 +190,7 @@
       "channels": "Kanal",
       "expenses": "Biaya",
       "assets": "Inventaris",
+      "simulation": "Simulasi",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
@@ -197,6 +198,7 @@
       "channels": "GoFood, Shopee, QRIS, dan tempat jualan lain",
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
+      "simulation": "Coba ubah harga dan penjualan tanpa mengubah datamu",
       "settings": "Ubah data toko atau hapus toko"
     }
   },
@@ -227,6 +229,7 @@
     "add": "Tambah toko"
   },
   "Dashboard": {
+    "trySimulation": "Coba simulasi",
     "basis": "Dasar perhitungan",
     "operatingDays": "Hari buka per bulan",
     "operatingDaysValue": "{days} hari",

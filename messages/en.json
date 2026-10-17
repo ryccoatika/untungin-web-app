@@ -190,6 +190,7 @@
       "channels": "Channels",
       "expenses": "Costs",
       "assets": "Inventory",
+      "simulation": "Simulation",
       "settings": "Settings",
       "more": "More"
     },
@@ -197,6 +198,7 @@
       "channels": "GoFood, Shopee, QRIS and other places you sell",
       "expenses": "Rent, electricity, wages and other running costs",
       "assets": "Equipment and furniture, your starting capital",
+      "simulation": "Try other prices and sales without changing your data",
       "settings": "Edit or delete the store"
     }
   },
@@ -227,6 +229,7 @@
     "add": "Add store"
   },
   "Dashboard": {
+    "trySimulation": "Try a simulation",
     "basis": "Calculation basis",
     "operatingDays": "Open days per month",
     "operatingDaysValue": "{days, plural, one {# day} other {# days}}",

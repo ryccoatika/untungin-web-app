@@ -262,7 +262,7 @@ type Overrides = {
 };
 ```
 
-Not saved to the database. The simulation page shows the "Sekarang" ("Now") and "Simulasi" ("Simulation") metrics side by side along with the difference. Overrides can be filled from the query string (used by the "Coba di simulasi" ("Try in simulation") button from the AI).
+Not saved to the database. The simulation page shows the "Sekarang" ("Now") and "Simulasi" ("Simulation") metrics side by side along with the difference. Overrides can be filled from the query string (used by the "Coba di simulasi" ("Try in simulation") button from the AI). URL format: `m=<pct>` all materials, `m.<materialId>=<pct>` one material (replaces `m` for it), `s=<pct>` sales change (`s=20` → multiplier 1.2), `p.<productId>.<channelId>=<price>`; percentages −100…300, prices whole Rupiah 0…2.000.000.000, ids must be UUIDs; each invalid entry is dropped. A price for a product/channel without a saved price adds a row with 0 sales.
 
 ## 5. Flow & Pages
 
@@ -433,6 +433,7 @@ Every phase can be deployed. One implementation plan per phase.
 3. **Channels & pricing**: channels + templates; price/estimate/competitor per channel; channel-specific packaging; price recommendation.
    Phase 3 notes: a composition row's channel is fixed after creation; the checklist's channels step is optional; the recommendation uses full cost when sales estimates exist, otherwise material cost (and says so).
 4. **What-if simulation**.
+   Phase 4 notes: sliders −50%…+100% (wider when the URL asks for more); per-material fields replace the all-materials change; the page keeps the scenario in the address bar via `history.replaceState`; navigation in the sidebar and the phone 'Lainnya' page, plus a 'Coba simulasi' button on the dashboard.
 5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
 6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
