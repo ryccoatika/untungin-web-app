@@ -11,6 +11,7 @@ import { translateFieldErrors } from "@/lib/i18n/translate";
 import { isUnit } from "@/lib/calc";
 import { isUuid } from "@/lib/uuid";
 import { compositionInputSchema, compositionUnitError, toCompositionColumns } from "@/lib/validation/composition";
+import { priceInputSchema, toPriceColumns } from "@/lib/validation/price";
 import { productInputSchema, toProductColumns } from "@/lib/validation/product";
 
 const PRODUCT_FIELDS = ["name", "category", "yieldQty", "targetMarginPct", "isActive"] as const;
@@ -189,4 +190,36 @@ export async function deleteCompositionRowAction(storeId: string, productId: str
 
   revalidateStore();
   return { ok: true };
+}
+
+const PRICE_FIELDS = ["price", "estMonthlySales"] as const;
+
+export async function savePriceAction(
+  storeId: string,
+  productId: string,
+  channelId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const tCommon = await getTranslations("Common");
+  const values = rawValues(formData, PRICE_FIELDS);
+  const parsed = priceInputSchema.safeParse(values);
+  if (!parsed.success) {
+    const tValidation = await getValidationTranslator();
+    return { fieldErrors: translateFieldErrors(z.flattenError(parsed.error).fieldErrors, tValidation), values };
+  }
+  if (!isUuid(storeId) || !isUuid(productId) || !isUuid(channelId)) return { message: tCommon("notFound"), values };
+
+  const { supabase } = await requireUser();
+  // competitor_price is not in the payload, so an update leaves it as it is (it is edited in Phase 3).
+  const { error } = await supabase
+    .from("product_channel_prices")
+    .upsert(
+      { store_id: storeId, product_id: productId, channel_id: channelId, ...toPriceColumns(parsed.data) },
+      { onConflict: "product_id,channel_id" },
+    );
+  if (error) return { message: tCommon("saveFailed"), values };
+
+  revalidateStore();
+  return { ok: true, message: (await getTranslations("Pricing"))("saved"), values };
 }

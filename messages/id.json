@@ -371,5 +371,23 @@
     "emptyBody": "Tambahkan produk yang kamu jual, lalu isi komposisi bahannya. Contoh: Es kopi susu, 1 resep = 10 gelas.",
     "emptyAction": "Tambah produk pertama",
     "delete": "Hapus produk"
+  },
+  "Pricing": {
+    "title": "Harga & HPP",
+    "intro": "Harga jual dan perkiraan penjualan per kanal. HPP dan margin dihitung otomatis.",
+    "price": "Harga jual (Rp)",
+    "estMonthlySales": "Perkiraan terjual / bulan",
+    "save": "Simpan harga",
+    "saved": "Harga tersimpan.",
+    "materialCost": "HPP bahan",
+    "fullCost": "HPP penuh",
+    "fullCostUnknown": "HPP penuh muncul setelah ada perkiraan penjualan.",
+    "netPrice": "Diterima setelah potongan",
+    "margin": "Margin",
+    "target": "target {pct}",
+    "marginHint": "Margin = laba sebagai persen dari harga jual (bukan markup). HPP penuh sudah termasuk biaya operasional dan penyusutan.",
+    "previewEmpty": "Isi harga jual untuk melihat HPP dan margin.",
+    "noComposition": "Komposisi produk ini masih kosong, jadi HPP bahan masih Rp0. Isi komposisinya dulu.",
+    "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung."
   }
 }

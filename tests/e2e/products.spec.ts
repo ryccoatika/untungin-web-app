@@ -19,7 +19,7 @@ test("edits details: own margin and not on sale", async ({ page }) => {
   await addProduct(page, { name: "Roti bakar", yieldQty: "4" });
   await page.getByLabel("Target margin khusus (%)").fill("25");
   await page.getByLabel("Masih dijual").uncheck();
-  await page.getByRole("button", { name: "Simpan" }).click();
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
   await expect(page.getByText("Tersimpan.")).toBeVisible();
   await expect(page.getByLabel("Masih dijual")).not.toBeChecked();
   await expect(page.getByLabel("Target margin khusus (%)")).toHaveValue("25");

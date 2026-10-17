@@ -371,5 +371,23 @@
     "emptyBody": "Add the products you sell, then fill in their materials. E.g. Iced milk coffee, 1 recipe = 10 cups.",
     "emptyAction": "Add your first product",
     "delete": "Delete product"
+  },
+  "Pricing": {
+    "title": "Price & cost",
+    "intro": "Selling price and expected sales per channel. Cost and margin are calculated for you.",
+    "price": "Selling price (Rp)",
+    "estMonthlySales": "Expected sales / month",
+    "save": "Save price",
+    "saved": "Price saved.",
+    "materialCost": "Material cost",
+    "fullCost": "Full cost",
+    "fullCostUnknown": "Full cost appears once there is a sales estimate.",
+    "netPrice": "Received after fees",
+    "margin": "Margin",
+    "target": "target {pct}",
+    "marginHint": "Margin = profit as a percentage of the selling price (not markup). Full cost includes operating costs and depreciation.",
+    "previewEmpty": "Enter a selling price to see cost and margin.",
+    "noComposition": "This product has no composition yet, so its material cost is Rp0. Fill in the composition first.",
+    "calcError": "A composition row uses a unit that doesn't match its material. Fix the composition so the cost can be calculated."
   }
 }

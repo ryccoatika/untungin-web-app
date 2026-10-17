@@ -5,18 +5,20 @@ import { DeleteButton } from "@/components/forms/delete-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { mapById, sameDimension, toBase, unitCost } from "@/lib/calc";
+import { mapById, sameDimension, toBase, tryAnalyzeStore, unitCost } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { formatNumber, formatPercent } from "@/lib/format";
 import {
   addCompositionRowAction,
   deleteCompositionRowAction,
   deleteProductAction,
+  savePriceAction,
   updateCompositionRowAction,
   updateProductAction,
 } from "../actions";
 import { ProductForm } from "../product-form";
 import { CompositionEditor, type EditorRow } from "./composition-editor";
+import { PriceForm } from "./price-form";
 
 type Params = Promise<{ locale: string; storeId: string; productId: string }>;
 
@@ -47,6 +49,9 @@ export default async function ProductPage({ params }: { params: Params }) {
         costPerUnit: row.basis === "batch" ? perBatch / product.yieldQty : perBatch,
       };
     });
+  const tPricing = await getTranslations("Pricing");
+  const { error: calcError } = tryAnalyzeStore(data);
+  const hasComposition = rows.length > 0;
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -58,6 +63,44 @@ export default async function ProductPage({ params }: { params: Params }) {
         <h1 className="min-w-0 text-2xl font-semibold [overflow-wrap:anywhere]">{product.name}</h1>
         {!product.isActive && <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{t("inactive")}</span>}
       </div>
+
+      {calcError?.productId === product.id && (
+        <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm">
+          {tPricing("calcError")}
+        </p>
+      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>{tPricing("title")}</CardTitle>
+          <CardDescription>{tPricing("intro")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {!hasComposition && (
+            <p role="note" className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+              {tPricing("noComposition")}
+            </p>
+          )}
+          {data.channels.map((channel) => {
+            const saved = data.prices.find((row) => row.productId === product.id && row.channelId === channel.id);
+            return (
+              <section key={channel.id} className="space-y-3">
+                <h3 className="font-medium [overflow-wrap:anywhere]">{channel.name}</h3>
+                <PriceForm
+                  id={`price-${channel.id}`}
+                  action={savePriceAction.bind(null, data.store.id, product.id, channel.id)}
+                  data={data}
+                  productId={product.id}
+                  channel={channel}
+                  defaults={{
+                    price: saved ? String(saved.price) : "",
+                    estMonthlySales: saved ? String(saved.estMonthlySales) : "",
+                  }}
+                />
+              </section>
+            );
+          })}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

@@ -152,3 +152,11 @@ export async function addCompositionRow(page: Page, r: { material: string; qty: 
   // The success message of a previous add stays visible, so also wait for the form to reset.
   await expect(form.getByLabel("Bahan", { exact: true })).toHaveValue("");
 }
+
+export async function setPrice(page: Page, p: { price: string; est: string }) {
+  const form = page.locator("form[id^='price-']").first();
+  await form.getByLabel("Harga jual (Rp)").fill(p.price);
+  await form.getByLabel("Perkiraan terjual / bulan").fill(p.est);
+  await form.getByRole("button", { name: "Simpan harga" }).click();
+  await expect(page.getByText("Harga tersimpan.")).toBeVisible();
+}
