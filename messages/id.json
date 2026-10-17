@@ -299,5 +299,37 @@
     "emptyAction": "Tambah biaya pertama",
     "created": "Biaya ditambahkan.",
     "delete": "Hapus biaya"
+  },
+  "AssetCategory": {
+    "peralatan": "Peralatan",
+    "furnitur": "Furnitur",
+    "elektronik": "Elektronik",
+    "kendaraan": "Kendaraan",
+    "renovasi": "Renovasi",
+    "perizinan": "Perizinan",
+    "lainnya": "Lainnya"
+  },
+  "Assets": {
+    "title": "Inventaris",
+    "intro": "Alat dan perlengkapan usaha: meja, kursi, kompor, freezer. Totalnya dipakai sebagai modal awal.",
+    "addTitle": "Tambah barang",
+    "editTitle": "Ubah barang",
+    "name": "Nama barang",
+    "namePlaceholder": "Contoh: Meja kayu",
+    "category": "Kategori",
+    "qty": "Jumlah",
+    "unitPrice": "Harga satuan (Rp)",
+    "usefulLife": "Umur pakai (bulan)",
+    "usefulLifeHint": "Perkiraan berapa lama barang ini bisa dipakai. Contoh: 24 bulan untuk blender, 60 bulan untuk freezer.",
+    "totalCapital": "Total modal",
+    "monthlyDepreciation": "Penyusutan per bulan",
+    "depreciationHint": "Nilai barang yang berkurang tiap bulan. Dihitung sebagai biaya tetap.",
+    "itemSummary": "{qty} × {price}",
+    "itemDepreciation": "{amount}/bulan",
+    "emptyTitle": "Belum ada inventaris",
+    "emptyBody": "Contoh: Meja kayu, 2 buah, Rp350.000, umur pakai 60 bulan.",
+    "emptyAction": "Tambah barang pertama",
+    "created": "Barang ditambahkan.",
+    "delete": "Hapus barang"
   }
 }

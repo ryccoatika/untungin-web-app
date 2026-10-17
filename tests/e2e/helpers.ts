@@ -100,6 +100,8 @@ export async function addMaterial(
   if (m.waste) await form.getByLabel("Susut / terbuang (%)").fill(m.waste);
   await form.getByRole("button", { name: "Tambah" }).click();
   await expect(page.getByText("Bahan ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama bahan")).toHaveValue("");
 }
 
 export async function addExpense(page: Page, e: { name: string; category: string; amount: string; frequency: string }) {
@@ -112,4 +114,20 @@ export async function addExpense(page: Page, e: { name: string; category: string
   await expect(page.getByText("Biaya ditambahkan.")).toBeVisible();
   // The success message of a previous add stays visible, so also wait for the form to reset.
   await expect(form.getByLabel("Nama biaya")).toHaveValue("");
+}
+
+export async function addAsset(
+  page: Page,
+  a: { name: string; category: string; qty: string; unitPrice: string; usefulLifeMonths: string },
+) {
+  const form = page.locator("#add-asset");
+  await form.getByLabel("Nama barang").fill(a.name);
+  await form.getByLabel("Kategori").selectOption(a.category);
+  await form.getByLabel("Jumlah").fill(a.qty);
+  await form.getByLabel("Harga satuan (Rp)").fill(a.unitPrice);
+  await form.getByLabel("Umur pakai (bulan)").fill(a.usefulLifeMonths);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Barang ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama barang")).toHaveValue("");
 }

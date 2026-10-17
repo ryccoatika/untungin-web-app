@@ -299,5 +299,37 @@
     "emptyAction": "Add your first cost",
     "created": "Cost added.",
     "delete": "Delete cost"
+  },
+  "AssetCategory": {
+    "peralatan": "Equipment",
+    "furnitur": "Furniture",
+    "elektronik": "Electronics",
+    "kendaraan": "Vehicle",
+    "renovasi": "Renovation",
+    "perizinan": "Permits",
+    "lainnya": "Other"
+  },
+  "Assets": {
+    "title": "Inventory",
+    "intro": "Business equipment: tables, chairs, stoves, freezers. The total is used as your starting capital.",
+    "addTitle": "Add item",
+    "editTitle": "Edit item",
+    "name": "Item name",
+    "namePlaceholder": "E.g. Wooden table",
+    "category": "Category",
+    "qty": "Quantity",
+    "unitPrice": "Unit price (Rp)",
+    "usefulLife": "Useful life (months)",
+    "usefulLifeHint": "Roughly how long the item lasts. E.g. 24 months for a blender, 60 months for a freezer.",
+    "totalCapital": "Total capital",
+    "monthlyDepreciation": "Monthly depreciation",
+    "depreciationHint": "The value the items lose each month. Counted as a fixed cost.",
+    "itemSummary": "{qty} × {price}",
+    "itemDepreciation": "{amount}/month",
+    "emptyTitle": "No inventory yet",
+    "emptyBody": "E.g. Wooden table, 2 pieces, Rp350,000, useful life 60 months.",
+    "emptyAction": "Add your first item",
+    "created": "Item added.",
+    "delete": "Delete item"
   }
 }
