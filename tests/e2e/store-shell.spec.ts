@@ -19,11 +19,30 @@ test("switches between stores via the store list", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Toko Pertama" })).toBeVisible();
 });
 
-test("store menu navigates to settings", async ({ page }) => {
+test("store menu navigates to settings", async ({ page }, testInfo) => {
   await signIn(page);
   await createStoreViaOnboarding(page, "Toko Menu");
-  await page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Pengaturan" }).click();
+  const menu = page.getByRole("navigation", { name: "Menu toko" });
+  if (testInfo.project.name === "mobile") {
+    await menu.getByRole("link", { name: "Lainnya" }).click();
+    await page.getByRole("main").getByRole("link", { name: /Pengaturan/ }).click();
+  } else {
+    await menu.getByRole("link", { name: "Pengaturan" }).click();
+  }
   await expect(page).toHaveURL(/\/pengaturan$/);
+});
+
+test("Lainnya lists costs, inventory and settings on phones", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Lainnya");
+  await page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Lainnya" }).click();
+  await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/lainnya$/);
+  const main = page.getByRole("main");
+  for (const name of ["Biaya", "Inventaris", "Pengaturan"]) {
+    await expect(main.getByRole("link", { name: new RegExp(name) })).toBeVisible();
+  }
+  await expect(page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Lainnya" })).toHaveAttribute("aria-current", "page");
 });
 
 test("malformed and unknown store ids show the 404 page", async ({ page }) => {

@@ -5,7 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { canCreateStore, PLAN_LIMITS, toPlan } from "@/lib/config/plans";
-import type { FormState } from "@/lib/forms";
+import { rawValues, type FormState } from "@/lib/forms";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { translateFieldErrors } from "@/lib/i18n/translate";
 import { DUPLICATE_STORE_NAME_KEY, storeInputSchema } from "@/lib/validation/store";
@@ -21,17 +21,8 @@ const STORE_FIELD_NAMES = [
   "targetMarginPct",
 ] as const;
 
-function rawValues(formData: FormData): Record<string, string> {
-  const values: Record<string, string> = {};
-  for (const field of STORE_FIELD_NAMES) {
-    const value = formData.get(field);
-    if (typeof value === "string") values[field] = value;
-  }
-  return values;
-}
-
 export async function createStoreAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const values = rawValues(formData);
+  const values = rawValues(formData, STORE_FIELD_NAMES);
   const tValidation = await getValidationTranslator();
   const tStore = await getTranslations("Store");
   const parsed = storeInputSchema.safeParse(Object.fromEntries(formData));

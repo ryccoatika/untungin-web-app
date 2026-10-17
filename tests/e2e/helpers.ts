@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
+import type { Unit } from "../../lib/calc";
 
 export function uniqueEmail(label: string) {
   return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`;
@@ -77,4 +78,85 @@ export async function createStoreViaOnboarding(page: Page, name: string, margin 
   await page.getByLabel("Target margin (%)").fill(margin);
   await page.getByRole("button", { name: "Buat toko" }).click();
   await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard$/);
+}
+
+/** URL of another page of the store currently open, e.g. storeUrl(page, "bahan"). */
+export function storeUrl(page: Page, path: string): string {
+  const match = page.url().match(/^(.*\/s\/[0-9a-f-]{36})\//);
+  if (!match) throw new Error(`Not on a store page: ${page.url()}`);
+  return `${match[1]}/${path}`;
+}
+
+export async function addMaterial(
+  page: Page,
+  m: { name: string; qty: string; unit: Unit; price: string; category?: "bahan" | "kemasan"; waste?: string },
+) {
+  const form = page.locator("#add-material");
+  await form.getByLabel("Nama bahan").fill(m.name);
+  await form.getByLabel("Jenis").selectOption(m.category ?? "bahan");
+  await form.getByLabel("Jumlah beli").fill(m.qty);
+  await form.getByLabel("Satuan").selectOption(m.unit);
+  await form.getByLabel("Harga beli (Rp)").fill(m.price);
+  if (m.waste) await form.getByLabel("Susut / terbuang (%)").fill(m.waste);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Bahan ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama bahan")).toHaveValue("");
+}
+
+export async function addExpense(page: Page, e: { name: string; category: string; amount: string; frequency: string }) {
+  const form = page.locator("#add-expense");
+  await form.getByLabel("Nama biaya").fill(e.name);
+  await form.getByLabel("Kategori").selectOption(e.category);
+  await form.getByLabel("Jumlah (Rp)").fill(e.amount);
+  await form.getByLabel("Dibayar").selectOption(e.frequency);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Biaya ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama biaya")).toHaveValue("");
+}
+
+export async function addAsset(
+  page: Page,
+  a: { name: string; category: string; qty: string; unitPrice: string; usefulLifeMonths: string },
+) {
+  const form = page.locator("#add-asset");
+  await form.getByLabel("Nama barang").fill(a.name);
+  await form.getByLabel("Kategori").selectOption(a.category);
+  await form.getByLabel("Jumlah").fill(a.qty);
+  await form.getByLabel("Harga satuan (Rp)").fill(a.unitPrice);
+  await form.getByLabel("Umur pakai (bulan)").fill(a.usefulLifeMonths);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Barang ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama barang")).toHaveValue("");
+}
+
+export async function addProduct(page: Page, p: { name: string; yieldQty: string; category?: string }) {
+  const form = page.locator("#add-product");
+  await form.getByLabel("Nama produk").fill(p.name);
+  await form.getByLabel("Hasil per resep").fill(p.yieldQty);
+  if (p.category) await form.getByLabel("Kategori (opsional)").fill(p.category);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await page.waitForURL(/\/produk\/[0-9a-f-]{36}$/);
+}
+
+export async function addCompositionRow(page: Page, r: { material: string; qty: string; unit?: string; basis?: "batch" | "unit" }) {
+  const form = page.locator("#add-composition");
+  await form.getByLabel("Bahan", { exact: true }).selectOption({ label: r.material });
+  await form.getByLabel("Jumlah").fill(r.qty);
+  if (r.unit) await form.getByLabel("Satuan").selectOption(r.unit);
+  if (r.basis) await form.getByLabel("Dihitung").selectOption(r.basis);
+  await form.getByRole("button", { name: "Tambah ke komposisi" }).click();
+  await expect(page.getByText("Bahan ditambahkan ke komposisi.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Bahan", { exact: true })).toHaveValue("");
+}
+
+export async function setPrice(page: Page, p: { price: string; est: string }) {
+  const form = page.locator("form[id^='price-']").first();
+  await form.getByLabel("Harga jual (Rp)").fill(p.price);
+  await form.getByLabel("Perkiraan terjual / bulan").fill(p.est);
+  await form.getByRole("button", { name: "Simpan harga" }).click();
+  await expect(page.getByText("Harga tersimpan.")).toBeVisible();
 }

@@ -2,22 +2,21 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { isNavActive, storeNavItems } from "@/lib/nav";
+import { bottomNavItems, isMoreActive, isNavActive, storeNavItems } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 export function StoreNav({ storeId, variant }: { storeId: string; variant: "sidebar" | "bottom" }) {
   const t = useTranslations("StoreShell");
   const pathname = usePathname();
-  const items = storeNavItems(storeId);
-
   if (variant === "bottom") {
+    const items = bottomNavItems(storeId);
     return (
       <nav
         aria-label={t("menu")}
         className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
       >
         {items.map((item) => {
-          const active = isNavActive(pathname, item.href);
+          const active = item.labelKey === "more" ? isMoreActive(pathname, storeId) : isNavActive(pathname, item.href);
           return (
             <Link
               key={item.href}
@@ -37,6 +36,7 @@ export function StoreNav({ storeId, variant }: { storeId: string; variant: "side
     );
   }
 
+  const items = storeNavItems(storeId);
   return (
     <nav aria-label={t("menu")} className="flex flex-col gap-1">
       {items.map((item) => {
