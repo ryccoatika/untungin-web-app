@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, setPrice, signIn, storeUrl } from "./helpers";
+import { addChannel, addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, priceSection, setPrice, signIn, storeUrl } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await signIn(page);
@@ -47,4 +47,41 @@ test("warns while the composition is empty", async ({ page }) => {
   await addProduct(page, { name: "Kopi", yieldQty: "1" });
   await expect(page.getByText(/Komposisi produk ini masih kosong/)).toBeVisible();
   await setPrice(page, { price: "10.000", est: "100" });
+});
+
+test("recommends a price and fills it in", async ({ page }) => {
+  const form = page.locator("form[id^='price-']").first();
+  await form.getByLabel("Harga jual (Rp)").fill("5.000");
+  await form.getByLabel("Perkiraan terjual / bulan").fill("600");
+  // No fixed costs: full cost Rp300; 300 / (1 − 0,4) = 500.
+  await expect(form.getByText("Harga rekomendasi: Rp500")).toBeVisible();
+  await form.getByRole("button", { name: "Pakai harga rekomendasi" }).click();
+  await expect(form.getByLabel("Harga jual (Rp)")).toHaveValue("500");
+  await expect(form).toContainText("40%");
+  await expect(form).toContainText("Sesuai target");
+  await form.getByRole("button", { name: "Simpan harga" }).click();
+  await expect(form.getByText("Harga tersimpan.")).toBeVisible();
+});
+
+test("commission plus margin of 100% or more has no recommended price", async ({ page }) => {
+  const productUrl = page.url();
+  await page.goto(page.url().replace(/\/produk\/.*$/, "/kanal"));
+  await addChannel(page, { name: "Titip 70", commissionPct: "70" });
+  await page.goto(productUrl);
+  await expect(priceSection(page, "Titip 70")).toContainText("Komisi + target margin ≥ 100%");
+  await expect(priceSection(page, "Titip 70").getByRole("button", { name: "Pakai harga rekomendasi" })).toHaveCount(0);
+});
+
+test("a competitor price far from yours warns on the dashboard until it is cleared", async ({ page }) => {
+  await setPrice(page, { price: "5.000", est: "600", competitor: "Rp 3.000" });
+  const productUrl = page.url();
+  await page.goto(page.url().replace(/\/produk\/.*$/, "/dashboard"));
+  await expect(page.getByText("Harga beda lebih dari 25% dari pesaing: Es teh (Offline – Tunai).")).toBeVisible();
+
+  await page.goto(productUrl);
+  await setPrice(page, { price: "5.000", est: "600", competitor: "" });
+  await page.reload();
+  await expect(page.locator("form[id^='price-']").first().getByLabel("Harga pesaing (Rp, opsional)")).toHaveValue("");
+  await page.goto(page.url().replace(/\/produk\/.*$/, "/dashboard"));
+  await expect(page.getByText(/dari pesaing/)).toHaveCount(0);
 });

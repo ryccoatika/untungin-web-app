@@ -173,7 +173,7 @@ export async function deleteCompositionRowAction(storeId: string, productId: str
   return { ok: true };
 }
 
-const PRICE_FIELDS = ["price", "estMonthlySales"] as const;
+const PRICE_FIELDS = ["price", "estMonthlySales", "competitorPrice"] as const;
 
 export async function savePriceAction(
   storeId: string,
@@ -188,7 +188,7 @@ export async function savePriceAction(
   if (!isUuid(storeId) || !isUuid(productId) || !isUuid(channelId)) return { message: tCommon("notFound"), values: parsed.values };
 
   const { supabase } = await requireUser();
-  // competitor_price is not in the payload, so an update leaves it as it is (it is edited in Phase 3).
+  // competitor_price is included: a blank field clears it.
   const { error } = await supabase
     .from("product_channel_prices")
     .upsert(

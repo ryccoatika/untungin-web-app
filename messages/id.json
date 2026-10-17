@@ -451,7 +451,14 @@
     "inactivePreview": "Produk ini sedang tidak dijual, jadi tidak dihitung di dashboard.",
     "pricePlaceholder": "15.000",
     "noComposition": "Komposisi produk ini masih kosong, jadi HPP bahan masih Rp0. Isi komposisinya dulu.",
-    "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung."
+    "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung.",
+    "competitorPrice": "Harga pesaing (Rp, opsional)",
+    "competitorHint": "Harga produk serupa di tempat lain, untuk perbandingan.",
+    "competitor": "Harga pesaing",
+    "recommendation": "Harga rekomendasi: {price}",
+    "recommendationNoOverhead": "Belum termasuk biaya operasional — isi perkiraan penjualan supaya lebih akurat.",
+    "recommendationImpossible": "Komisi + target margin ≥ 100%, tidak ada harga yang memenuhi. Turunkan target margin atau pakai kanal lain.",
+    "useRecommendation": "Pakai harga rekomendasi"
   },
   "Warnings": {
     "NET_LOSS": "Usahamu rugi per bulan: biaya tetap lebih besar dari laba kotor.",

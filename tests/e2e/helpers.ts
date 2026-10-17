@@ -153,12 +153,13 @@ export async function addCompositionRow(page: Page, r: { material: string; qty: 
   await expect(form.getByLabel("Bahan", { exact: true })).toHaveValue("");
 }
 
-export async function setPrice(page: Page, p: { price: string; est: string }) {
-  const form = page.locator("form[id^='price-']").first();
+export async function setPrice(page: Page, p: { price: string; est: string; competitor?: string; channel?: string }) {
+  const form = p.channel ? priceSection(page, p.channel) : page.locator("form[id^='price-']").first();
   await form.getByLabel("Harga jual (Rp)").fill(p.price);
   await form.getByLabel("Perkiraan terjual / bulan").fill(p.est);
+  if (p.competitor !== undefined) await form.getByLabel("Harga pesaing (Rp, opsional)").fill(p.competitor);
   await form.getByRole("button", { name: "Simpan harga" }).click();
-  await expect(page.getByText("Harga tersimpan.")).toBeVisible();
+  await expect(form.getByText("Harga tersimpan.")).toBeVisible();
 }
 
 export async function addChannel(page: Page, c: { name: string; commissionPct: string; fixedFee?: string }) {

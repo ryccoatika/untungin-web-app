@@ -18,7 +18,7 @@ import {
 } from "../actions";
 import { ProductForm } from "../product-form";
 import { CompositionEditor, type EditorRow } from "./composition-editor";
-import { PriceForm } from "./price-form";
+import { PriceSection } from "./price-section";
 
 type Params = Promise<{ locale: string; storeId: string; productId: string }>;
 
@@ -80,26 +80,23 @@ export default async function ProductPage({ params }: { params: Params }) {
               {tPricing("noComposition")}
             </p>
           )}
-          {data.channels.map((channel) => {
-            const saved = data.prices.find((row) => row.productId === product.id && row.channelId === channel.id);
-            return (
-              <section key={channel.id} className="space-y-3">
-                <h3 className="font-medium [overflow-wrap:anywhere]">{channel.name}</h3>
-                <PriceForm
-                  id={`price-${channel.id}`}
-                  action={savePriceAction.bind(null, data.store.id, product.id, channel.id)}
-                  data={data}
-                  productId={product.id}
-                  channel={channel}
-                  inactive={!product.isActive}
-                  defaults={{
-                    price: saved ? String(saved.price) : "",
-                    estMonthlySales: saved ? String(saved.estMonthlySales) : "",
-                  }}
-                />
-              </section>
-            );
-          })}
+          <PriceSection
+            data={data}
+            productId={product.id}
+            inactive={!product.isActive}
+            entries={data.channels.map((channel) => {
+              const saved = data.prices.find((row) => row.productId === product.id && row.channelId === channel.id);
+              return {
+                channel,
+                action: savePriceAction.bind(null, data.store.id, product.id, channel.id),
+                defaults: {
+                  price: saved ? String(saved.price) : "",
+                  estMonthlySales: saved ? String(saved.estMonthlySales) : "",
+                  competitorPrice: saved?.competitorPrice == null ? "" : String(saved.competitorPrice),
+                },
+              };
+            })}
+          />
         </CardContent>
       </Card>
 

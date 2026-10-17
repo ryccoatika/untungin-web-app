@@ -451,7 +451,14 @@
     "inactivePreview": "This product is not on sale, so it isn't counted on the dashboard.",
     "pricePlaceholder": "15,000",
     "noComposition": "This product has no composition yet, so its material cost is Rp0. Fill in the composition first.",
-    "calcError": "A composition row uses a unit that doesn't match its material. Fix the composition so the cost can be calculated."
+    "calcError": "A composition row uses a unit that doesn't match its material. Fix the composition so the cost can be calculated.",
+    "competitorPrice": "Competitor price (Rp, optional)",
+    "competitorHint": "The price of a similar product elsewhere, for comparison.",
+    "competitor": "Competitor price",
+    "recommendation": "Recommended price: {price}",
+    "recommendationNoOverhead": "Doesn't include operating costs yet — fill in expected sales for a better estimate.",
+    "recommendationImpossible": "Commission + target margin ≥ 100%: no price satisfies this. Lower the target margin or use another channel.",
+    "useRecommendation": "Use recommended price"
   },
   "Warnings": {
     "NET_LOSS": "Your business loses money each month: fixed costs are higher than gross profit.",
