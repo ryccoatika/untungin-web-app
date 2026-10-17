@@ -560,7 +560,7 @@
     "analyzing": "Analyzing… (can take up to 30 seconds)",
     "quota": "Analyses left today: {remaining} of {limit}",
     "quotaUsedUp": "You've used today's analyses. New ones start at 00:00 WIB.",
-    "privacy": "When you press the button, your store data (store name, products, materials, channels, prices and costs) is sent to Google Gemini for analysis. The result is saved in your account.",
+    "privacy": "When you press the button, your store data (store name, business type, target market, products, materials, channels, prices, estimated sales, competitor prices and costs) is sent to Google Gemini for analysis. The result is saved in your account.",
     "disclaimer": "AI advice can be wrong. The app calculates the effect of a change in the simulation.",
     "none": "No analysis yet. Press the button above to start.",
     "latest": "Latest analysis",
@@ -589,7 +589,6 @@
     }
   },
   "Account": {
-    "title": "Account",
     "deleteTitle": "Delete account",
     "deleteDescription": "All your stores and data are deleted for good. This can't be undone.",
     "deleteWarning": "The account <addr>{email}</addr> and all its stores, materials, products, costs, equipment and AI analyses will be deleted. Type your email to continue.",
@@ -598,7 +597,7 @@
     "deleteSubmit": "Delete my account",
     "deletePending": "Deleting account…",
     "deleteFailed": "The account couldn't be deleted. Try again or contact us.",
-    "deleted": "Your account and all its data have been deleted."
+    "noEmail": "We couldn't read your account email. Contact us to delete the account."
   },
   "Privacy": {
     "title": "Privacy policy",
@@ -607,7 +606,7 @@
     "whoTitle": "Who we are",
     "whoBody": "Untungin is run by {name}. Questions or requests about your data: <mail>{email}</mail>.",
     "dataTitle": "Data we keep",
-    "dataAccount": "Account: the name and email of the Google account you sign in with, and your language choice.",
+    "dataAccount": "Account: your name, email and basic Google profile info (such as your profile picture), and your language choice.",
     "dataStore": "Business data you enter: stores, materials, products, recipes, prices, sales channels, costs and equipment.",
     "dataAi": "AI analyses you ask for, with the summary of your store's numbers sent for each one, and a record of your daily quota use.",
     "useTitle": "What it's for",
@@ -615,12 +614,12 @@
     "thirdTitle": "Third-party services",
     "thirdSupabase": "Supabase hosts the database and handles sign-in.",
     "thirdGoogle": "Google is used for sign-in (Google Sign-In).",
-    "thirdGemini": "Google Gemini receives a summary of your store's numbers (store name, products, materials, channels, prices and costs) only when you press \"Analyze my business\". Google processes it under the Gemini API terms.",
+    "thirdGemini": "Google Gemini receives a summary of your store's numbers (store name, business type, target market, products, materials, channels, prices, estimated sales, competitor prices and costs) only when you press \"Analyze my business\". Google processes it under the Gemini API terms.",
     "thirdVercel": "Vercel runs this app.",
     "storageTitle": "Cookies and on-device storage",
     "storageBody": "Cookies keep you signed in and remember your language. On your device we also keep your theme, the 3D/2D chart view, and a note that the first-profit celebration has been shown. There are no ad or tracking cookies.",
     "deleteTitle": "Deleting data",
-    "deleteBody": "You can delete a store or your whole account at any time in Store settings. Deleting the account permanently removes all your stores and data.",
+    "deleteBody": "You can delete a store or your whole account at any time in Store settings, or on the setup page if you have no store yet. Deleting the account permanently removes all your stores and data.",
     "rightsTitle": "Your rights",
     "rightsBody": "You can see, correct and delete your data, as Indonesia's Personal Data Protection Law provides. Most of it you can do in the app; for anything else, contact <mail>{email}</mail>.",
     "link": "Privacy policy"

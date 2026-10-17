@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { getStore } from "@/lib/data/stores";
-import { DeleteAccountForm } from "./delete-account-form";
+import { DeleteAccountForm } from "@/components/account/delete-account-form";
 import { DeleteStoreForm } from "./delete-store-form";
 import { SettingsForm } from "./settings-form";
 
@@ -57,7 +57,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ local
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {email ? <DeleteAccountForm email={email} /> : <p className="text-sm text-destructive">{ta("deleteFailed")}</p>}
+          {email ? <DeleteAccountForm email={email} /> : <p className="text-sm text-destructive">{ta("noEmail")}</p>}
         </CardContent>
       </Card>
     </div>

@@ -53,3 +53,13 @@ test("a wrong email deletes nothing; the right one deletes the account and signs
   await page.goto("/toko");
   await expect(page).toHaveURL(/\/login/);
 });
+
+test("a user with no store can delete the account from the setup page", async ({ page }) => {
+  const email = await signIn(page, undefined, "/onboarding");
+  await page.getByText("Hapus akun", { exact: true }).click();
+  await page.getByLabel("Ketik email-mu untuk konfirmasi").fill(email);
+  await page.getByRole("button", { name: "Hapus akun saya" }).click();
+  await expect(page).toHaveURL(/\/(id)?\?akun=dihapus$/);
+  await expect(page.getByRole("status").filter({ hasText: "Akunmu sudah dihapus" })).toBeVisible();
+  await expect(userIdByEmail(email)).rejects.toThrow(/No user/);
+});

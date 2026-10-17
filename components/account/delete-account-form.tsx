@@ -6,7 +6,7 @@ import { FieldError } from "@/components/forms/field-error";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { deleteAccountAction } from "./account-actions";
+import { deleteAccountAction } from "@/lib/account/actions";
 
 export function DeleteAccountForm({ email }: { email: string }) {
   const t = useTranslations("Account");

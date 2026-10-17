@@ -17,7 +17,8 @@ export async function deleteAccountAction(_prev: FormState, formData: FormData):
   const values = rawValues(formData, ["confirmEmail"]);
   const t = await getTranslations("Account");
   const { supabase, userId, email } = await requireUser();
-  if (!email || !emailConfirmationMatches(values.confirmEmail ?? "", email)) {
+  if (!email) return { message: t("noEmail"), values };
+  if (!emailConfirmationMatches(values.confirmEmail ?? "", email)) {
     return { fieldErrors: { confirmEmail: [t("confirmMismatch")] }, values };
   }
 

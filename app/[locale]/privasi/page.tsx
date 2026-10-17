@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -28,7 +29,9 @@ export default async function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl space-y-8 px-4 py-10 text-sm leading-relaxed [overflow-wrap:anywhere]">
       <div className="flex items-center justify-between gap-2">
-        <BrandLogo />
+        <Link href="/" className="inline-flex min-h-10 items-center rounded-md">
+          <BrandLogo />
+        </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <LocaleSwitcher />

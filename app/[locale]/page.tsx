@@ -23,7 +23,7 @@ export default async function LandingPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-5xl flex-col justify-center gap-10 px-4 py-12 lg:py-16">
-      {akun === "dihapus" && (
+      {!loggedIn && akun === "dihapus" && (
         <p role="status" className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
           {t("accountDeleted")}
         </p>
@@ -57,7 +57,7 @@ export default async function LandingPage({
         ))}
       </ul>
       <footer>
-        <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline-offset-4 hover:underline">
+        <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline underline-offset-4">
           {tp("link")}
         </Link>
       </footer>
