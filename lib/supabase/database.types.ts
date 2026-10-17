@@ -49,6 +49,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"ai_usage": {
+                  Row: {
+                    "created_at": string,"id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ai_usage_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"assets": {
                   Row: {
                     "category": string,"created_at": string,"id": string,"name": string,"qty": number,"store_id": string,"unit_price": number,"useful_life_months": number
@@ -259,7 +279,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "create_store":
+            "claim_ai_usage":
+{ Args: { "p_limit": number,"p_since": string,"p_user_id": string }; Returns: string
+                           },
+"create_store":
 { Args: { "p_business_type": string,"p_default_channel_name"?: string,"p_name": string,"p_operating_days": number,"p_target_margin": number,"p_target_market"?: string }; Returns: string
                            },
 "is_store_owner":
