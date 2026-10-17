@@ -13,7 +13,7 @@ export function StoreNav({ storeId, variant }: { storeId: string; variant: "side
     return (
       <nav
         aria-label={t("menu")}
-        className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-background pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
         {items.map((item) => {
           const active = item.labelKey === "more" ? isMoreActive(pathname, storeId) : isNavActive(pathname, item.href);
@@ -47,7 +47,7 @@ export function StoreNav({ storeId, variant }: { storeId: string; variant: "side
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm",
               active ? "bg-accent font-medium text-accent-foreground" : "text-muted-foreground hover:bg-accent/60",
             )}
           >

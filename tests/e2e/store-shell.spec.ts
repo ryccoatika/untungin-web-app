@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createStoreViaOnboarding, signIn } from "./helpers";
+import { createStoreViaOnboarding, openHeaderMenu, signIn } from "./helpers";
 
 test("dashboard shows the store name and settings", async ({ page }) => {
   await signIn(page);
@@ -85,7 +85,8 @@ test("double-clicking 'Buat toko' creates only one store", async ({ page }) => {
 test("signing out returns to the landing page and protects the app", async ({ page }) => {
   await signIn(page);
   await createStoreViaOnboarding(page, "Toko Keluar");
-  await page.getByRole("button", { name: "Keluar" }).click();
+  await openHeaderMenu(page);
+  await page.getByRole(page.viewportSize()!.width < 768 ? "menuitem" : "button", { name: "Keluar" }).click();
   await expect(page).toHaveURL(/\/id$/);
   await page.goto("/toko");
   await expect(page).toHaveURL(/\/id\/login\?next=%2Fid%2Ftoko$/);
@@ -104,4 +105,32 @@ test("long store names do not overflow a phone screen", async ({ page }, testInf
   await page.goto(dashboardUrl.replace("/dashboard", "/pengaturan"));
   await expect(page.getByLabel("Ketik nama toko untuk konfirmasi")).toBeVisible();
   expect(await overflow()).toBeLessThanOrEqual(0);
+});
+
+test("phone header folds theme, language and sign-out into one menu", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile");
+  await page.setViewportSize({ width: 360, height: 800 });
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Kedai Kopi Senja Sejahtera");
+  await expect(page.getByRole("button", { name: "Keluar" })).toBeHidden();
+  await expect(page.getByRole("button", { name: /^Tema:/ })).toBeHidden();
+  await page.getByRole("button", { name: "Menu lainnya" }).click();
+  await expect(page.getByRole("menuitemradio", { name: "Terang" })).toBeVisible();
+  await expect(page.getByRole("menuitemradio", { name: "English" })).toBeVisible();
+  await page.getByRole("menuitem", { name: "Keluar" }).click();
+  await expect(page).toHaveURL(/\/id$/);
+});
+
+test("768 wide uses the phone layout, 1280 wide the sidebar", async ({ page }) => {
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Tablet");
+  const bottom = page.locator('nav[aria-label="Menu toko"]');
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await expect(bottom).toHaveCount(2); // sidebar + bottom nav are both in the DOM
+  await expect(bottom.nth(0)).toBeHidden();
+  await expect(bottom.nth(1)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Keluar" })).toBeVisible();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(bottom.nth(0)).toBeVisible();
+  await expect(bottom.nth(1)).toBeHidden();
 });

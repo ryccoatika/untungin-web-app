@@ -5,6 +5,7 @@ import {
   addExpense,
   addMaterial,
   addProduct,
+  addTemplateChannel,
   createStoreViaOnboarding,
   setPrice,
   signIn,
@@ -54,8 +55,11 @@ test("the full flow shows profit, break-even and payback", async ({ page }) => {
   await expect(page.getByTestId("metric-bep")).toHaveText("22 terjual/hari");
   await expect(page.getByTestId("metric-payback")).toHaveText("≈ 3,5 bulan");
   await expect(page.getByText("Langkah awal")).toBeHidden();
-  await expect(page.getByText("Margin di bawah target: Es teh manis (Offline – Tunai).")).toBeVisible();
+  const warning = page.getByRole("listitem").filter({ hasText: "Margin di bawah target:" });
+  await expect(warning).toBeVisible();
+  await expect(warning.getByRole("listitem")).toHaveText(["Es teh manis (Offline – Tunai)"]);
   await expect(page.getByRole("link", { name: /Es teh manis/ })).toContainText("Di bawah target");
+
 
   await page.getByRole("link", { name: "Coba simulasi" }).click();
   await expect(page).toHaveURL(/\/simulasi$/);
@@ -103,4 +107,28 @@ test("long names and large amounts fit on a phone", async ({ page }, testInfo) =
   await expect(page.getByTestId("metric-grossRevenue")).toContainText("Rp1.500.000.000.000");
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("at 768 a price never breaks inside the number, even next to a long product name", async ({ page }) => {
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Lebar");
+  await page.goto(storeUrl(page, "kanal"));
+  await addTemplateChannel(page, "GoFood");
+  await page.goto(storeUrl(page, "bahan"));
+  await addMaterial(page, { name: "Gula", qty: "1", unit: "kg", price: "15.000" });
+  await page.goto(storeUrl(page, "produk"));
+  await addProduct(page, { name: "Es kopi hitam spesial racikan khas senja untuk pecinta kopi sejati", yieldQty: "10" });
+  await addCompositionRow(page, { material: "Gula", qty: "200" });
+  await setPrice(page, { price: "25.000", est: "300", channel: "Offline – Tunai" });
+  await setPrice(page, { price: "28.000", est: "100", channel: "GoFood" });
+
+  // Cards are two columns from md (768) and a table from lg; numbers stay on one line in both.
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto(storeUrl(page, "dashboard"));
+  for (const price of ["Rp25.000", "Rp28.000"]) {
+    const value = page.getByRole("link", { name: /Es kopi hitam/ }).locator("span", { hasText: new RegExp(`^Harga:\\s*${price.replace(".", "\\.")}$`) });
+    await expect(value).toBeVisible();
+    const lines = await value.evaluate((el) => Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)));
+    expect(lines, price).toBe(1);
+  }
 });

@@ -181,6 +181,7 @@
     "defaultChannelName": "Offline – Tunai"
   },
   "StoreShell": {
+    "moreActions": "Menu lainnya",
     "switchStore": "Ganti toko",
     "menu": "Menu toko",
     "nav": {
@@ -276,6 +277,7 @@
     "en": "English"
   },
   "Theme": {
+    "label": "Tema",
     "trigger": "Tema: {mode}",
     "system": "Ikuti perangkat",
     "light": "Terang",
@@ -509,11 +511,12 @@
   },
   "Warnings": {
     "NET_LOSS": "Usahamu rugi per bulan: biaya tetap lebih besar dari laba kotor.",
-    "LOSS_PRODUCTS": "Rugi setiap terjual: {products}. Naikkan harga atau kurangi biaya bahan.",
+    "LOSS_PRODUCTS_intro": "Rugi setiap terjual. Naikkan harga atau kurangi biaya bahan untuk:",
     "NEGATIVE_CONTRIBUTION": "Rata-rata setiap penjualan rugi. Makin banyak terjual, makin besar ruginya.",
     "NO_OWNER_SALARY": "Laba terlihat lebih besar karena gajimu sendiri belum dihitung.",
-    "BELOW_TARGET": "Margin di bawah target: {products}.",
-    "COMPETITOR_GAP": "Harga beda lebih dari 25% dari pesaing: {products}.",
+    "BELOW_TARGET_intro": "Margin di bawah target:",
+    "COMPETITOR_GAP_intro": "Harga beda lebih dari 25% dari pesaing:",
+    "moreLines": "+{count} lainnya",
     "NO_SALES_ESTIMATE": "Isi perkiraan penjualan per bulan supaya laba dan titik impas bisa dihitung."
   },
   "Checklist": {

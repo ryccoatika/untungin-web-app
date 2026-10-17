@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { WARNING_CODES } from "@/lib/calc";
 import en from "@/messages/en.json";
 import id from "@/messages/id.json";
 
@@ -46,6 +47,15 @@ describe("app-generated data names", () => {
       const [group, name] = key.split(".");
       expect((id.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();
       expect((en.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();
+    }
+  });
+
+  it("has a message for every warning code (sentence, or an intro for the listed ones)", () => {
+    for (const [name, catalog] of [["id", id], ["en", en]] as const) {
+      const warnings = catalog.Warnings as Record<string, string>;
+      for (const code of WARNING_CODES) {
+        expect(code in warnings || `${code}_intro` in warnings, `${name}: ${code}`).toBe(true);
+      }
     }
   });
 });

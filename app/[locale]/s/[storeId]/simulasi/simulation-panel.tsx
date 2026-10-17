@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { WarningsList } from "../dashboard/warnings-list";
 import { StatusBadge } from "@/components/store/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,6 @@ function paramsToQuery(params: { forEach: (fn: (value: string, key: string) => v
 
 export function SimulationPanel({ data }: { data: StoreData }) {
   const t = useTranslations("Simulation");
-  const tWarnings = useTranslations("Warnings");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const [overrides, setOverrides] = useState<Overrides>(() => parseOverrides(paramsToQuery(searchParams)));
@@ -123,6 +123,9 @@ export function SimulationPanel({ data }: { data: StoreData }) {
     return signed(formatNumber(diff, locale, key === "paybackMonths" ? 1 : 0), diff);
   };
 
+  const rows = compareMetrics(now, sim, { simHasEstimates: now.totalUnits > 0 });
+  const profit = rows.find((row) => row.key === "netProfit");
+
   return (
     <div className="space-y-6">
       <Card>
@@ -132,26 +135,56 @@ export function SimulationPanel({ data }: { data: StoreData }) {
         </CardHeader>
         <CardContent>
           <ul aria-live="polite" className="divide-y">
-            {compareMetrics(now, sim, { simHasEstimates: now.totalUnits > 0 }).map((row) => (
-              <li key={row.key} className="space-y-1 py-3">
+            {rows.map((row) => (
+              <li key={row.key} className="space-y-2 py-3">
                 <p className="text-sm text-muted-foreground">{t(`metrics.${row.key}`)}</p>
-                <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="text-sm">
-                    {t("now")}: <span data-testid={`sim-now-${row.key}`}>{formatValue(row.key, row.now)}</span>
-                  </span>
-                  <span className="font-semibold [overflow-wrap:anywhere]">
-                    {t("sim")}: <span data-testid={`sim-sim-${row.key}`}>{formatValue(row.key, row.sim)}</span>
-                  </span>
-                  <span className={cn("text-sm font-medium", TONE[row.tone])}>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
+                  <div className="min-w-0">
+                    <dt className="text-xs text-muted-foreground">{t("now")}</dt>
+                    <dd className="text-sm [overflow-wrap:anywhere]" data-testid={`sim-now-${row.key}`}>
+                      {formatValue(row.key, row.now)}
+                    </dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-xs text-muted-foreground">{t("sim")}</dt>
+                    <dd className="font-semibold [overflow-wrap:anywhere]" data-testid={`sim-sim-${row.key}`}>
+                      {formatValue(row.key, row.sim)}
+                    </dd>
+                  </div>
+                  <div className={cn("col-span-2 text-sm font-medium", TONE[row.tone])}>
                     <span className="sr-only">{t("diff")}: </span>
                     <span data-testid={`sim-diff-${row.key}`}>{formatDiff(row.key, row.diff)}</span>
-                  </span>
-                </p>
+                  </div>
+                </dl>
               </li>
             ))}
           </ul>
         </CardContent>
       </Card>
+
+      {profit && (
+        // Phones and tablets: net profit stays visible under the sticky header while the controls below are used.
+        // The results card above already announces changes, so this copy is hidden from assistive technology.
+        <div
+          aria-hidden
+          data-testid="sim-bar"
+          className="sticky top-(--store-header-h) z-[5] -mx-4 space-y-0.5 border-b bg-background px-4 py-2 text-sm md:-mx-8 md:px-8 lg:hidden"
+        >
+          <p className="whitespace-nowrap">
+            <span data-testid="sim-bar-now">{formatValue(profit.key, profit.now)}</span>
+            <span className="px-2 text-muted-foreground">→</span>
+            <span className="font-semibold" data-testid="sim-bar-sim">
+              {formatValue(profit.key, profit.sim)}
+            </span>
+          </p>
+          <p className="flex items-baseline justify-between gap-3">
+            <span className="text-xs text-muted-foreground">{t(`metrics.${profit.key}`)}</span>
+            <span className={cn("font-medium whitespace-nowrap", TONE[profit.tone])} data-testid="sim-bar-diff">
+              {formatDiff(profit.key, profit.diff)}
+            </span>
+          </p>
+        </div>
+      )}
 
       <Card>
         <CardHeader>
@@ -173,7 +206,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
                 value={materialAll}
                 aria-valuetext={pctLabel(materialAll)}
                 onChange={(event) => setMaterialPct(ALL_MATERIALS, Number(event.target.value))}
-                className="h-10 w-full accent-primary"
+                className="h-10 w-full scroll-mt-32 scroll-mb-24 accent-primary"
               />
             </div>
 
@@ -191,12 +224,12 @@ export function SimulationPanel({ data }: { data: StoreData }) {
                 value={salesPct}
                 aria-valuetext={pctLabel(salesPct)}
                 onChange={(event) => setSalesPct(Number(event.target.value))}
-                className="h-10 w-full accent-primary"
+                className="h-10 w-full scroll-mt-32 scroll-mb-24 accent-primary"
               />
               {now.totalUnits === 0 && <p className="text-xs text-muted-foreground">{t("salesNeedsEstimates")}</p>}
             </div>
 
-            <details open={hasPerMaterial} className="space-y-3">
+            <details open={hasPerMaterial} className="open:space-y-3">
               <summary className="flex min-h-10 cursor-pointer items-center text-sm font-medium">{t("perMaterial")}</summary>
               <p className="text-xs text-muted-foreground">{t("perMaterialHint")}</p>
               {data.materials.map((material) => (
@@ -204,6 +237,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
                   <Label htmlFor={`sim-material-${material.id}`}>{t("materialPct", { material: material.name })}</Label>
                   <Input
                     id={`sim-material-${material.id}`}
+                    className="scroll-mt-32 scroll-mb-24"
                     inputMode="decimal"
                     defaultValue={overrides.materialPricePct?.[material.id]?.toString() ?? ""}
                     onChange={(event) => {
@@ -234,6 +268,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
                     </Label>
                     <Input
                       id={`sim-price-${key}`}
+                      className="scroll-mt-32 scroll-mb-24"
                       inputMode="numeric"
                       defaultValue={String(overrides.prices?.[key] ?? line.price)}
                       onChange={(event) => setPrice(key, event.target.value)}
@@ -279,20 +314,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
         </Card>
       )}
 
-      {warnings.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold">{t("warningsTitle")}</h2>
-          <ul className="space-y-2">
-            {warnings.map((warning) => (
-              <li key={warning.code} className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm [overflow-wrap:anywhere]">
-                {tWarnings(warning.code, {
-                  products: warning.lines.map(lineLabel).join(", "),
-                })}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <WarningsList warnings={warnings} lineLabel={lineLabel} title={t("warningsTitle")} />
     </div>
   );
 }

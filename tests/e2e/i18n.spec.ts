@@ -1,5 +1,7 @@
-import { expect, test } from "@playwright/test";
-import { createStoreViaOnboarding, googleSignInNext, savedLocale, signIn, uniqueEmail } from "./helpers";
+import { expect, test, type Page } from "@playwright/test";
+import { createStoreViaOnboarding, googleSignInNext, openHeaderMenu, savedLocale, signIn, uniqueEmail } from "./helpers";
+
+const isPhone = (page: Page) => page.viewportSize()!.width < 768;
 
 test.describe("English browser", () => {
   test.use({ locale: "en-US" });
@@ -84,11 +86,13 @@ test("switching language keeps you signed in and saves the choice to the account
   const email = uniqueEmail("locale");
   await signIn(page, email);
   await createStoreViaOnboarding(page, "Kedai Bahasa", "12,5");
-  await page.getByRole("button", { name: "English" }).click();
+  await openHeaderMenu(page);
+  await page.getByRole(isPhone(page) ? "menuitemradio" : "button", { name: "English" }).click();
   await expect(page).toHaveURL(/\/en\/s\/[0-9a-f-]{36}\/dashboard$/);
   await expect(page.getByText("Calculation basis")).toBeVisible();
   await expect(page.getByText("12.5%")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await openHeaderMenu(page);
+  await expect(page.getByRole(isPhone(page) ? "menuitem" : "button", { name: "Sign out" })).toBeVisible();
 
   // Applying it on the next sign-in is the OAuth callback's job (tests/unit/auth-callback.test.ts).
   await expect.poll(() => savedLocale(email)).toBe("en");
@@ -114,12 +118,14 @@ test("the switcher fits on a phone header next to a long store name", async ({ p
   await page.setViewportSize({ width: 360, height: 800 });
   await signIn(page);
   await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
-  await expect(page.getByRole("button", { name: "English" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Menu lainnya" })).toBeVisible();
   const overflow = () =>
     page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(await overflow()).toBeLessThanOrEqual(0);
-  await page.getByRole("button", { name: "English" }).click();
-  await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+  await openHeaderMenu(page);
+  await page.getByRole("menuitemradio", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/en\//);
+  await expect(page.getByRole("button", { name: "More options" })).toBeVisible();
   expect(await overflow()).toBeLessThanOrEqual(0);
 });
 

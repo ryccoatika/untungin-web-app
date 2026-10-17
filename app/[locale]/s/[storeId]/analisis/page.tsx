@@ -90,7 +90,7 @@ export default async function AnalysisPage({ params }: Props) {
       {header}
 
       <Card>
-        <CardContent className="space-y-3 pt-6">
+        <CardContent className="space-y-3">
           {analysis === null && (
             <p role="alert" className="text-sm text-destructive">
               {t("calcError")}
@@ -111,7 +111,7 @@ export default async function AnalysisPage({ params }: Props) {
             <h2 className="font-heading text-base leading-snug font-medium">{t("latest")}</h2>
             <p className="text-xs text-muted-foreground">{t("createdAt", { date: formatDateTime(latest.createdAt, locale) })}</p>
             {currentHash !== null && latest.snapshotHash !== currentHash && (
-              <p className="text-sm text-amber-700 dark:text-amber-300">{t("stale")}</p>
+              <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-200">{t("stale")}</p>
             )}
           </CardHeader>
           <CardContent className="space-y-4">
@@ -124,10 +124,10 @@ export default async function AnalysisPage({ params }: Props) {
       )}
 
       {older.length > 0 && (
-        <section className="space-y-2">
+        <section className="space-y-3 border-t pt-6">
           <h2 className="text-lg font-semibold">{t("history")}</h2>
           {older.map((stored) => (
-            <details key={stored.id} className="rounded-lg border p-3">
+            <details key={stored.id} className="rounded-lg border bg-muted/30 p-3 open:bg-card">
               <summary className="flex min-h-10 cursor-pointer items-center text-sm font-medium">
                 {t("createdAt", { date: formatDateTime(stored.createdAt, locale) })}
               </summary>

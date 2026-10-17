@@ -198,3 +198,9 @@ export function storeIdFromUrl(page: Page): string {
   if (!match) throw new Error(`Not on a store page: ${page.url()}`);
   return match[1];
 }
+
+/** Below md the header's theme, language and sign-out live in the "⋯" menu; open it there (no-op on wider screens). */
+export async function openHeaderMenu(page: Page) {
+  const trigger = page.getByRole("button", { name: /^(Menu lainnya|More options)$/ });
+  if (await trigger.isVisible()) await trigger.click();
+}

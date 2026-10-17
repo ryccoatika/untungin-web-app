@@ -109,7 +109,8 @@ test("a competitor price far from yours warns on the dashboard until it is clear
   await setPrice(page, { price: "5.000", est: "600", competitor: "Rp 3.000" });
   const productUrl = page.url();
   await page.goto(page.url().replace(/\/produk\/.*$/, "/dashboard"));
-  await expect(page.getByText("Harga beda lebih dari 25% dari pesaing: Es teh (Offline – Tunai).")).toBeVisible();
+  const gap = page.getByRole("listitem").filter({ hasText: "Harga beda lebih dari 25% dari pesaing:" });
+  await expect(gap.getByRole("listitem")).toHaveText(["Es teh (Offline – Tunai)"]);
 
   await page.goto(productUrl);
   await setPrice(page, { price: "5.000", est: "600", competitor: "" });

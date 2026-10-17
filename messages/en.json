@@ -181,6 +181,7 @@
     "defaultChannelName": "Offline – Cash"
   },
   "StoreShell": {
+    "moreActions": "More options",
     "switchStore": "Switch store",
     "menu": "Store menu",
     "nav": {
@@ -276,6 +277,7 @@
     "en": "English"
   },
   "Theme": {
+    "label": "Theme",
     "trigger": "Theme: {mode}",
     "system": "Follow device",
     "light": "Light",
@@ -509,11 +511,12 @@
   },
   "Warnings": {
     "NET_LOSS": "Your business loses money each month: fixed costs are higher than gross profit.",
-    "LOSS_PRODUCTS": "Loses money on every sale: {products}. Raise the price or lower material costs.",
+    "LOSS_PRODUCTS_intro": "Loses money on every sale. Raise the price or lower material costs for:",
     "NEGATIVE_CONTRIBUTION": "On average every sale loses money. The more you sell, the bigger the loss.",
     "NO_OWNER_SALARY": "Profit looks bigger because your own salary has not been counted.",
-    "BELOW_TARGET": "Margin below target: {products}.",
-    "COMPETITOR_GAP": "Price differs from competitors by more than 25%: {products}.",
+    "BELOW_TARGET_intro": "Margin below target:",
+    "COMPETITOR_GAP_intro": "Price differs from competitors by more than 25%:",
+    "moreLines": "+{count} more",
     "NO_SALES_ESTIMATE": "Fill in your monthly sales estimate so profit and break-even can be calculated."
   },
   "Checklist": {
