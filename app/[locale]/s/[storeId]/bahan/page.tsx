@@ -17,6 +17,7 @@ export default async function MaterialsPage({ params }: { params: Promise<{ loca
   const t = await getTranslations("Materials");
   const tCommon = await getTranslations("Common");
   const tCategory = await getTranslations("MaterialCategory");
+  const tUnit = await getTranslations("UnitShort");
   const locale = await getLocale();
 
   return (
@@ -43,7 +44,7 @@ export default async function MaterialsPage({ params }: { params: Promise<{ loca
                 <span className="min-w-0">
                   <span className="block font-medium [overflow-wrap:anywhere]">{material.name}</span>
                   <span className="block text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                    {tCategory(material.category)} · {formatNumber(material.purchaseQty, locale)} {material.purchaseUnit} ·{" "}
+                    {tCategory(material.category)} · {formatNumber(material.purchaseQty, locale)} {tUnit(material.purchaseUnit)} ·{" "}
                     {formatRupiah(material.purchasePrice, locale)}
                     {material.wastePct > 0 && ` · ${t("wasteValue", { pct: formatPercent(material.wastePct, locale) })}`}
                   </span>
@@ -51,7 +52,7 @@ export default async function MaterialsPage({ params }: { params: Promise<{ loca
                 <span className="shrink-0 text-right text-sm font-medium">
                   {t("perBaseUnit", {
                     cost: formatRupiah(unitCost(material), locale, 2),
-                    unit: BASE_UNIT[dimensionOf(material.purchaseUnit)],
+                    unit: tUnit(BASE_UNIT[dimensionOf(material.purchaseUnit)]),
                   })}
                 </span>
               </Link>

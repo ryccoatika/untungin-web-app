@@ -166,7 +166,7 @@ The store limit is also enforced by a database trigger (`supabase/migrations/202
 
 ## 4. Calculation (`lib/calc`)
 
-Number input: quantities and percentages use `localeNumber` ("," or "." as the decimal separator); Rupiah amounts and counts use `wholeNumber`, which reads thousand separators ("15.000", "Rp 15.000", "15,000" → 15000) and rejects decimals.
+Number input: quantities and percentages use `localeNumber` ("," or "." as the decimal separator, digits only with at most one separator; the ambiguous dot-grouped form "1.000" is rejected: write 1000, or 1,5 for decimals); Rupiah amounts and counts use `wholeNumber`, which reads thousand separators ("15.000", "Rp 15.000", "15,000" → 15000) and rejects decimals.
 
 Pure functions, no database/network access. Input = a complete store data object (`StoreData`); output = a result object (`StoreMetrics`). Used in Server Components (dashboard) and Client Components (live product page, simulation).
 
@@ -309,7 +309,7 @@ Navigation: bottom nav on phones (Dashboard, Produk, Bahan, Lainnya), sidebar on
 - Language switcher: an "ID | EN" toggle in the store header, landing, login, onboarding, and `/toko`. It navigates to the same path with the other prefix; for signed-in users a Server Action also saves `profiles.locale`.
 - Messages: `messages/id.json` and `messages/en.json`, namespaced per feature (`Auth`, `Onboarding`, `Store`, `Settings`, `Landing`, `Errors`, `Validation`, ...). A unit test asserts both files have exactly the same keys. No user-facing string is hardcoded in components.
 - Labels for enums (business type, target market, categories, frequencies, units) come from messages.
-- Formatting: percentages and numbers use the active locale (`12,5%` in `id`, `12.5%` in `en`); currency is always Rupiah. Number input accepts both `,` and `.` as the decimal separator (as `localeNumber` does today).
+- Formatting: percentages and numbers use the active locale (`12,5%` in `id`, `12.5%` in `en`); currency is always Rupiah. Number input for quantities and percentages accepts both `,` and `.` as the decimal separator, only digits with at most one decimal separator, and rejects the ambiguous "1.000" form (write 1000, or 1,5 for decimals).
 - `<html lang>` follows the active locale.
 - AI output (Phase 5) is generated in the user's active locale.
 

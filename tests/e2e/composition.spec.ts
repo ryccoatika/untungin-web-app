@@ -37,7 +37,7 @@ test("adds, edits and removes rows with their cost per unit", async ({ page }) =
   await expect(row(page, "Cup")).toContainText("Rp500/porsi");
 
   await row(page, "Gula").getByLabel("Jumlah").fill("100");
-  await row(page, "Gula").getByRole("button", { name: "Simpan" }).click();
+  await row(page, "Gula").getByRole("button", { name: "Simpan Gula" }).click();
   await expect(row(page, "Gula")).toContainText("Rp150/porsi");
 
   await page.getByRole("button", { name: "Hapus Cup dari komposisi" }).click();

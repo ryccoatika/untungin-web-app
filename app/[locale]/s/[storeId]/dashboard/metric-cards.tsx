@@ -45,7 +45,7 @@ export function MetricCards({ analysis }: { analysis: StoreAnalysis }) {
           ? "—"
           : t("paybackValue", { months: formatNumber(analysis.paybackMonths, locale, 1) }),
       hint:
-        analysis.paybackMonths === null ? t("paybackUnknown") : analysis.totalCapital === 0 ? t("paybackNoCapital") : null,
+        !hasSales ? t("needSales") : analysis.paybackMonths === null ? t("paybackUnknown") : analysis.totalCapital === 0 ? t("paybackNoCapital") : null,
     },
   ];
 

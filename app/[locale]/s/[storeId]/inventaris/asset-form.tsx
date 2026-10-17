@@ -54,7 +54,7 @@ export function AssetForm({ action, defaults = {}, submitLabel, pendingLabel, id
           </div>
           <div className="space-y-1">
             <Label htmlFor={field("unitPrice")}>{t("unitPrice")}</Label>
-            <Input id={field("unitPrice")} name="unitPrice" inputMode="numeric" defaultValue={current.unitPrice} placeholder="350.000" />
+            <Input id={field("unitPrice")} name="unitPrice" inputMode="numeric" defaultValue={current.unitPrice} placeholder={t("unitPricePlaceholder")} />
             <FieldError errors={errors.unitPrice} />
           </div>
         </div>

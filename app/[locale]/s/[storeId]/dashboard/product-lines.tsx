@@ -41,15 +41,15 @@ export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data
                       <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">{channelName(line.channelId)}</span>
                     </span>
                     <span className="text-sm [overflow-wrap:anywhere]">
-                      <span className="text-muted-foreground sm:hidden">{t("price")}: </span>
+                      <span className="text-muted-foreground sm:sr-only">{t("price")}: </span>
                       {formatRupiah(line.price, locale)}
                     </span>
                     <span className="text-sm [overflow-wrap:anywhere]">
-                      <span className="text-muted-foreground sm:hidden">{t("cost")}: </span>
+                      <span className="text-muted-foreground sm:sr-only">{t("cost")}: </span>
                       {formatRupiah(line.fullCost ?? line.materialCost, locale)}
                     </span>
                     <span className="text-sm">
-                      <span className="text-muted-foreground sm:hidden">{t("margin")}: </span>
+                      <span className="text-muted-foreground sm:sr-only">{t("margin")}: </span>
                       {line.marginPct === null ? "—" : formatPercent(line.marginPct, locale)}
                     </span>
                     <StatusBadge status={line.status} />

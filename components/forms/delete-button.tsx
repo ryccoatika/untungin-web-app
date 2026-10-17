@@ -30,7 +30,7 @@ export function DeleteButton({ action, label }: { action: Action; label: string 
     <form action={formAction} className="space-y-2">
       <p className="text-sm">{t("deleteConfirm")}</p>
       <div className="flex flex-wrap gap-2">
-        <SubmitButton variant="destructive" pendingText={t("deletePending")}>
+        <SubmitButton variant="destructive" autoFocus pendingText={t("deletePending")}>
           {label}
         </SubmitButton>
         <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>

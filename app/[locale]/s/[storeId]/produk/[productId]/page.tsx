@@ -91,6 +91,7 @@ export default async function ProductPage({ params }: { params: Params }) {
                   data={data}
                   productId={product.id}
                   channel={channel}
+                  inactive={!product.isActive}
                   defaults={{
                     price: saved ? String(saved.price) : "",
                     estMonthlySales: saved ? String(saved.estMonthlySales) : "",

@@ -39,13 +39,14 @@ export function MaterialForm({ action, defaults = {}, submitLabel, pendingLabel,
 function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; errors: Record<string, string[] | undefined> }) {
   const t = useTranslations("Materials");
   const tUnits = useTranslations("Units");
+  const tUnitShort = useTranslations("UnitShort");
   const tCategory = useTranslations("MaterialCategory");
   const locale = useLocale();
 
   function preview(values: Record<string, unknown>): string | null {
     const parsed = materialInputSchema.safeParse(values);
     if (!parsed.success) return null;
-    const unit = BASE_UNIT[dimensionOf(parsed.data.purchaseUnit)];
+    const unit = tUnitShort(BASE_UNIT[dimensionOf(parsed.data.purchaseUnit)]);
     return t("costPreview", { cost: formatRupiah(unitCost(parsed.data), locale, 2), unit });
   }
 
@@ -93,7 +94,7 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
       </div>
       <div className="space-y-1">
         <Label htmlFor="material-price">{t("purchasePrice")}</Label>
-        <Input id="material-price" name="purchasePrice" inputMode="numeric" defaultValue={defaults.purchasePrice} placeholder="15.000" />
+        <Input id="material-price" name="purchasePrice" inputMode="numeric" defaultValue={defaults.purchasePrice} placeholder={t("pricePlaceholder")} />
         <FieldError errors={errors.purchasePrice} />
       </div>
       <div className="space-y-1">

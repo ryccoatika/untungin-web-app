@@ -134,7 +134,7 @@ function RowEditor({
           </div>
         </fieldset>
         <FormMessage state={state} />
-        <SubmitButton variant="outline" pendingText={tCommon("savePending")}>
+        <SubmitButton variant="outline" aria-label={t("saveRow", { material: row.materialName })} pendingText={tCommon("savePending")}>
           {tCommon("save")}
         </SubmitButton>
       </form>
@@ -154,6 +154,7 @@ function RowEditor({
 }
 
 function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action: Action }) {
+  const tCommon = useTranslations("Common");
   const t = useTranslations("Composition");
   const [state, formAction] = useActionState(action, undefined);
   const key = useRemountKey(state);
@@ -162,7 +163,7 @@ function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action
     <form id="add-composition" action={formAction} className="space-y-3 rounded-lg border border-dashed p-4">
       <AddRowFields key={key} materials={materials} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
       <FormMessage state={state} />
-      <SubmitButton className="w-full sm:w-auto" pendingText={t("add")}>
+      <SubmitButton className="w-full sm:w-auto" pendingText={tCommon("addPending")}>
         {t("add")}
       </SubmitButton>
     </form>

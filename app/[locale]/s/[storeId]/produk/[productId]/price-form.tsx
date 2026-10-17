@@ -17,9 +17,9 @@ import { priceInputSchema } from "@/lib/validation/price";
 type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 type Defaults = { price: string; estMonthlySales: string };
 
-type Props = { id: string; action: Action; data: StoreData; productId: string; channel: CalcChannel; defaults: Defaults };
+type Props = { id: string; action: Action; data: StoreData; productId: string; channel: CalcChannel; defaults: Defaults; inactive?: boolean };
 
-export function PriceForm({ id, action, data, productId, channel, defaults }: Props) {
+export function PriceForm({ id, action, data, productId, channel, defaults, inactive }: Props) {
   const t = useTranslations("Pricing");
   const tCommon = useTranslations("Common");
   const [state, formAction] = useActionState(action, undefined);
@@ -32,6 +32,7 @@ export function PriceForm({ id, action, data, productId, channel, defaults }: Pr
         data={data}
         productId={productId}
         channel={channel}
+        inactive={inactive}
         defaults={(state?.values as Defaults | undefined) ?? defaults}
         errors={state?.fieldErrors ?? {}}
       />
@@ -67,12 +68,14 @@ function PriceFields({
   productId,
   channel,
   defaults,
+  inactive,
   errors,
 }: {
   data: StoreData;
   productId: string;
   channel: CalcChannel;
   defaults: Defaults;
+  inactive?: boolean;
   errors: Record<string, string[] | undefined>;
 }) {
   const t = useTranslations("Pricing");
@@ -90,7 +93,7 @@ function PriceFields({
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label htmlFor={field("price")}>{t("price")}</Label>
-          <Input id={field("price")} name="price" inputMode="numeric" defaultValue={defaults.price} placeholder="15.000" />
+          <Input id={field("price")} name="price" inputMode="numeric" defaultValue={defaults.price} placeholder={t("pricePlaceholder")} />
           <FieldError errors={errors.price} />
         </div>
         <div className="space-y-1">
@@ -99,7 +102,9 @@ function PriceFields({
           <FieldError errors={errors.estMonthlySales} />
         </div>
       </div>
-      {line ? (
+      {inactive ? (
+        <p className="text-sm text-muted-foreground">{t("inactivePreview")}</p>
+      ) : line ? (
         <div aria-live="polite" className="space-y-2">
           <dl className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-1 rounded-lg bg-muted/50 p-3 text-sm">
             <dt className="text-muted-foreground">{t("materialCost")}</dt>
