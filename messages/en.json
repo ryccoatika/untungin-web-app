@@ -233,5 +233,39 @@
     "saveFailed": "Could not save. Try again.",
     "deleteFailed": "Could not delete. Try again.",
     "notFound": "Not found."
+  },
+  "Units": {
+    "g": "gram (g)",
+    "ons": "ons (100 g)",
+    "kg": "kilogram (kg)",
+    "ml": "millilitre (ml)",
+    "l": "litre (l)",
+    "pcs": "piece (pcs)",
+    "lusin": "dozen (12 pcs)"
+  },
+  "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
+  "Materials": {
+    "title": "Materials & packaging",
+    "intro": "Everything you buy to make your products: ingredients and packaging.",
+    "addTitle": "Add material",
+    "editTitle": "Edit material",
+    "name": "Material name",
+    "namePlaceholder": "E.g. Sugar",
+    "category": "Type",
+    "purchaseQty": "Amount bought",
+    "purchaseUnit": "Unit",
+    "purchasePrice": "Purchase price (Rp)",
+    "wastePct": "Waste (%)",
+    "wasteHint": "The part you throw away, such as peel or spills. Leave empty if none.",
+    "costPreview": "Cost: {cost} per {unit}",
+    "perBaseUnit": "{cost}/{unit}",
+    "wasteValue": "waste {pct}",
+    "emptyTitle": "No materials yet",
+    "emptyBody": "Record the ingredients and packaging you buy. E.g. Sugar, 1 kg, Rp15,000.",
+    "emptyAction": "Add your first material",
+    "created": "Material added.",
+    "delete": "Delete material",
+    "deleteInUse": "Can't delete. Used in: {products}",
+    "usedIn": "Used in: {products}"
   }
 }

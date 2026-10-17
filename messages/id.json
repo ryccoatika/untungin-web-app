@@ -233,5 +233,39 @@
     "saveFailed": "Gagal menyimpan. Coba lagi.",
     "deleteFailed": "Gagal menghapus. Coba lagi.",
     "notFound": "Data tidak ditemukan."
+  },
+  "Units": {
+    "g": "gram (g)",
+    "ons": "ons (100 g)",
+    "kg": "kilogram (kg)",
+    "ml": "mililiter (ml)",
+    "l": "liter (l)",
+    "pcs": "buah (pcs)",
+    "lusin": "lusin (12 pcs)"
+  },
+  "MaterialCategory": { "bahan": "Bahan baku", "kemasan": "Kemasan" },
+  "Materials": {
+    "title": "Bahan & kemasan",
+    "intro": "Semua yang kamu beli untuk membuat produk: bahan baku dan kemasan.",
+    "addTitle": "Tambah bahan",
+    "editTitle": "Ubah bahan",
+    "name": "Nama bahan",
+    "namePlaceholder": "Contoh: Gula pasir",
+    "category": "Jenis",
+    "purchaseQty": "Jumlah beli",
+    "purchaseUnit": "Satuan",
+    "purchasePrice": "Harga beli (Rp)",
+    "wastePct": "Susut / terbuang (%)",
+    "wasteHint": "Bagian yang terbuang, misalnya kulit atau tumpah. Kosongkan jika tidak ada.",
+    "costPreview": "Biaya: {cost} per {unit}",
+    "perBaseUnit": "{cost}/{unit}",
+    "wasteValue": "susut {pct}",
+    "emptyTitle": "Belum ada bahan",
+    "emptyBody": "Catat bahan dan kemasan yang kamu beli. Contoh: Gula pasir, 1 kg, Rp15.000.",
+    "emptyAction": "Tambah bahan pertama",
+    "created": "Bahan ditambahkan.",
+    "delete": "Hapus bahan",
+    "deleteInUse": "Tidak bisa dihapus. Dipakai di: {products}",
+    "usedIn": "Dipakai di: {products}"
   }
 }

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
+import type { Unit } from "../../lib/calc";
 
 export function uniqueEmail(label: string) {
   return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`;
@@ -77,4 +78,26 @@ export async function createStoreViaOnboarding(page: Page, name: string, margin 
   await page.getByLabel("Target margin (%)").fill(margin);
   await page.getByRole("button", { name: "Buat toko" }).click();
   await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard$/);
+}
+
+/** URL of another page of the store currently open, e.g. storeUrl(page, "bahan"). */
+export function storeUrl(page: Page, path: string): string {
+  const match = page.url().match(/^(.*\/s\/[0-9a-f-]{36})\//);
+  if (!match) throw new Error(`Not on a store page: ${page.url()}`);
+  return `${match[1]}/${path}`;
+}
+
+export async function addMaterial(
+  page: Page,
+  m: { name: string; qty: string; unit: Unit; price: string; category?: "bahan" | "kemasan"; waste?: string },
+) {
+  const form = page.locator("#add-material");
+  await form.getByLabel("Nama bahan").fill(m.name);
+  await form.getByLabel("Jenis").selectOption(m.category ?? "bahan");
+  await form.getByLabel("Jumlah beli").fill(m.qty);
+  await form.getByLabel("Satuan").selectOption(m.unit);
+  await form.getByLabel("Harga beli (Rp)").fill(m.price);
+  if (m.waste) await form.getByLabel("Susut / terbuang (%)").fill(m.waste);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Bahan ditambahkan.")).toBeVisible();
 }
