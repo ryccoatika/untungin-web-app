@@ -67,8 +67,8 @@ describe("sanitizeOutput", () => {
     expect(result?.highlights).toHaveLength(8);
 
     // Invalid priority at index 10 of issues → not null
-    const issues = Array.from({ length: 10 }, (_, i) => ({ title: `t${i}`, explanation: `e${i}`, related_product_ids: [], priority: "sedang" as const }));
-    issues.push({ title: "t10", explanation: "e10", related_product_ids: [], priority: "invalid" } as unknown);
+    const issues: unknown[] = Array.from({ length: 10 }, (_, i) => ({ title: `t${i}`, explanation: `e${i}`, related_product_ids: [], priority: "sedang" as const }));
+    issues.push({ title: "t10", explanation: "e10", related_product_ids: [], priority: "invalid" });
     const result2 = sanitizeOutput(output({ issues }), refs);
     expect(result2?.issues).toHaveLength(MAX_ITEMS);
 
