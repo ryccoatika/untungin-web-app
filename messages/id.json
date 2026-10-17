@@ -135,7 +135,19 @@
       "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
       "priceMin": "Harga tidak boleh negatif",
       "salesNumber": "Isi perkiraan terjual dengan angka bulat",
-      "salesMin": "Tidak boleh negatif"
+      "salesMin": "Tidak boleh negatif",
+      "competitorNumber": "Isi harga pesaing dengan angka bulat, contoh 15.000",
+      "competitorMin": "Harga pesaing tidak boleh negatif"
+    },
+    "channel": {
+      "nameRequired": "Nama kanal wajib diisi",
+      "nameTooLong": "Nama kanal maksimal 60 karakter",
+      "commissionNumber": "Isi komisi dengan angka, contoh 20",
+      "commissionMin": "Komisi tidak boleh negatif",
+      "commissionMax": "Komisi harus kurang dari 100%",
+      "feeNumber": "Isi biaya per pesanan dengan angka bulat, contoh 1.000",
+      "feeMin": "Biaya tidak boleh negatif",
+      "duplicate": "Kanal dengan nama ini sudah ada"
     },
     "expense": {
       "nameRequired": "Nama biaya wajib diisi",

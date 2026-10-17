@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { assetInputSchema, toAssetColumns } from "@/lib/validation/asset";
+import { channelInputSchema, toChannelColumns } from "@/lib/validation/channel";
 import { compositionInputSchema, compositionUnitError } from "@/lib/validation/composition";
 import { expenseInputSchema, toExpenseColumns } from "@/lib/validation/expense";
 import { materialInputSchema, toMaterialColumns } from "@/lib/validation/material";
-import { priceInputSchema } from "@/lib/validation/price";
+import { priceInputSchema, toPriceColumns } from "@/lib/validation/price";
 import { productInputSchema, toProductColumns } from "@/lib/validation/product";
 
 function errorsFor(schema: z.ZodType, input: Record<string, unknown>) {
@@ -103,11 +104,31 @@ describe("compositionInputSchema", () => {
   });
 });
 
+describe("channelInputSchema", () => {
+  it("parses a channel; blank commission and fee mean 0", () => {
+    const parsed = channelInputSchema.parse({ name: " GoFood ", commissionPct: "20", fixedFee: "1.000" });
+    expect(parsed).toEqual({ name: "GoFood", commissionPct: 20, fixedFee: 1000 });
+    expect(toChannelColumns(parsed)).toEqual({ name: "GoFood", commission_pct: 20, fixed_fee: 1000 });
+    expect(channelInputSchema.parse({ name: "Titip toko", commissionPct: "", fixedFee: "" })).toMatchObject({ commissionPct: 0, fixedFee: 0 });
+  });
+
+  it.each([
+    [{ name: "" }, "name", "channel.nameRequired"],
+    [{ name: "x".repeat(61) }, "name", "channel.nameTooLong"],
+    [{ commissionPct: "100" }, "commissionPct", "channel.commissionMax"],
+    [{ commissionPct: "-1" }, "commissionPct", "channel.commissionMin"],
+    [{ commissionPct: "dua puluh" }, "commissionPct", "channel.commissionNumber"],
+    [{ fixedFee: "1,5" }, "fixedFee", "channel.feeNumber"],
+  ])("%j → %s: %s", (patch, field, key) => {
+    expect(errorsFor(channelInputSchema, { name: "GoFood", commissionPct: "20", fixedFee: "0", ...patch })[field]).toBe(key);
+  });
+});
+
 describe("priceInputSchema", () => {
   it.each([
-    [{ price: "18.000", estMonthlySales: "1.200" }, { price: 18000, estMonthlySales: 1200 }],
-    [{ price: "Rp 18.000", estMonthlySales: "" }, { price: 18000, estMonthlySales: 0 }],
-    [{ price: "0", estMonthlySales: "0" }, { price: 0, estMonthlySales: 0 }],
+    [{ price: "18.000", estMonthlySales: "1.200" }, { price: 18000, estMonthlySales: 1200, competitorPrice: null }],
+    [{ price: "Rp 18.000", estMonthlySales: "" }, { price: 18000, estMonthlySales: 0, competitorPrice: null }],
+    [{ price: "0", estMonthlySales: "0" }, { price: 0, estMonthlySales: 0, competitorPrice: null }],
   ])("parses %j", (input, expected) => {
     expect(priceInputSchema.parse(input)).toEqual(expected);
   });
@@ -118,6 +139,24 @@ describe("priceInputSchema", () => {
     [{ price: "1000", estMonthlySales: "2,5" }, "estMonthlySales", "price.salesNumber"],
   ])("%j → %s: %s", (input, field, key) => {
     expect(errorsFor(priceInputSchema, input)[field]).toBe(key);
+  });
+});
+
+describe("priceInputSchema competitor price", () => {
+  it.each([
+    [{ price: "18.000", estMonthlySales: "100", competitorPrice: "Rp 17.000" }, 17000],
+    [{ price: "18.000", estMonthlySales: "100", competitorPrice: "" }, null],
+    [{ price: "18.000", estMonthlySales: "100" }, null],
+  ])("reads %j", (input, expected) => {
+    const parsed = priceInputSchema.parse(input);
+    expect(parsed.competitorPrice).toBe(expected);
+    expect(toPriceColumns(parsed).competitor_price).toBe(expected);
+  });
+
+  it("rejects a competitor price with decimals", () => {
+    expect(errorsFor(priceInputSchema, { price: "1000", estMonthlySales: "1", competitorPrice: "17.5" }).competitorPrice).toBe(
+      "price.competitorNumber",
+    );
   });
 });
 

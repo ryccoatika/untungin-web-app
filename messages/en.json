@@ -135,7 +135,19 @@
       "priceNumber": "Enter the price as a whole number, e.g. 15,000",
       "priceMin": "The price can't be negative",
       "salesNumber": "Enter estimated sales as a whole number",
-      "salesMin": "Can't be negative"
+      "salesMin": "Can't be negative",
+      "competitorNumber": "Enter the competitor price as a whole number, e.g. 15,000",
+      "competitorMin": "The competitor price can't be negative"
+    },
+    "channel": {
+      "nameRequired": "Channel name is required",
+      "nameTooLong": "Channel name can be at most 60 characters",
+      "commissionNumber": "Enter the commission as a number, e.g. 20",
+      "commissionMin": "Commission can't be negative",
+      "commissionMax": "Commission must be less than 100%",
+      "feeNumber": "Enter the fee per order as a whole number, e.g. 1,000",
+      "feeMin": "The fee can't be negative",
+      "duplicate": "A channel with this name already exists"
     },
     "expense": {
       "nameRequired": "Cost name is required",
