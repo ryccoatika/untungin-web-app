@@ -21,6 +21,22 @@ npm run dev           # http://localhost:3000
 Local sign-in uses the **Masuk (dev)** form (any email + password; the account is created automatically).
 Supabase Studio: http://127.0.0.1:54323
 
+### Google sign-in locally (optional)
+
+Without this, the Google button fails locally with `Unsupported provider: provider is not enabled`; use the dev form instead.
+
+1. Google Cloud Console → APIs & Services → Credentials → OAuth client ID (Web application). The production client works too.
+   Add the authorized redirect URI `http://127.0.0.1:54321/auth/v1/callback` (exactly this: Google redirects to the local
+   Supabase auth server, not to the Next.js app on port 3000).
+2. Add the credentials to `.env.local` (git-ignored; `npm run env:local` keeps these lines):
+   ```bash
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID=<client id>
+   SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET=<client secret>
+   ```
+3. Restart local Supabase so it picks them up: `npx supabase stop && npm run db:start`.
+
+`supabase/config.toml` reads both variables in `[auth.external.google]`.
+
 ## Tests
 
 ```bash
