@@ -1,6 +1,8 @@
-# BusinessNote
+# Untungin
 
 Web app for first-time sellers: calculate COGS (HPP), selling price, operating costs, profit, break-even point, and payback period.
+
+Production: https://untungin.ryccoatika.com
 
 Spec: `docs/superpowers/specs/2026-10-16-businessnote-design.md`
 
@@ -42,16 +44,18 @@ npm run db:reset && npm run db:types
 3. **Google OAuth**:
    - Google Cloud Console → APIs & Services → Credentials → Create OAuth client ID (Web application).
    - Authorized redirect URI: `https://<ref>.supabase.co/auth/v1/callback`.
-   - OAuth consent screen: fill in the app name, support email, and authorized domain, then publish it ("In production"); otherwise non-test Google accounts get `access_denied`.
+   - OAuth consent screen: app name `Untungin`, support email, authorized domains `ryccoatika.com` and `<ref>.supabase.co`, then publish it ("In production"); otherwise non-test Google accounts get `access_denied`.
    - Supabase → Authentication → Sign In / Providers → Google: enter the Client ID & Secret and enable it.
    - Supabase → Authentication → Sign In / Providers → **Email: disable it** (production uses Google only).
-   - Supabase → Authentication → URL Configuration: Site URL = the Vercel production URL;
-     add `https://<vercel-domain>/**` to Redirect URLs (and preview URLs if needed).
+   - Supabase → Authentication → URL Configuration: Site URL = `https://untungin.ryccoatika.com`;
+     add `https://untungin.ryccoatika.com/**` to Redirect URLs (and `https://<project>-*.vercel.app/**` for previews if needed).
 4. **Vercel**: import the repo and set env vars:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SECRET_KEY` (server only)
    - **Never** set `NEXT_PUBLIC_ENABLE_DEV_LOGIN`.
+   - Project → Settings → Domains: add `untungin.ryccoatika.com`, then at the DNS provider for `ryccoatika.com`
+     create the `CNAME` record Vercel shows (host `untungin`). Vercel issues the HTTPS certificate once DNS resolves.
 5. Upgrading a user to Pro (temporary, manual): run
    `update public.profiles set plan = 'pro' where id = '<user-id>';` in the Supabase SQL editor.
 

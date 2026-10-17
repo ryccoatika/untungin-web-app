@@ -1,6 +1,6 @@
 {
   "Metadata": {
-    "title": "BusinessNote — Hitung HPP & Laba Usaha",
+    "title": "Untungin — Hitung HPP & Laba Usaha",
     "description": "Hitung HPP, harga jual, biaya operasional, dan laba usahamu dengan mudah."
   },
   "Landing": {
@@ -24,7 +24,7 @@
     "startFree": "Mulai gratis dengan Google"
   },
   "Auth": {
-    "title": "Masuk ke BusinessNote",
+    "title": "Masuk ke Untungin",
     "subtitle": "Hitung HPP, harga jual, dan laba usahamu.",
     "error": "Gagal masuk. Silakan coba lagi.",
     "google": "Masuk dengan Google",

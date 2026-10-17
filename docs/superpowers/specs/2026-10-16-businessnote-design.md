@@ -1,4 +1,4 @@
-# BusinessNote — Design Spec (v1)
+# Untungin — Design Spec (v1)
 
 Date: 2026-10-16
 Status: Approved (v1); updated during Phase 1

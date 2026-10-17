@@ -62,7 +62,7 @@ test.describe("English public pages", () => {
     );
     await page.getByRole("link", { name: "Start free with Google" }).click();
     await expect(page).toHaveURL(/\/en\/login$/);
-    await expect(page.getByRole("heading", { name: "Sign in to BusinessNote" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sign in to Untungin" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in (dev)" })).toBeVisible();
 

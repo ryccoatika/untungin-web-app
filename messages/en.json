@@ -1,6 +1,6 @@
 {
   "Metadata": {
-    "title": "BusinessNote — Calculate COGS & Business Profit",
+    "title": "Untungin — Calculate COGS & Business Profit",
     "description": "Calculate COGS, selling prices, operating costs, and your business profit with ease."
   },
   "Landing": {
@@ -24,7 +24,7 @@
     "startFree": "Start free with Google"
   },
   "Auth": {
-    "title": "Sign in to BusinessNote",
+    "title": "Sign in to Untungin",
     "subtitle": "Calculate COGS, selling prices, and your business profit.",
     "error": "Sign-in failed. Please try again.",
     "google": "Sign in with Google",

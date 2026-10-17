@@ -26,7 +26,7 @@ export default async function StoreLayout({
   return (
     <div className="min-h-dvh md:flex">
       <aside className="hidden w-60 shrink-0 border-r p-4 md:block">
-        <p className="mb-4 px-3 text-sm font-semibold">BusinessNote</p>
+        <p className="mb-4 px-3 text-sm font-semibold">Untungin</p>
         <StoreNav storeId={store.id} variant="sidebar" />
       </aside>
       <div className="min-w-0 flex-1 pb-20 md:pb-0">

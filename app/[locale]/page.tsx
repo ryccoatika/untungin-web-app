@@ -16,7 +16,7 @@ export default async function LandingPage() {
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-10 px-4 py-16">
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-medium text-primary">BusinessNote</p>
+          <p className="text-sm font-medium text-primary">Untungin</p>
           <LocaleSwitcher />
         </div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t("heading")}</h1>
