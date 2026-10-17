@@ -14,7 +14,7 @@ export function createEmptyScene(palette: Palette): SceneController {
   sun.position.set(2, 5, 3);
   root.add(sun);
 
-  const trayMaterial = new MeshStandardMaterial({ color: palette.base, roughness: 0.8 });
+  const trayMaterial = new MeshStandardMaterial({ color: palette.base, roughness: 0.8, emissive: palette.base, emissiveIntensity: 0.15 });
   const tray = new Group();
   const floor = new Mesh(new BoxGeometry(2, 0.08, 1.3), trayMaterial);
   const wall = new BoxGeometry(2, 0.3, 0.06);
@@ -34,15 +34,17 @@ export function createEmptyScene(palette: Palette): SceneController {
 
   const coin = new Mesh(coinGeometry(0.3, 0.09), createCoinMaterials(palette));
   coin.name = "coin";
-  coin.rotation.x = Math.PI / 2;
-  root.add(coin);
+  coin.rotation.x = Math.PI / 2; // face towards the camera
+  const pivot = new Group();
+  pivot.add(coin);
+  root.add(pivot);
 
   return {
     root,
     camera,
     update(_delta, elapsed) {
-      coin.position.y = 1 + Math.sin(elapsed * 2) * 0.15;
-      coin.rotation.z = elapsed * 1.2;
+      pivot.position.y = 1 + Math.sin(elapsed * 2) * 0.15;
+      pivot.rotation.y = Math.sin(elapsed * 1.2) * 0.9;
       root.rotation.y = Math.sin(elapsed * 0.5) * 0.15;
     },
   };

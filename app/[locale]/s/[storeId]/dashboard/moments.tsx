@@ -41,9 +41,10 @@ export function Moments({ storeId, welcome, profitPositive }: { storeId: string;
       window.history.replaceState(window.history.state, "", url);
     }
     if (next === "firstProfit") markCelebrated(storeId);
+    // Keep a message already shown if the flag later goes away (e.g. after a router refresh).
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads localStorage once after mount
-    setMoment(next);
-    setBurst(next !== null);
+    setMoment((current) => next ?? current);
+    if (next !== null) setBurst(true);
   }, [storeId, welcome, profitPositive]);
 
   if (!moment) return null;

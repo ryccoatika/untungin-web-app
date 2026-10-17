@@ -30,14 +30,26 @@ describe("createCelebrationScene", () => {
   });
 });
 
+describe("celebration spread", () => {
+  it.each([0.5, 2])("spreads coins across the width early on (aspect %s)", (aspect) => {
+    const halfW = 12 * Math.tan((22.5 * Math.PI) / 180) * aspect;
+    const burst = createCelebrationScene(PALETTES.light, 3);
+    burst.resize!(aspect * 100, 100);
+    run(burst, 0.3);
+    const xs = burst.root.getObjectsByProperty("name", "coin").map((coin) => coin.position.x);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThanOrEqual(0.6 * 2 * halfW);
+  });
+});
+
 describe("createEmptyScene", () => {
   it("bobs a coin over an empty tray forever and disposes cleanly", () => {
     const empty = createEmptyScene(PALETTES.dark);
     const [coin] = empty.root.getObjectsByProperty("name", "coin");
     run(empty, 0.5);
-    const y1 = coin.position.y;
+    const pivot = coin.parent!;
+    const y1 = pivot.position.y;
     run(empty, 0.7);
-    expect(coin.position.y).not.toBeCloseTo(y1, 3);
+    expect(pivot.position.y).not.toBeCloseTo(y1, 3);
     expect(empty.done?.() ?? false).toBe(false);
     expect(() => disposeObject(empty.root)).not.toThrow();
   });
