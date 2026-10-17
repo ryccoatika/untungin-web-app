@@ -2,14 +2,10 @@
 
 import { Download, Share } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { installHint, type InstallHint } from "@/lib/pwa";
-
-type InstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
-};
+import { getServerSnapshot, getSnapshot, subscribe, takeInstallPrompt } from "@/lib/pwa-install-store";
 
 const noopSubscribe = () => () => {};
 
@@ -25,26 +21,8 @@ function deviceHint(): InstallHint {
 export function InstallCard() {
   const t = useTranslations("Install");
   const deviceHintNow = useSyncExternalStore(noopSubscribe, deviceHint, () => "hidden" as InstallHint);
-  const [installed, setInstalled] = useState(false);
-  const [promptEvent, setPromptEvent] = useState<InstallPromptEvent | null>(null);
+  const { event: promptEvent, installed } = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const hint = installed ? "hidden" : deviceHintNow;
-
-  useEffect(() => {
-    const onPrompt = (event: Event) => {
-      event.preventDefault();
-      setPromptEvent(event as InstallPromptEvent);
-    };
-    const onInstalled = () => {
-      setPromptEvent(null);
-      setInstalled(true);
-    };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    window.addEventListener("appinstalled", onInstalled);
-    return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
-      window.removeEventListener("appinstalled", onInstalled);
-    };
-  }, []);
 
   if (hint === "hidden") return null;
 
@@ -66,8 +44,7 @@ export function InstallCard() {
             disabled={!promptEvent}
             onClick={async () => {
               // The event works once: take it and clear it so the button disables until a new one arrives.
-              const event = promptEvent;
-              setPromptEvent(null);
+              const event = takeInstallPrompt();
               try {
                 await event?.prompt();
                 await event?.userChoice; // outcome ignored: `appinstalled` hides the card

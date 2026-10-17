@@ -103,3 +103,13 @@ test("editing a row shows the spoon-weight hint as soon as sdm is picked", async
   await item.getByLabel("Satuan").selectOption("g");
   await expect(item.getByRole("link", { name: "halaman Bahan" })).toHaveCount(0);
 });
+
+test("a hidden invalid spoon value does not block saving after switching to a non-weight unit", async ({ page }) => {
+  await addMaterial(page, { name: "Gula", qty: "1", unit: "kg", price: "15.000" });
+  await openMaterial(page, "Gula");
+  await page.getByLabel("Berat 1 sdm (gram)").fill("abc");
+  await page.getByLabel("Satuan").selectOption("l");
+  await expect(page.getByLabel("Berat 1 sdm (gram)")).toHaveCount(0);
+  await page.getByRole("button", { name: "Simpan" }).click();
+  await expect(page.getByText("Tersimpan.")).toBeVisible();
+});

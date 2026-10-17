@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { MATERIAL_CATEGORIES } from "@/lib/calc/types";
-import { UNITS } from "@/lib/calc/units";
+import { dimensionOf, isUnit, UNITS } from "@/lib/calc/units";
 import { blankAs, MAX_AMOUNT, requiredName } from "./common";
 import { localeNumber, wholeNumber } from "./number";
 
@@ -25,7 +25,7 @@ export const MATERIAL_VALIDATION_KEYS = [
   MATERIAL_SPOON_WEIGHT_IN_USE_KEY,
 ] as const;
 
-export const materialInputSchema = z.object({
+const materialObjectSchema = z.object({
   name: requiredName("material", 80),
   category: z.enum(MATERIAL_CATEGORIES, { error: "material.categoryInvalid" }),
   purchaseQty: localeNumber(z.number({ error: "material.qtyNumber" }).positive("material.qtyPositive")),
@@ -54,16 +54,33 @@ export const materialInputSchema = z.object({
   ),
 });
 
+function takesSpoonWeight(unit: unknown) {
+  return typeof unit === "string" && isUnit(unit) && dimensionOf(unit) === "mass";
+}
+
+/**
+ * The spoon weight only applies to weight units. For any other unit the field is ignored (undefined), so a
+ * stale hidden value cannot block saving and the stored column is left as it is.
+ */
+export const materialInputSchema = z
+  .preprocess((raw) => {
+    if (typeof raw !== "object" || raw === null) return raw;
+    const unit = (raw as { purchaseUnit?: unknown }).purchaseUnit;
+    return typeof unit === "string" && isUnit(unit) && !takesSpoonWeight(unit) ? { ...raw, gramsPerSdm: "" } : raw;
+  }, materialObjectSchema)
+  .transform((input) => (takesSpoonWeight(input.purchaseUnit) ? input : { ...input, gramsPerSdm: undefined }));
+
 export type MaterialInput = z.infer<typeof materialInputSchema>;
 
 export function toMaterialColumns(input: MaterialInput) {
   return {
+    // Omitted (not null) when ignored, so an update keeps the stored spoon weight.
+    ...(input.gramsPerSdm === undefined ? {} : { grams_per_sdm: input.gramsPerSdm }),
     name: input.name,
     category: input.category,
     purchase_qty: input.purchaseQty,
     purchase_unit: input.purchaseUnit,
     purchase_price: input.purchasePrice,
     waste_pct: input.wastePct,
-    grams_per_sdm: input.gramsPerSdm,
   };
 }

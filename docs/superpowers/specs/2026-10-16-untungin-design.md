@@ -182,7 +182,7 @@ Pure functions, no database/network access. Input = a complete store data object
 
 `toBase(qty, unit)` and `sameDimension(unitA, unitB)`.
 
-Recipe-only household units: a composition row may also use `sdm` (level tablespoon, 15 ml), `sdt` (teaspoon, 5 ml) and `gelas` (glass, 250 ml) for volume and weight materials; materials themselves are still bought in the units above. For a volume material the row converts straight to ml. For a weight material it needs `materials.grams_per_sdm` (the weight of 1 sdm, 1 to 1000 g, set on the material form): grams = ml / 15 × `grams_per_sdm`. Count materials do not take household units. A material cannot lose its spoon weight, or switch to a count unit, while recipes use household units; a row without the spoon weight is refused. `recipeQtyInBase(qty, unit, material)` does the conversion.
+Recipe-only household units: a composition row may also use `sdm` (level tablespoon, 15 ml), `sdt` (teaspoon, 5 ml) and `gelas` (glass, 250 ml) for volume and weight materials; materials themselves are still bought in the units above. For a volume material the row converts straight to ml. For a weight material it needs `materials.grams_per_sdm` (the weight of 1 sdm, more than 0 up to 1000 g, set on the material form): grams = ml / 15 × `grams_per_sdm`. Count materials do not take household units. A material cannot lose its spoon weight, or switch to a count unit, while recipes use household units; a row without the spoon weight is refused. `recipeQtyInBase(qty, unit, material)` does the conversion.
 
 ### 4.2 Formulas
 

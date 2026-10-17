@@ -121,7 +121,7 @@
       "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count).",
       "spoonWeightNumber": "Spoon weight must be a number, like 12 or 12.5",
       "spoonWeightRange": "Spoon weight must be above 0 and at most 1000 grams",
-      "spoonWeightInUse": "This material is used with tbsp/tsp/cup in recipes. Enter the weight of 1 tbsp or change the recipes first."
+      "spoonWeightInUse": "This material is used with tbsp/tsp/glass in recipes. Enter the weight of 1 tbsp or change the recipes first."
     },
     "product": {
       "nameRequired": "Product name is required",

@@ -52,3 +52,20 @@ test("Lainnya shows the install card, hidden when already installed", async ({ p
   await expect(page.getByRole("heading", { name: "Lainnya" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pasang Untungin di HP" })).toHaveCount(0);
 });
+
+test("the install prompt captured before Lainnya still enables the button, once", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "install card lives on the mobile Lainnya page");
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Pasang Dua");
+  // The browser fires this once per document load, before the user ever opens Lainnya.
+  await page.evaluate(() => {
+    const event = new Event("beforeinstallprompt", { cancelable: true });
+    Object.assign(event, { prompt: async () => {}, userChoice: Promise.resolve({ outcome: "dismissed", platform: "web" }) });
+    window.dispatchEvent(event);
+  });
+  await page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Lainnya" }).click();
+  const button = page.getByRole("button", { name: "Pasang aplikasi" });
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect(button).toBeDisabled();
+});

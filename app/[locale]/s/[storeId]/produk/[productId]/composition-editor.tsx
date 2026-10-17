@@ -179,7 +179,7 @@ function RowEditor({
                 </option>
               ))}
             </NativeSelect>
-            <FieldError errors={errors.unit} />
+            {!spoonMissing && <FieldError errors={errors.unit} />}
           </div>
           <div className="space-y-1">
             <Label htmlFor={id("basis")}>{t("basis")}</Label>

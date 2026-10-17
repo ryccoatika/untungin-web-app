@@ -42,6 +42,16 @@ describe("materialInputSchema", () => {
     expect(toMaterialColumns(materialInputSchema.parse({ ...material, gramsPerSdm: "12,5" })).grams_per_sdm).toBe(12.5);
   });
 
+  it("ignores the spoon field for a non-weight unit and leaves the stored value alone", () => {
+    for (const purchaseUnit of ["l", "ml", "pcs"]) {
+      const parsed = materialInputSchema.parse({ ...material, purchaseUnit, gramsPerSdm: "abc" });
+      expect(parsed.gramsPerSdm).toBeUndefined();
+      expect(toMaterialColumns(parsed)).not.toHaveProperty("grams_per_sdm");
+    }
+    // A weight unit still validates it.
+    expect(errorsFor(materialInputSchema, { ...material, gramsPerSdm: "abc" }).gramsPerSdm).toBe("material.spoonWeightNumber");
+  });
+
   it.each([
     [{ gramsPerSdm: "0" }, "gramsPerSdm", "material.spoonWeightRange"],
     [{ gramsPerSdm: "1001" }, "gramsPerSdm", "material.spoonWeightRange"],

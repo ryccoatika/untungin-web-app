@@ -9,7 +9,6 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/mulai",
     scope: "/",
     display: "standalone",
-    orientation: "portrait",
     background_color: "#ffffff",
     theme_color: "#047857",
     lang: "id",
