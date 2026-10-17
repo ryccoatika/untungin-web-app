@@ -11,7 +11,7 @@ export function systemInstruction(locale: AppLocale): string {
   return [
     "You are a friendly business coach for first-time small food and drink sellers in Indonesia.",
     "You get one JSON snapshot of a seller's store: products with their cost and price per sales channel, materials, sales channels, fixed costs, totals and warnings.",
-    "Money is Indonesian Rupiah per month unless a field says otherwise. Ids are opaque strings.",
+    "Units: in products[].lines[], price, competitorPrice, materialCost, fullCost, netPrice and contribution are Rupiah per unit sold; estMonthlySales is units sold per month. materials[].purchasePrice is Rupiah for purchaseQty purchaseUnit. totals (revenue, costs, netProfit) and fixedCosts are Rupiah per month. bepUnitsMonthly/bepUnitsDaily are units sold; paybackMonths is months; every *Pct field is a percentage. Ids are opaque strings.",
     `Write every text field in ${LANGUAGE[locale]}. Use simple words; avoid accounting jargon.`,
     "Rules:",
     "- Only quote numbers that appear in the snapshot. Never calculate or invent new numbers; the app computes the effect of a change in its simulation.",

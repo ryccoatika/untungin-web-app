@@ -24,13 +24,13 @@ function unit(value: string): Unit {
 export async function fetchStoreData(supabase: SupabaseClient<Database>, storeId: string): Promise<StoreData | null> {
   const [store, materials, products, composition, channels, prices, expenses, assets] = await Promise.all([
     supabase.from("stores").select("id, name, target_margin_pct, operating_days_per_month").eq("id", storeId).maybeSingle(),
-    supabase.from("materials").select("*").eq("store_id", storeId).order("created_at"),
-    supabase.from("products").select("*").eq("store_id", storeId).order("created_at"),
-    supabase.from("product_materials").select("*").eq("store_id", storeId).order("created_at"),
-    supabase.from("sales_channels").select("*").eq("store_id", storeId).order("sort_order").order("created_at"),
-    supabase.from("product_channel_prices").select("*").eq("store_id", storeId).order("created_at"),
-    supabase.from("operating_expenses").select("*").eq("store_id", storeId).order("created_at"),
-    supabase.from("assets").select("*").eq("store_id", storeId).order("created_at"),
+    supabase.from("materials").select("*").eq("store_id", storeId).order("created_at").order("id"),
+    supabase.from("products").select("*").eq("store_id", storeId).order("created_at").order("id"),
+    supabase.from("product_materials").select("*").eq("store_id", storeId).order("created_at").order("id"),
+    supabase.from("sales_channels").select("*").eq("store_id", storeId).order("sort_order").order("created_at").order("id"),
+    supabase.from("product_channel_prices").select("*").eq("store_id", storeId).order("created_at").order("id"),
+    supabase.from("operating_expenses").select("*").eq("store_id", storeId).order("created_at").order("id"),
+    supabase.from("assets").select("*").eq("store_id", storeId).order("created_at").order("id"),
   ]);
   for (const result of [store, materials, products, composition, channels, prices, expenses, assets]) {
     if (result.error) throw result.error;

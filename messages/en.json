@@ -535,7 +535,7 @@
     "title": "AI analysis",
     "intro": "AI reads your store's numbers and gives simple advice. Check the effect in the simulation before you change anything.",
     "analyze": "Analyze my business",
-    "analyzing": "Analysing… (can take up to 30 seconds)",
+    "analyzing": "Analyzing… (can take up to 30 seconds)",
     "quota": "Analyses left today: {remaining} of {limit}",
     "quotaUsedUp": "You've used today's analyses. New ones start at 00:00 WIB.",
     "privacy": "When you press the button, your store data (store name, products, materials, channels, prices and costs) is sent to Google Gemini for analysis. The result is saved in your account.",
@@ -543,7 +543,7 @@
     "none": "No analysis yet. Press the button above to start.",
     "latest": "Latest analysis",
     "createdAt": "Made {date}",
-    "stale": "Your data has changed since this analysis. Analyse again for advice that fits.",
+    "stale": "Your data or language has changed since this analysis. Analyze again for advice that fits.",
     "unreadable": "This analysis can't be shown.",
     "history": "History",
     "summary": "Summary",
@@ -553,7 +553,7 @@
     "priority": {"tinggi": "Important", "sedang": "Medium", "rendah": "Low"},
     "relatedProducts": "Related products",
     "trySimulation": "Try in simulation",
-    "emptyTitle": "Nothing to analyse yet",
+    "emptyTitle": "Nothing to analyze yet",
     "emptyBody": "Add a product with a recipe and a selling price first, then come back here.",
     "emptyAction": "Go to products",
     "calcError": "Some product data needs fixing first. See the dashboard.",
@@ -563,7 +563,7 @@
       "quota": "You've used today's analyses. Try again tomorrow.",
       "failed": "Analysis failed, try again.",
       "notConfigured": "AI analysis isn't set up on this server yet.",
-      "unavailable": "This store can't be analysed yet. Reload the page and try again."
+      "unavailable": "This store can't be analyzed yet. Reload the page and try again."
     }
   }
 }

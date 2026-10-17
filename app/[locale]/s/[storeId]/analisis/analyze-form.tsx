@@ -18,11 +18,13 @@ export function AnalyzeForm({ storeId, disabled }: { storeId: string; disabled: 
       <SubmitButton pendingText={t("analyzing")} disabled={disabled} className="w-full sm:w-auto">
         {t("analyze")}
       </SubmitButton>
-      {state && (
-        <p role={ok ? "status" : "alert"} className={ok ? "text-sm text-muted-foreground" : "text-sm text-destructive"}>
-          {state.message}
-        </p>
-      )}
+      {/* Both regions stay mounted so screen readers announce the text when it appears. */}
+      <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
+        {ok ? state.message : ""}
+      </p>
+      <p role="alert" className="text-sm text-destructive">
+        {state && !ok ? state.message : ""}
+      </p>
     </form>
   );
 }

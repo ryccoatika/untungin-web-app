@@ -242,6 +242,13 @@ describe("prompt", () => {
     }
   });
 
+  it("spells out the units of each money field", () => {
+    const text = systemInstruction("id");
+    expect(text).toContain("per unit sold");
+    expect(text).toContain("per month");
+    expect(text).not.toContain("per month unless a field says otherwise");
+  });
+
   it("sends the snapshot as JSON", () => {
     const snapshot = { locale: "id", store: { name: "Toko" } } as unknown as AnalysisSnapshot;
     expect(userPrompt(snapshot)).toContain('"name":"Toko"');

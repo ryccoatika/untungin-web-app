@@ -77,7 +77,7 @@ export async function analyzeStoreAction(storeId: string, _prev: AnalyzeState): 
       snapshot,
     );
 
-    if (status === "created") revalidateStore();
+    if (status === "created" || status === "quota") revalidateStore();
     return { status, message: t(status) };
   } catch (error) {
     // Only the message: the snapshot holds the seller's data.

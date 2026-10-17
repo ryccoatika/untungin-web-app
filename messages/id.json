@@ -543,7 +543,7 @@
     "none": "Belum ada analisis. Tekan tombol di atas untuk mulai.",
     "latest": "Analisis terakhir",
     "createdAt": "Dibuat {date}",
-    "stale": "Datamu sudah berubah sejak analisis ini. Analisis lagi untuk saran yang sesuai.",
+    "stale": "Data atau bahasamu sudah berubah sejak analisis ini. Analisis lagi untuk saran yang sesuai.",
     "unreadable": "Analisis ini tidak bisa ditampilkan.",
     "history": "Riwayat",
     "summary": "Ringkasan",

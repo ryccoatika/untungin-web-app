@@ -90,7 +90,7 @@ test("shows a saved analysis; only known suggestions open the simulation", async
   await expect(page.getByText("Penting", { exact: true })).toBeVisible();
   await expect(page.getByText("Produk terkait: Es teh", { exact: true })).toBeVisible();
   await expect(page.getByText("Ganti pemasok")).toBeVisible();
-  await expect(page.getByText("Datamu sudah berubah sejak analisis ini")).toBeVisible();
+  await expect(page.getByText("Data atau bahasamu sudah berubah sejak analisis ini")).toBeVisible();
   await expect(page.getByRole("link", { name: "Coba di simulasi" })).toHaveCount(1);
 
   await page.getByRole("link", { name: "Coba di simulasi" }).click();
