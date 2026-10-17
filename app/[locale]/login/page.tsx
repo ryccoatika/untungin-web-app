@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import { withLocale } from "@/lib/i18n/paths";
 import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
 import { DevLoginForm } from "./dev-login-form";
 import { GoogleSignInButton } from "./google-button";
@@ -32,7 +33,10 @@ export default async function LoginPage({
         <Link href="/" className="rounded-md">
           <BrandLogo size="sm" />
         </Link>
-        <LocaleSwitcher />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LocaleSwitcher />
+        </div>
       </div>
       <div className="space-y-2 text-center">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>

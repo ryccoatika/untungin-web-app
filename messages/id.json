@@ -144,5 +144,6 @@
     "deleteSubmit": "Hapus toko",
     "deletePending": "Menghapus…"
   },
-  "LocaleSwitcher": { "label": "Bahasa", "id": "Bahasa Indonesia", "en": "English" }
+  "LocaleSwitcher": { "label": "Bahasa", "id": "Bahasa Indonesia", "en": "English" },
+  "Theme": { "trigger": "Tema: {mode}", "system": "Ikuti perangkat", "light": "Terang", "dark": "Gelap" }
 }

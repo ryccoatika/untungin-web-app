@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { BrandLogo } from "@/components/brand-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
@@ -18,7 +19,10 @@ export default async function LandingPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2">
           <BrandLogo />
-          <LocaleSwitcher />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <LocaleSwitcher />
+          </div>
         </div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t("heading")}</h1>
         <p className="text-lg text-muted-foreground">{t("intro")}</p>

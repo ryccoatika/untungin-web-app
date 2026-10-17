@@ -3,6 +3,7 @@ import { Link, redirect } from "@/i18n/navigation";
 import { signOutAction } from "@/app/auth/actions";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { listStores } from "@/lib/data/stores";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
@@ -19,6 +20,7 @@ export default async function StoresPage() {
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LocaleSwitcher />
           <form action={signOutAction}>
             <SubmitButton variant="ghost" pendingText={tAuth("signOutPending")}>

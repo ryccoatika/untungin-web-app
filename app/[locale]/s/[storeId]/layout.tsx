@@ -7,6 +7,7 @@ import { signOutAction } from "@/app/auth/actions";
 import { BrandLogo } from "@/components/brand-logo";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { StoreNav } from "@/components/store/store-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { getStore } from "@/lib/data/stores";
@@ -41,6 +42,7 @@ export default async function StoreLayout({
             <ChevronsUpDown className="size-4 shrink-0 opacity-60" aria-hidden />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle />
             <LocaleSwitcher />
             <form action={signOutAction}>
               <SubmitButton variant="ghost" pendingText={tAuth("signOutPending")}>

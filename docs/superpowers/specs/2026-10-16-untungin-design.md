@@ -24,6 +24,7 @@ v1 success criteria:
 | Calculation architecture | Pure TypeScript module `lib/calc`, used on the server and in the browser. |
 | AI | Google Gemini, default model **Gemini 3.5 Flash-Lite** (exact ID verified during implementation), via env var. |
 | Language | UI available in **Indonesian (`id`, default) and English (`en`)**. Locale is always in the URL prefix (`/id/...`, `/en/...`). Detection order: saved choice (cookie / `profiles.locale`) → browser `Accept-Language` → `id`. Code comments, README, and docs are in English. |
+| Theme | Light and dark (`next-themes`, `.dark` class). Default follows the device; an explicit choice (Follow device / Light / Dark) is stored per device in `localStorage`, not in the profile. The toggle sits next to the language switcher. |
 | Visual | Three.js (vanilla, using the `cloudai-x/threejs-skills` skill) for the landing page, 3D dashboard chart (with a 2D toggle), certain moments, empty states. Form pages stay 2D. |
 
 ## 2. Stack

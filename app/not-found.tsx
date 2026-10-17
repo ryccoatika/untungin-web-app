@@ -2,6 +2,7 @@ export default function RootNotFound() {
   return (
     <html lang="id">
       <head>
+        <meta name="color-scheme" content="light dark" />
         <title>404 · Halaman tidak ditemukan / Page not found</title>
       </head>
       <body style={{ fontFamily: "sans-serif", padding: 16, textAlign: "center" }}>

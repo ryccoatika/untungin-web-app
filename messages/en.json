@@ -144,5 +144,6 @@
     "deleteSubmit": "Delete store",
     "deletePending": "Deleting…"
   },
-  "LocaleSwitcher": { "label": "Language", "id": "Bahasa Indonesia", "en": "English" }
+  "LocaleSwitcher": { "label": "Language", "id": "Bahasa Indonesia", "en": "English" },
+  "Theme": { "trigger": "Theme: {mode}", "system": "Follow device", "light": "Light", "dark": "Dark" }
 }

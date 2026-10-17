@@ -23,7 +23,7 @@ type Props = {
 };
 
 const selectClass =
-  "h-10 w-full rounded-md border border-input bg-background px-3 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "h-10 w-full rounded-md border border-input bg-background px-3 text-base dark:bg-input/30 md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function StoreFields({ section, defaults = {}, errors = {} }: Props) {
   const t = useTranslations("StoreFields");
