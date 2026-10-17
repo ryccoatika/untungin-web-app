@@ -7,7 +7,6 @@ import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { DEFAULT_AFTER_LOGIN, safeNextPath } from "@/lib/auth/paths";
-import { DevLoginForm } from "./dev-login-form";
 import { GoogleSignInButton } from "./google-button";
 
 export default async function LoginPage({
@@ -25,7 +24,6 @@ export default async function LoginPage({
     safeNextPath(next) ?? DEFAULT_AFTER_LOGIN,
     hasLocale(routing.locales, locale) ? locale : routing.defaultLocale,
   );
-  const devLogin = process.env.NEXT_PUBLIC_ENABLE_DEV_LOGIN === "true";
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4 py-10">
@@ -48,7 +46,6 @@ export default async function LoginPage({
         </p>
       )}
       <GoogleSignInButton next={target} />
-      {devLogin && <DevLoginForm next={target} />}
     </main>
   );
 }

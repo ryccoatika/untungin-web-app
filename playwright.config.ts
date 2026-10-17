@@ -1,4 +1,8 @@
+import nextEnv from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
+
+// The e2e sign-in helper needs the local Supabase URL and keys from .env.local.
+nextEnv.loadEnvConfig(process.cwd());
 
 const PORT = 3100;
 
@@ -15,6 +19,5 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { NEXT_PUBLIC_ENABLE_DEV_LOGIN: "true" },
   },
 });

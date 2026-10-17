@@ -18,12 +18,12 @@ npm run db:reset      # apply all migrations
 npm run dev           # http://localhost:3000
 ```
 
-Local sign-in uses the **Masuk (dev)** form (any email + password; the account is created automatically).
+Sign-in is Google only, locally too: set up the OAuth credentials once (below).
 Supabase Studio: http://127.0.0.1:54323
 
-### Google sign-in locally (optional)
+### Google sign-in locally
 
-Without this, the Google button fails locally with `Unsupported provider: provider is not enabled`; use the dev form instead.
+Without this, the Google button fails locally with `Unsupported provider: provider is not enabled`.
 
 1. Google Cloud Console → APIs & Services → Credentials → OAuth client ID (Web application). The production client works too.
    Add the authorized redirect URI `http://127.0.0.1:54321/auth/v1/callback` (exactly this: Google redirects to the local
@@ -44,6 +44,10 @@ npm test              # unit
 npm run test:rls      # RLS; needs local Supabase running
 npm run test:e2e      # Playwright; needs local Supabase running
 ```
+
+E2E tests never go through Google: `signIn()` in `tests/e2e/helpers.ts` creates a user with the admin API, signs in
+with email/password from Node, and copies the session cookies into the browser. This relies on the Email provider of
+**local** Supabase; production keeps it disabled.
 
 ## After changing the schema
 
@@ -69,7 +73,6 @@ npm run db:reset && npm run db:types
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `SUPABASE_SECRET_KEY` (server only)
-   - **Never** set `NEXT_PUBLIC_ENABLE_DEV_LOGIN`.
    - Project → Settings → Domains: add `untungin.ryccoatika.com`, then at the DNS provider for `ryccoatika.com`
      create the `CNAME` record Vercel shows (host `untungin`). Vercel issues the HTTPS certificate once DNS resolves.
 5. Upgrading a user to Pro (temporary, manual): run

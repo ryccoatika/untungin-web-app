@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createStoreViaOnboarding, devLogin } from "./helpers";
+import { createStoreViaOnboarding, signIn } from "./helpers";
 
 test("signed-out visitors see the pitch and a login button", async ({ page }) => {
   await page.goto("/");
@@ -9,7 +9,7 @@ test("signed-out visitors see the pitch and a login button", async ({ page }) =>
 });
 
 test("signed-in users get a link into the app", async ({ page }) => {
-  await devLogin(page);
+  await signIn(page);
   await createStoreViaOnboarding(page, "Toko Landing");
   await page.goto("/");
   await page.getByRole("link", { name: "Buka aplikasi" }).click();

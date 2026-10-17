@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createStoreViaOnboarding, devLogin, uniqueEmail } from "./helpers";
+import { createStoreViaOnboarding, googleSignInNext, savedLocale, signIn, uniqueEmail } from "./helpers";
 
 test.describe("English browser", () => {
   test.use({ locale: "en-US" });
@@ -64,7 +64,7 @@ test.describe("English public pages", () => {
     await expect(page).toHaveURL(/\/en\/login$/);
     await expect(page.getByRole("heading", { name: "Sign in to Untungin" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Sign in (dev)" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in with Google" })).toBeVisible();
 
     await page.goto("/en/does-not-exist");
     await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
@@ -80,12 +80,9 @@ test("the switcher changes language, keeps the path, and is remembered", async (
   await expect(page).toHaveURL(/\/en$/);
 });
 
-test("switching language keeps you signed in and the saved choice follows the account", async ({
-  page,
-  context,
-}) => {
+test("switching language keeps you signed in and saves the choice to the account", async ({ page }) => {
   const email = uniqueEmail("locale");
-  await devLogin(page, email);
+  await signIn(page, email);
   await createStoreViaOnboarding(page, "Kedai Bahasa", "12,5");
   await page.getByRole("button", { name: "English" }).click();
   await expect(page).toHaveURL(/\/en\/s\/[0-9a-f-]{36}\/dashboard$/);
@@ -93,20 +90,15 @@ test("switching language keeps you signed in and the saved choice follows the ac
   await expect(page.getByText("12.5%")).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/en$/);
-  await context.clearCookies();
-
-  await devLogin(page, email);
-  await expect(page).toHaveURL(/\/en\/s\/[0-9a-f-]{36}\/dashboard$/);
-  await expect(page.getByText("Calculation basis")).toBeVisible();
+  // Applying it on the next sign-in is the OAuth callback's job (tests/unit/auth-callback.test.ts).
+  await expect.poll(() => savedLocale(email)).toBe("en");
 });
 
 test.describe("English forms", () => {
   test.use({ locale: "en-US" });
 
   test("validation errors are shown in English", async ({ page }) => {
-    await devLogin(page);
+    await signIn(page);
     await page.goto("/en/onboarding");
     await page.getByLabel("Store name").fill("English Shop");
     await page.getByLabel("Business type").selectOption("makanan");
@@ -120,7 +112,7 @@ test.describe("English forms", () => {
 test("the switcher fits on a phone header next to a long store name", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.setViewportSize({ width: 360, height: 800 });
-  await devLogin(page);
+  await signIn(page);
   await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
   await expect(page.getByRole("button", { name: "English" })).toBeVisible();
   const overflow = () =>
@@ -136,6 +128,5 @@ test("a language chosen on the login page survives the next-path prefix", async 
   await expect(page).toHaveURL(/\/id\/login\?next=/);
   await page.getByRole("button", { name: "English" }).click();
   await expect(page).toHaveURL(/\/en\/login/);
-  await devLogin(page, uniqueEmail("loginlang"));
-  await expect(page).toHaveURL(/\/en\/onboarding$/);
+  expect(await googleSignInNext(page, "Sign in with Google")).toBe("/en/toko");
 });

@@ -416,7 +416,7 @@ proxy.ts                         (Next.js 16: replaces middleware.ts)
 - **Validation**: zod schema tests for each entity (including mismatched unit dimension).
 - **AI**: Gemini is mocked; tests for `buildSnapshot`, stable hash, cache hit, quota (including the WIB day boundary), valid output, broken output, unknown IDs.
 - **i18n**: unit test for message key parity; e2e for `Accept-Language: en` → `/en`, unsupported language → `/id`, the switcher changing text and path, the saved choice surviving sign-out/sign-in, `/en/s/...` staying protected, and the default channel name following the locale at creation. Existing e2e tests run in `id` (Playwright locale `id-ID`).
-- **E2E (Playwright)**: onboarding → add material → add product + price → dashboard shows profit. E2E/dev login uses email/password through the "Masuk (dev)" ("Sign in (dev)") form, which only appears if `NEXT_PUBLIC_ENABLE_DEV_LOGIN=true` (local only).
+- **E2E (Playwright)**: onboarding → add material → add product + price → dashboard shows profit. The app has no email/password login: sign-in is Google only, locally too. E2E tests sign in by creating a user with the admin API, signing in with email/password from Node against **local** Supabase (Email provider enabled locally only), and copying the session cookies into the browser. The OAuth callback route is covered by unit tests.
 
 ## 10. Implementation Phases
 
@@ -436,7 +436,7 @@ Every phase can be deployed. One implementation plan per phase.
 - Create a Supabase project (production) and note the URL + publishable key + secret key.
 - Create an OAuth Client in Google Cloud Console; redirect URI to the Supabase callback; enable the Google provider in Supabase Auth; add the Vercel URL to the Supabase Redirect URLs.
 - Create a Gemini API key in Google AI Studio.
-- Set env in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`. Never set `NEXT_PUBLIC_ENABLE_DEV_LOGIN` in Vercel.
+- Set env in Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` (server only), `GEMINI_API_KEY`, `GEMINI_MODEL`.
 - In Supabase production: disable the Email provider (Google only).
 - Local dev: Docker + Supabase CLI (`supabase start`).
 

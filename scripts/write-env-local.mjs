@@ -10,7 +10,6 @@ const vars = {
   NEXT_PUBLIC_SUPABASE_URL: pick("API_URL"),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: pick("PUBLISHABLE_KEY", "ANON_KEY"),
   SUPABASE_SECRET_KEY: pick("SECRET_KEY", "SERVICE_ROLE_KEY"),
-  NEXT_PUBLIC_ENABLE_DEV_LOGIN: "true",
 };
 
 for (const [key, value] of Object.entries(vars)) {
@@ -22,10 +21,12 @@ for (const [key, value] of Object.entries(vars)) {
 }
 
 const path = ".env.local";
+// Also drop the retired dev-login flag from older .env.local files.
+const managed = [...Object.keys(vars), "NEXT_PUBLIC_ENABLE_DEV_LOGIN"];
 const kept = existsSync(path)
   ? readFileSync(path, "utf8")
       .split("\n")
-      .filter((line) => line && !Object.keys(vars).some((k) => line.startsWith(`${k}=`)))
+      .filter((line) => line && !managed.some((k) => line.startsWith(`${k}=`)))
   : [];
 const lines = [...kept, ...Object.entries(vars).map(([k, v]) => `${k}=${v}`)];
 writeFileSync(path, `${lines.join("\n")}\n`);

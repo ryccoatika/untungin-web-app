@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createStoreViaOnboarding, devLogin } from "./helpers";
+import { createStoreViaOnboarding, signIn } from "./helpers";
 
 const html = (page: Page) => page.locator("html");
 
@@ -45,7 +45,7 @@ test.describe("device in light mode", () => {
 test("the theme button fits on a phone store header", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.setViewportSize({ width: 360, height: 800 });
-  await devLogin(page);
+  await signIn(page);
   await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
   await expect(page.getByRole("button", { name: /^Tema:/ })).toBeVisible();
   const overflow = await page.evaluate(

@@ -1,8 +1,8 @@
 import { expect, test } from "@playwright/test";
-import { createStoreViaOnboarding, devLogin } from "./helpers";
+import { createStoreViaOnboarding, signIn } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
-  await devLogin(page);
+  await signIn(page);
   await createStoreViaOnboarding(page, "Toko Lama");
   await page.goto(page.url().replace(/dashboard$/, "pengaturan"));
 });
