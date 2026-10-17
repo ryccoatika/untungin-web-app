@@ -45,6 +45,7 @@ describe("startOfJakartaDay", () => {
     ["2026-10-17T17:00:00.000Z", "2026-10-17T17:00:00.000Z"], // 00:00 WIB on the 18th
     ["2026-10-17T00:00:00.000Z", "2026-10-16T17:00:00.000Z"], // 07:00 WIB on the 17th
     ["2026-12-31T17:30:00.000Z", "2026-12-31T17:00:00.000Z"], // 00:30 WIB on 1 January
+    ["1969-12-30T20:00:00.000Z", "1969-12-30T17:00:00.000Z"], // before 1970: 03:00 WIB on Dec 31
   ])("%s → %s", (now, start) => {
     expect(startOfJakartaDay(new Date(now)).toISOString()).toBe(start);
   });
@@ -130,6 +131,59 @@ describe("buildSnapshot", () => {
     // depreciation 3.640/month → net 1.816.360 → 3.640.000 / 1.816.360 ≈ 2.0
     expect(snapshotOf(data).totals.paybackMonths).toBe(2);
   });
+
+  it("sets marginPct to null when price is 0", () => {
+    const data = storeData({
+      prices: [{ ...storeData().prices[0], price: 0 }],
+    });
+    const snapshot = snapshotOf(data);
+    expect(snapshot.products[0]?.lines[0]?.marginPct).toBeNull();
+  });
+
+  it("nulls fullCost, netMarginPct, bepUnitsMonthly, bepUnitsDaily when all estMonthlySales is 0", () => {
+    const data = storeData({
+      prices: [{ ...storeData().prices[0], estMonthlySales: 0 }],
+    });
+    const snapshot = snapshotOf(data);
+    expect(snapshot.products[0]?.lines[0]?.fullCost).toBeNull();
+    expect(snapshot.totals.netMarginPct).toBeNull();
+    expect(snapshot.totals.bepUnitsMonthly).toBeNull();
+    expect(snapshot.totals.bepUnitsDaily).toBeNull();
+  });
+
+  it("makes fixedCosts.byCategory empty when no expenses", () => {
+    const data = storeData({ expenses: [] });
+    const snapshot = snapshotOf(data);
+    expect(snapshot.totals.fixedCosts.byCategory).toEqual({});
+  });
+
+  it("serializes tiny negative contribution as 0, not -0", () => {
+    const data = storeData({
+      prices: [{ ...storeData().prices[0], price: 350 }], // material cost ~300, so contribution ~50 or negative
+    });
+    const snapshot = snapshotOf(data);
+    const contrib = snapshot.products[0]?.lines[0]?.contribution ?? -1;
+    // Check it's not -0
+    expect(Object.is(contrib, -0)).toBe(false);
+  });
+
+  it("ignores price rows for non-existent channels", () => {
+    const data = storeData({
+      prices: [
+        storeData().prices[0]!,
+        {
+          productId: ids.teh,
+          channelId: "00000000-0000-4000-8000-000000000099", // doesn't exist
+          price: 4000,
+          estMonthlySales: 100,
+          competitorPrice: null,
+        },
+      ],
+    });
+    const snapshot = snapshotOf(data);
+    // Should only have the one line for the tunai channel
+    expect(snapshot.products[0]?.lines.length).toBe(1);
+  });
 });
 
 describe("canonicalJson and snapshotHash", () => {
@@ -137,6 +191,10 @@ describe("canonicalJson and snapshotHash", () => {
     expect(canonicalJson({ b: 1, a: { d: [2, { y: 1, x: 2 }], c: null } })).toBe(
       '{"a":{"c":null,"d":[2,{"x":2,"y":1}]},"b":1}',
     );
+  });
+
+  it("serializes undefined array elements as null", () => {
+    expect(canonicalJson([1, undefined])).toBe("[1,null]");
   });
 
   it("is stable for the same data and changes when a number the AI sees changes", () => {
@@ -155,5 +213,51 @@ describe("canonicalJson and snapshotHash", () => {
   it("ignores float noise below the rounding", () => {
     const noisy = storeData({ materials: [{ ...storeData().materials[0], purchasePrice: 15000.0000001 }] });
     expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+
+  it("ignores float noise in competitorPrice", () => {
+    const noisy = storeData({
+      prices: [{ ...storeData().prices[0], competitorPrice: (storeData().prices[0]!.competitorPrice ?? 0) + 1e-7 }],
+    });
+    expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+
+  it("ignores float noise in channel commissionPct", () => {
+    const noisy = storeData({
+      channels: [{ ...storeData().channels[0]!, commissionPct: 0 + 1e-7 }],
+    });
+    expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+
+  it("ignores float noise in channel fixedFee", () => {
+    const noisy = storeData({
+      channels: [{ ...storeData().channels[0]!, fixedFee: 0 + 1e-7 }],
+    });
+    expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+
+  it("ignores float noise in material wastePct", () => {
+    const noisy = storeData({
+      materials: [{ ...storeData().materials[0]!, wastePct: 0 + 1e-7 }],
+    });
+    expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+
+  it("ignores float noise in expense amount", () => {
+    const noisy = storeData({
+      expenses: [{ ...storeData().expenses[0]!, amount: 1000000 + 1e-7 }],
+    });
+    expect(snapshotHash(snapshotOf(noisy))).toBe(snapshotHash(snapshotOf()));
+  });
+});
+
+describe("buildSnapshot NaN handling", () => {
+  it("throws on NaN in analysis totals", () => {
+    const data = storeData();
+    const analysis = analyzeStore(data);
+    const badAnalysis = { ...analysis, netMarginPct: NaN } as unknown as typeof analysis;
+    expect(() => buildSnapshot(data, badAnalysis, info, "id")).toThrow(
+      "Non-finite number in AI snapshot",
+    );
   });
 });

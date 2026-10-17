@@ -62,10 +62,16 @@ export type AnalysisSnapshot = {
   warnings: { code: WarningCode; lines: { productId: string; channelId: string }[] }[];
 };
 
-/** Whole Rupiah; `|| 0` turns -0 into 0. */
-const rupiah = (value: number) => Math.round(value) || 0;
-/** One decimal, for percentages, months and quantities. */
-const oneDecimal = (value: number) => Math.round(value * 10) / 10 || 0;
+/** Whole Rupiah; `|| 0` turns -0 into 0. Throws on NaN or Infinity. */
+const rupiah = (value: number) => {
+  if (!isFinite(value)) throw new Error("Non-finite number in AI snapshot");
+  return Math.round(value) || 0;
+};
+/** One decimal, for percentages, months and quantities. Throws on NaN or Infinity. */
+const oneDecimal = (value: number) => {
+  if (!isFinite(value)) throw new Error("Non-finite number in AI snapshot");
+  return Math.round(value * 10) / 10 || 0;
+};
 const maybe = <T>(value: T | null, round: (v: T) => number) => (value === null ? null : round(value));
 
 export function buildSnapshot(
@@ -154,7 +160,7 @@ export function buildSnapshot(
 
 /** JSON with object keys sorted at every level, so equal data always gives equal text. */
 export function canonicalJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (Array.isArray(value)) return `[${value.map((v) => canonicalJson(v === undefined ? null : v)).join(",")}]`;
   if (value !== null && typeof value === "object") {
     const entries = Object.entries(value as Record<string, unknown>)
       .filter(([, v]) => v !== undefined)
