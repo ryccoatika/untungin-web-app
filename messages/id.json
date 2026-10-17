@@ -527,5 +527,15 @@
       "assets": "Catat inventaris",
       "channels": "Tambah kanal online (GoFood, Shopee, …)"
     }
+  },
+  "Analysis": {
+    "result": {
+      "created": "Analisis selesai.",
+      "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
+      "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
+      "failed": "Analisis gagal, coba lagi.",
+      "notConfigured": "Analisis AI belum disiapkan di server ini.",
+      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
+    }
   }
 }
