@@ -80,14 +80,25 @@ test("the address bar keeps the scenario, hostile links are ignored, and nothing
   await expect(page.getByLabel("Harga semua bahan")).toHaveValue("100");
   await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.640.000");
 
+  // Nothing is saved: the dashboard still shows the real numbers.
+  await page.goto(storeUrl(page, "dashboard"));
+  await expect(page.getByTestId("metric-netProfit")).toHaveText("Rp1.820.000");
+
   await page.goto(`${storeUrl(page, "simulasi")}?s=50`);
   await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp3.230.000");
 
   await page.goto(`${storeUrl(page, "simulasi")}?m=abc&s=99999&p.x.y=-5`);
   await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.820.000");
+});
 
-  await page.goto(storeUrl(page, "dashboard"));
-  await expect(page.getByTestId("metric-netProfit")).toHaveText("Rp1.820.000");
+test("a link with a per-material change opens the per-material fields", async ({ page }) => {
+  await storeWithOneProduct(page);
+  await page.getByText("Atur per bahan").click();
+  await page.getByLabel("Perubahan harga Gula (%)").fill("-100");
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp2.000.000");
+  await page.reload();
+  await expect(page.getByLabel("Perubahan harga Gula (%)")).toBeVisible();
+  await expect(page.getByLabel("Perubahan harga Gula (%)")).toHaveValue("-100");
 });
 
 test("fits a phone without horizontal scrolling", async ({ page }, testInfo) => {

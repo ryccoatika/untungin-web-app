@@ -7,15 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  ALL_MATERIALS,
-  applyOverrides,
-  priceKey,
-  tryAnalyzeStore,
-  type LineRef,
-  type Overrides,
-  type StoreData,
-} from "@/lib/calc";
+import { ALL_MATERIALS, applyOverrides, priceKey, tryAnalyzeStore, type LineRef, type Overrides, type StoreData } from "@/lib/calc";
 import { formatNumber, formatPercent, formatRupiah } from "@/lib/format";
 import { compareMetrics, type ComparedMetric, type MetricComparison } from "@/lib/simulation/compare";
 import { overridesToSearchParams, SIMULATION_LIMITS } from "@/lib/simulation/query";
@@ -36,6 +28,8 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
   const locale = useLocale();
   const [overrides, setOverrides] = useState<Overrides>(initial);
   const [resetKey, setResetKey] = useState(0);
+  // Links with per-material changes open the collapsed section so those fields are not hidden.
+  const [hasPerMaterial] = useState(() => Object.keys(initial.materialPricePct ?? {}).some((key) => key !== ALL_MATERIALS));
 
   const now = useMemo(() => tryAnalyzeStore(data).analysis, [data]);
   const sim = useMemo(() => tryAnalyzeStore(applyOverrides(data, overrides)).analysis, [data, overrides]);
@@ -43,7 +37,7 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
   // The address bar carries the scenario so it can be reloaded or shared (spec §4.4).
   useEffect(() => {
     const query = overridesToSearchParams(overrides).toString();
-    window.history.replaceState(null, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
+    window.history.replaceState(window.history.state, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
   }, [overrides]);
 
   if (!now || !sim) {
@@ -70,7 +64,10 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
   }
 
   function setSalesPct(value: number) {
-    setOverrides((current) => ({ ...current, salesMultiplier: value === 0 ? undefined : 1 + value / 100 }));
+    setOverrides((current) => ({
+      ...current,
+      salesMultiplier: value === 0 ? undefined : 1 + value / 100,
+    }));
   }
 
   function setPrice(key: string, raw: string) {
@@ -138,85 +135,90 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
         <CardHeader>
           <CardTitle>{t("controlsTitle")}</CardTitle>
         </CardHeader>
-        <CardContent key={resetKey} className="space-y-6">
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-3">
-              <Label htmlFor="sim-materials">{t("materialAll")}</Label>
-              <span className="text-sm font-medium">{pctLabel(materialAll)}</span>
-            </div>
-            <input
-              id="sim-materials"
-              type="range"
-              min={Math.min(SLIDER.min, materialAll)}
-              max={Math.max(SLIDER.max, materialAll)}
-              step={SLIDER.step}
-              value={materialAll}
-              aria-valuetext={pctLabel(materialAll)}
-              onChange={(event) => setMaterialPct(ALL_MATERIALS, Number(event.target.value))}
-              className="h-10 w-full accent-primary"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-baseline justify-between gap-3">
-              <Label htmlFor="sim-sales">{t("sales")}</Label>
-              <span className="text-sm font-medium">{pctLabel(salesPct)}</span>
-            </div>
-            <input
-              id="sim-sales"
-              type="range"
-              min={Math.min(SLIDER.min, salesPct)}
-              max={Math.max(SLIDER.max, salesPct)}
-              step={SLIDER.step}
-              value={salesPct}
-              aria-valuetext={pctLabel(salesPct)}
-              onChange={(event) => setSalesPct(Number(event.target.value))}
-              className="h-10 w-full accent-primary"
-            />
-          </div>
-
-          <details className="space-y-3">
-            <summary className="flex min-h-10 cursor-pointer items-center text-sm font-medium">{t("perMaterial")}</summary>
-            <p className="text-xs text-muted-foreground">{t("perMaterialHint")}</p>
-            {data.materials.map((material) => (
-              <div key={material.id} className="space-y-1">
-                <Label htmlFor={`sim-material-${material.id}`}>{t("materialPct", { material: material.name })}</Label>
-                <Input
-                  id={`sim-material-${material.id}`}
-                  inputMode="decimal"
-                  defaultValue={overrides.materialPricePct?.[material.id]?.toString() ?? ""}
-                  onChange={(event) => {
-                    const raw = event.target.value.trim().replace(",", ".");
-                    const value = raw === "" ? undefined : Number(raw);
-                    const ok =
-                      value === undefined ||
-                      (Number.isFinite(value) && value >= SIMULATION_LIMITS.minPct && value <= SIMULATION_LIMITS.maxPct);
-                    if (ok) setMaterialPct(material.id, value);
-                  }}
-                />
+        <CardContent className="space-y-6">
+          <div key={resetKey} className="space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <Label htmlFor="sim-materials">{t("materialAll")}</Label>
+                <span className="text-sm font-medium">{pctLabel(materialAll)}</span>
               </div>
-            ))}
-          </details>
+              <input
+                id="sim-materials"
+                type="range"
+                min={Math.min(SLIDER.min, materialAll)}
+                max={Math.max(SLIDER.max, materialAll)}
+                step={SLIDER.step}
+                value={materialAll}
+                aria-valuetext={pctLabel(materialAll)}
+                onChange={(event) => setMaterialPct(ALL_MATERIALS, Number(event.target.value))}
+                className="h-10 w-full accent-primary"
+              />
+            </div>
 
-          <div className="space-y-3">
-            <p className="text-sm font-medium">{t("prices")}</p>
-            {now.lines.map((line) => {
-              const key = priceKey(line.productId, line.channelId);
-              const label = t("priceFor", { product: productName(line.productId), channel: channelName(line.channelId) });
-              return (
-                <div key={key} className="space-y-1">
-                  <Label htmlFor={`sim-price-${key}`} className="[overflow-wrap:anywhere]">
-                    {label}
-                  </Label>
+            <div className="space-y-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <Label htmlFor="sim-sales">{t("sales")}</Label>
+                <span className="text-sm font-medium">{pctLabel(salesPct)}</span>
+              </div>
+              <input
+                id="sim-sales"
+                type="range"
+                min={Math.min(SLIDER.min, salesPct)}
+                max={Math.max(SLIDER.max, salesPct)}
+                step={SLIDER.step}
+                value={salesPct}
+                aria-valuetext={pctLabel(salesPct)}
+                onChange={(event) => setSalesPct(Number(event.target.value))}
+                className="h-10 w-full accent-primary"
+              />
+            </div>
+
+            <details open={hasPerMaterial} className="space-y-3">
+              <summary className="flex min-h-10 cursor-pointer items-center text-sm font-medium">{t("perMaterial")}</summary>
+              <p className="text-xs text-muted-foreground">{t("perMaterialHint")}</p>
+              {data.materials.map((material) => (
+                <div key={material.id} className="space-y-1">
+                  <Label htmlFor={`sim-material-${material.id}`}>{t("materialPct", { material: material.name })}</Label>
                   <Input
-                    id={`sim-price-${key}`}
-                    inputMode="numeric"
-                    defaultValue={String(overrides.prices?.[key] ?? line.price)}
-                    onChange={(event) => setPrice(key, event.target.value)}
+                    id={`sim-material-${material.id}`}
+                    inputMode="decimal"
+                    defaultValue={overrides.materialPricePct?.[material.id]?.toString() ?? ""}
+                    onChange={(event) => {
+                      const raw = event.target.value.trim().replace(",", ".");
+                      const value = raw === "" ? undefined : Number(raw);
+                      const ok =
+                        value === undefined ||
+                        (Number.isFinite(value) && value >= SIMULATION_LIMITS.minPct && value <= SIMULATION_LIMITS.maxPct);
+                      if (ok) setMaterialPct(material.id, value);
+                    }}
                   />
                 </div>
-              );
-            })}
+              ))}
+            </details>
+
+            <div className="space-y-3">
+              <p className="text-sm font-medium">{t("prices")}</p>
+              {now.lines.map((line) => {
+                const key = priceKey(line.productId, line.channelId);
+                const label = t("priceFor", {
+                  product: productName(line.productId),
+                  channel: channelName(line.channelId),
+                });
+                return (
+                  <div key={key} className="space-y-1">
+                    <Label htmlFor={`sim-price-${key}`} className="[overflow-wrap:anywhere]">
+                      {label}
+                    </Label>
+                    <Input
+                      id={`sim-price-${key}`}
+                      inputMode="numeric"
+                      defaultValue={String(overrides.prices?.[key] ?? line.price)}
+                      onChange={(event) => setPrice(key, event.target.value)}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <Button type="button" variant="outline" onClick={reset}>
@@ -240,7 +242,10 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
                   <li key={`${line.productId}:${line.channelId}`} className="flex flex-wrap items-center justify-between gap-2 py-3">
                     <span className="min-w-0 text-sm [overflow-wrap:anywhere]">{lineLabel(line)}</span>
                     <span className="flex items-center gap-2 text-sm">
-                      {t("lineMargin", { now: margin(before?.marginPct), sim: margin(line.marginPct) })}
+                      {t("lineMargin", {
+                        now: margin(before?.marginPct),
+                        sim: margin(line.marginPct),
+                      })}
                       <StatusBadge status={line.status} />
                     </span>
                   </li>
@@ -257,7 +262,9 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
           <ul className="space-y-2">
             {sim.warnings.map((warning) => (
               <li key={warning.code} className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm [overflow-wrap:anywhere]">
-                {tWarnings(warning.code, { products: warning.lines.map(lineLabel).join(", ") })}
+                {tWarnings(warning.code, {
+                  products: warning.lines.map(lineLabel).join(", "),
+                })}
               </li>
             ))}
           </ul>
