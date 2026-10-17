@@ -18,7 +18,7 @@ export function localeNumber<T extends z.ZodType>(inner: T) {
       s = s.slice(1).trim();
     }
     const parsed = parseUnsigned(s);
-    return Number.isNaN(parsed) ? parsed : sign * parsed;
+    return Number.isNaN(parsed) ? parsed : sign * parsed || 0;
   }, inner);
 }
 

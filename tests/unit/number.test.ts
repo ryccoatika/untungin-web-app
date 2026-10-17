@@ -57,6 +57,7 @@ describe("localeNumber", () => {
     ["-5", -5],
     ["-1,5", -1.5],
     ["- 2", -2],
+    ["-0", 0],
   ])("reads %j as %d", (input, expected) => {
     expect(localeNumber(z.number()).parse(input)).toBe(expected);
   });
