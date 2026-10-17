@@ -45,3 +45,6 @@ next-env.d.ts
 /playwright-report/
 
 !.env.example
+
+# Third-party Claude skills (cloudai-x/threejs-skills @ b1c6230, no license file) — local only
+.claude/skills/threejs-*/
