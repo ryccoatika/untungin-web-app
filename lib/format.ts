@@ -19,6 +19,14 @@ export function formatRupiah(value: number, locale: AppLocale, maximumFractionDi
   return `${negative ? "-" : ""}Rp${amount}`;
 }
 
+/** Short Rupiah for chart labels: "Rp1,8 jt" (id), "Rp1.8M" (en). Same sign rules as formatRupiah. */
+export function formatRupiahCompact(value: number, locale: AppLocale): string {
+  const whole = Math.round(Math.abs(value));
+  const amount = new Intl.NumberFormat(INTL_LOCALE[locale], { notation: "compact", maximumFractionDigits: 1 }).format(whole);
+  const negative = value < 0 && /[1-9]/.test(amount);
+  return `${negative ? "-" : ""}Rp${amount}`;
+}
+
 /** Date and time of a saved event, always in Asia/Jakarta (the app's day boundary, spec §6.1). */
 export function formatDateTime(iso: string, locale: AppLocale): string {
   return new Intl.DateTimeFormat(INTL_LOCALE[locale], {

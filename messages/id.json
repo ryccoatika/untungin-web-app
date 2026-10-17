@@ -231,6 +231,14 @@
     "title": "Toko kamu",
     "add": "Tambah toko"
   },
+  "Visuals": {
+    "chartTitle": "Sumbangan tiap produk",
+    "chartHint": "Kontribusi per bulan: (harga bersih − biaya bahan) × perkiraan terjual, sebelum biaya tetap.",
+    "chartLabel": "Grafik 3D sumbangan tiap produk per bulan. Angkanya ada di tampilan 2D dan tabel produk.",
+    "view3d": "3D",
+    "view2d": "2D",
+    "viewSwitch": "Tampilan grafik"
+  },
   "Dashboard": {
     "tryAnalysis": "Analisis usahaku",
     "trySimulation": "Coba simulasi",

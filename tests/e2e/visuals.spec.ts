@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, setPrice, signIn, storeUrl } from "./helpers";
 
 /** Three.js sets window.__THREE__ when it is imported. */
 async function threeLoaded(page: Page) {
@@ -29,5 +30,76 @@ test.describe("landing hero", () => {
     expect(await threeLoaded(page)).toBe(true);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+});
+
+/** Gula Rp15/g; Es teh 200 g per 10 → Rp300; Rp5.000 × 600 → contribution Rp2.820.000 per month. */
+async function storeWithChart(page: Page) {
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Grafik");
+  await page.goto(storeUrl(page, "bahan"));
+  await addMaterial(page, { name: "Gula", qty: "1", unit: "kg", price: "15.000" });
+  await page.goto(storeUrl(page, "produk"));
+  await addProduct(page, { name: "Es teh", yieldQty: "10" });
+  await addCompositionRow(page, { material: "Gula", qty: "200" });
+  await setPrice(page, { price: "5.000", est: "600" });
+}
+
+test.describe("dashboard chart", () => {
+  test("reduced motion shows the 2D chart only and never loads Three.js", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await storeWithChart(page);
+    await page.goto(storeUrl(page, "dashboard"));
+    const chart = page.getByTestId("chart-2d");
+    await expect(chart.getByText("Es teh")).toBeVisible();
+    await expect(chart.getByText("Rp2.820.000")).toBeVisible();
+    await expect(page.getByRole("group", { name: "Tampilan grafik" })).toHaveCount(0);
+    expect(await threeLoaded(page)).toBe(false);
+  });
+
+  test("the 3D/2D choice is remembered", async ({ page }) => {
+    await storeWithChart(page);
+    await page.goto(storeUrl(page, "dashboard"));
+    test.skip(!(await webglAvailable(page)), "no WebGL in this browser");
+    test.skip(await page.evaluate(() => navigator.hardwareConcurrency <= 4), "weak device by the spec's rule");
+    await expect(page.getByRole("img", { name: /Grafik 3D/ })).toBeVisible();
+    await page.getByRole("button", { name: "2D" }).click();
+    await expect(page.getByTestId("chart-2d")).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId("chart-2d")).toBeVisible();
+    await expect(page.getByRole("button", { name: "2D" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "3D" }).click();
+    await expect(page.getByRole("img", { name: /Grafik 3D/ })).toBeVisible();
+  });
+
+  test("form pages never load Three.js, even after the dashboard did", async ({ page }) => {
+    await storeWithChart(page);
+    const productUrl = page.url();
+    await page.goto(storeUrl(page, "dashboard"));
+    for (const path of ["bahan", "produk", "biaya", "inventaris", "kanal", "pengaturan"]) {
+      await page.goto(storeUrl(page, path));
+      expect(await threeLoaded(page), path).toBe(false);
+    }
+    await page.goto(productUrl);
+    expect(await threeLoaded(page), "produk/[id]").toBe(false);
+    await page.goto("/onboarding");
+    expect(await threeLoaded(page), "onboarding").toBe(false);
+  });
+
+  test("moving back and forth does not exhaust WebGL contexts", async ({ page }) => {
+    await storeWithChart(page);
+    await page.goto(storeUrl(page, "dashboard"));
+    test.skip(!(await webglAvailable(page)), "no WebGL in this browser");
+    const warnings: string[] = [];
+    page.on("console", (message) => {
+      if (/WebGL|context/i.test(message.text())) warnings.push(message.text());
+    });
+    for (let i = 0; i < 20; i++) {
+      await page.getByRole("link", { name: "Bahan" }).first().click();
+      await expect(page).toHaveURL(/\/bahan$/);
+      await page.getByRole("link", { name: "Dashboard", exact: true }).first().click();
+      await expect(page).toHaveURL(/\/dashboard$/);
+    }
+    expect(warnings.filter((text) => /too many|lost/i.test(text))).toEqual([]);
   });
 });

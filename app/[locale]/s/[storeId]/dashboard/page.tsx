@@ -4,12 +4,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { tryAnalyzeStore, type LineRef } from "@/lib/calc";
+import { productChartData } from "@/lib/dashboard/chart-data";
 import { setupChecklist } from "@/lib/dashboard/checklist";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { getStore } from "@/lib/data/stores";
-import { formatPercent } from "@/lib/format";
+import { formatPercent, formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
 import { MetricCards } from "./metric-cards";
+import { ProductChart, type ProductChartBar } from "./product-chart";
 import { ProductLines } from "./product-lines";
 import { SetupChecklist } from "./setup-checklist";
 import { WarningsList } from "./warnings-list";
@@ -21,9 +23,21 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const t = await getTranslations("Dashboard");
   const businessTypeLabel = await getBusinessTypeLabel();
   const locale = await getLocale();
+  const tLineStatus = await getTranslations("LineStatus");
 
   const checklist = setupChecklist(data);
   const { analysis, error } = tryAnalyzeStore(data);
+  const chartBars: ProductChartBar[] = analysis
+    ? productChartData(analysis, data).map((bar) => ({
+        productId: bar.productId,
+        name: bar.name,
+        value: bar.value,
+        status: bar.status,
+        valueLabel: formatRupiahCompact(bar.value, locale),
+        fullValueLabel: formatRupiah(bar.value, locale),
+        statusLabel: tLineStatus(bar.status),
+      }))
+    : [];
   const productName = (id: string) => data.products.find((p) => p.id === id)?.name ?? "?";
   const channelName = (id: string) => data.channels.find((c) => c.id === id)?.name ?? "?";
   const lineLabel = (ref: LineRef) => `${productName(ref.productId)} (${channelName(ref.channelId)})`;
@@ -60,6 +74,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             </div>
           )}
           <WarningsList warnings={analysis.warnings} lineLabel={lineLabel} />
+          {chartBars.length > 0 && <ProductChart bars={chartBars} />}
           <ProductLines analysis={analysis} data={data} />
         </>
       )}
