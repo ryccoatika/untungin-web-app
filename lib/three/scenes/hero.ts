@@ -1,9 +1,8 @@
 import {
-  AmbientLight,
   BoxGeometry,
-  CylinderGeometry,
   DirectionalLight,
   Group,
+  HemisphereLight,
   MathUtils,
   Mesh,
   MeshStandardMaterial,
@@ -11,6 +10,7 @@ import {
 } from "three";
 import type { Palette } from "../palette";
 import type { SceneController } from "../scene";
+import { coinGeometry, createCoinMaterials } from "./coin";
 
 /** Bar heights in scene units, rising left to right ("profit goes up"). */
 export const HERO_BAR_HEIGHTS = [0.7, 1.15, 1.6, 2.2] as const;
@@ -25,6 +25,14 @@ const GRAVITY = 6;
 const MAX_TILT_Y = 0.35;
 const MAX_TILT_X = 0.12;
 
+const COIN_RADIUS = 0.26;
+const COIN_THICKNESS = 0.08;
+const COIN_TILT = 0.4;
+const COIN_GAP = 0.02;
+/** Centre height of a resting coin above its bar top: the tilted disc's lowest point plus a small gap. */
+export const COIN_CLEARANCE =
+  COIN_RADIUS * Math.sin(COIN_TILT) + (COIN_THICKNESS / 2) * Math.cos(COIN_TILT) + COIN_GAP;
+
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 
 /** Landing hero (user decision): bars grow, coins drop onto them, the group tilts toward the pointer. */
@@ -34,7 +42,7 @@ export function createHeroScene(palette: Palette): SceneController {
   camera.position.set(0, 2.4, 8);
   camera.lookAt(0, 1.1, 0);
 
-  const ambient = new AmbientLight(0xffffff, 1.4);
+  const ambient = new HemisphereLight(0xffffff, 0x9ca3af, 1.2);
   const sun = new DirectionalLight(0xffffff, 2.2);
   sun.position.set(3, 6, 4);
   root.add(ambient, sun);
@@ -56,26 +64,33 @@ export function createHeroScene(palette: Palette): SceneController {
     return bar;
   });
 
-  const coinGeometry = new CylinderGeometry(0.26, 0.26, 0.08, 32);
-  const coinMaterials = [
-    new MeshStandardMaterial({ color: palette.coinEdge, metalness: 0.6, roughness: 0.35 }),
-    new MeshStandardMaterial({ color: palette.coin, metalness: 0.5, roughness: 0.3 }),
-    new MeshStandardMaterial({ color: palette.coin, metalness: 0.5, roughness: 0.3 }),
-  ];
-  const coins = Array.from({ length: HERO_COINS }, (_, i) => {
-    const coin = new Mesh(coinGeometry, coinMaterials);
-    coin.name = "coin";
-    coin.rotation.x = Math.PI / 2.4;
-    root.add(coin);
-    return { mesh: coin, bar: i % bars.length, velocity: 0, delay: i * 0.55, resting: 0 };
+  const geometry = coinGeometry(COIN_RADIUS, COIN_THICKNESS);
+  const materials = createCoinMaterials(palette);
+  type Coin = { mesh: Mesh; bar: number; level: number; velocity: number; delay: number; resting: number };
+  const coins: Coin[] = Array.from({ length: HERO_COINS }, (_, i) => {
+    const mesh = new Mesh(geometry, materials);
+    mesh.name = "coin";
+    mesh.rotation.x = COIN_TILT;
+    root.add(mesh);
+    return { mesh, bar: i % bars.length, level: 0, velocity: 0, delay: i * 0.55, resting: 0 };
   });
-  const placeAbove = (coin: (typeof coins)[number]) => {
-    coin.mesh.position.set(bars[coin.bar].position.x, DROP_HEIGHT, 0);
+  /** Send a coin above the least-used bar; a coin sharing a bar stacks on the one already there. */
+  const placeAbove = (coin: Coin, preferred: number) => {
+    const load = (bar: number) => coins.filter((other) => other !== coin && other.bar === bar).length;
+    let best = preferred;
+    for (let k = 0; k < bars.length; k++) {
+      const candidate = (preferred + k) % bars.length;
+      if (load(candidate) < load(best)) best = candidate;
+    }
+    coin.bar = best;
+    coin.level = load(best);
+    coin.mesh.userData.bar = best;
+    coin.mesh.position.set(bars[best].position.x, DROP_HEIGHT, 0);
     coin.velocity = 0;
     coin.resting = 0;
     coin.mesh.visible = false;
   };
-  coins.forEach(placeAbove);
+  coins.forEach((coin) => placeAbove(coin, coin.bar));
 
   let pointerX = 0;
   let pointerY = 0;
@@ -96,18 +111,17 @@ export function createHeroScene(palette: Palette): SceneController {
       for (const coin of coins) {
         if (elapsed < coin.delay) continue;
         coin.mesh.visible = true;
-        const top = bars[coin.bar].scale.y + 0.05;
+        const top = bars[coin.bar].scale.y + COIN_CLEARANCE + coin.level * (COIN_THICKNESS + 0.05);
         if (coin.resting > 0) {
           coin.resting += delta;
           if (coin.resting > 0.9) {
-            coin.bar = (coin.bar + 1) % bars.length;
-            placeAbove(coin);
+            placeAbove(coin, (coin.bar + 1) % bars.length);
           }
           continue;
         }
         coin.velocity += GRAVITY * delta;
         coin.mesh.position.y = Math.max(top, coin.mesh.position.y - coin.velocity * delta);
-        coin.mesh.rotation.z += delta * 4;
+        coin.mesh.rotation.y += delta * 4;
         if (coin.mesh.position.y <= top) coin.resting = delta;
       }
 

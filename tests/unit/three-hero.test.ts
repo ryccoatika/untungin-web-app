@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { disposeObject } from "@/lib/three/dispose";
 import { PALETTES } from "@/lib/three/palette";
-import { createHeroScene, HERO_BAR_HEIGHTS, HERO_COINS } from "@/lib/three/scenes/hero";
+import { COIN_CLEARANCE, createHeroScene, HERO_BAR_HEIGHTS, HERO_COINS } from "@/lib/three/scenes/hero";
 
 function step(controller: ReturnType<typeof createHeroScene>, seconds: number) {
   let elapsed = 0;
@@ -28,16 +28,23 @@ describe("createHeroScene", () => {
     expect([...heights].sort((a, b) => a - b)).toEqual(heights);
   });
 
-  it("keeps coins inside the scene while they fall and respawn", () => {
+  it("keeps coins above their own bar while they fall and respawn", () => {
     const hero = createHeroScene(PALETTES.light);
-    for (let i = 0; i < 10; i++) {
-      step(hero, 1);
+    const bars = hero.root.getObjectsByProperty("name", "bar");
+    let seen = 0;
+    for (let frame = 1; frame <= 60 * 12; frame++) {
+      hero.update(1 / 60, frame / 60);
+      if (frame % 6 !== 0) continue;
       for (const coin of hero.root.getObjectsByProperty("name", "coin")) {
-        expect(coin.position.y).toBeGreaterThanOrEqual(0);
         expect(coin.position.y).toBeLessThanOrEqual(6);
         expect(Number.isFinite(coin.position.x)).toBe(true);
+        if (!coin.visible) continue;
+        seen++;
+        const bar = bars[coin.userData.bar as number];
+        expect(coin.position.y).toBeGreaterThanOrEqual(bar.scale.y + COIN_CLEARANCE - 1e-6);
       }
     }
+    expect(seen).toBeGreaterThan(0);
   });
 
   it("tilts toward the pointer and back", () => {
