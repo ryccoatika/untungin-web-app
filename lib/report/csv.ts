@@ -62,8 +62,10 @@ export function csvEscape(value: string | number | null): string {
 const rp = (value: number | null) => (value === null ? null : Math.round(value));
 const dec = (value: number | null) => (value === null ? null : Math.round(value * 10) / 10);
 
-/** Excel-friendly CSV: UTF-8 BOM, `sep=;` hint, CRLF line breaks. Rupiah are plain integers. */
-/** `madeOn` is the already formatted date the printed sheet shows. */
+/**
+ * Excel-friendly CSV: UTF-8 BOM, `sep=;` hint, CRLF line breaks. Rupiah are plain integers.
+ * `madeOn` is the already formatted date the printed sheet shows.
+ */
 export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels, madeOn: string): string {
   const lines: (string | number | null)[][] = [];
   const section = (title: string) => {
