@@ -139,6 +139,7 @@
   margin: 12mm;
 }
 
+/* Unlayered on purpose: these sheet overrides must beat Tailwind's layered utilities. */
 @media print {
   html,
   body {

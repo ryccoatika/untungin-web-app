@@ -7,10 +7,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { requireUser } from "@/lib/auth/require-user";
-import { loadLoanSummary } from "@/lib/data/loan-summary";
+import { expenseCategoryLabels, loadLoanSummary } from "@/lib/data/loan-summary";
 import { formatDateTime, formatNumber, formatPercent, formatRupiah } from "@/lib/format";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
 import { InstallmentForm } from "./installment-form";
+import { OwnerNameForm } from "./owner-name-form";
 import { ReportToolbar } from "./report-toolbar";
 
 type Query = Record<string, string | string[] | undefined>;
@@ -86,6 +87,7 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
     );
   }
 
+  const categoryLabels = expenseCategoryLabels(t, tCategory);
   const rp = (value: number) => formatRupiah(value, locale);
   const pct = (value: number | null) => (value === null ? t("noValue") : formatPercent(value, locale));
   const { store, monthly, installment } = summary;
@@ -98,7 +100,6 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
       if (value !== "") csvParams.set(key, value);
     }
   }
-  const csvHref = `/${locale}/s/${storeId}/ringkasan/csv${csvParams.size > 0 ? `?${csvParams}` : ""}`;
 
   const details: [string, string][] = [
     [t("businessType"), store.businessType],
@@ -110,8 +111,8 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
   return (
     <div className="space-y-4">
       <div className="space-y-3 print:hidden">
-        <h1 className="sr-only">{t("title")}</h1>
-        <ReportToolbar csvHref={csvHref} />
+        <ReportToolbar query={csvParams.toString()} />
+        <OwnerNameForm current={store.ownerName ?? ""} />
         <InstallmentForm
           initial={{ pinjaman: rawParam(query, "pinjaman"), tenor: rawParam(query, "tenor"), bunga: rawParam(query, "bunga") || "6" }}
           errors={errors}
@@ -124,7 +125,7 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
       >
         <header className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-xl font-semibold">{t("title")}</h2>
+            <h1 className="text-xl font-semibold">{t("title")}</h1>
             <p className="text-sm text-muted-foreground">
               {t("subtitle")} · {t("madeOn", { date: formatDateTime(new Date().toISOString(), locale) })}
             </p>
@@ -163,7 +164,7 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
               </tr>
               {monthly.fixedCostsByCategory.map((row) => (
                 <tr key={row.category}>
-                  <td className={`${td} pl-5`}>{tCategory(row.category)}</td>
+                  <td className={`${td} pl-5`}>{categoryLabels[row.category]}</td>
                   <td className={`${td} ${num}`}>{rp(row.amount)}</td>
                 </tr>
               ))}

@@ -37,6 +37,10 @@ test("sample store: summary shows the store, the dashboard's net profit, product
   await expect(sheet.getByRole("heading", { name: "Peralatan dan modal" })).toBeVisible();
   await expect(sheet.getByText("Total modal awal")).toBeVisible();
   await expect(sheet.getByText(/bukan laporan keuangan yang diaudit/)).toBeVisible();
+  // Bank-facing wording: not the casual "Gaji kamu sendiri".
+  await expect(sheet.getByRole("cell", { name: "Gaji pemilik", exact: true })).toBeVisible();
+  await expect(sheet.getByText("Gaji kamu sendiri")).toHaveCount(0);
+  await expect(page.getByRole("heading", { level: 1, name: "Ringkasan usaha" })).toBeVisible();
 });
 
 test("instalment check: calculates, keeps the values in the URL and flags a bad rate", async ({ page }) => {
@@ -81,9 +85,31 @@ test("CSV download: Excel-friendly file with the store and the net profit", asyn
   expect(body).toContain("sep=;");
   expect(body).toContain("Kedai Kopi Contoh");
   expect(body).toContain("Cek cicilan");
+  expect(body).toContain("Gaji pemilik;");
+  expect(body).not.toContain("Gaji kamu sendiri");
 
   const reportProfit = Number(squash(await page.getByTestId("report-net-profit").innerText()).replace(/[^\d-]/g, ""));
   expect(body).toContain(`Laba bersih;${reportProfit}\r\n`);
+});
+
+test("owner name: saved to the profile, shown in the header and in the CSV", async ({ page }) => {
+  await createSampleStore(page);
+  await openReportViaNav(page);
+  const sheet = page.getByTestId("loan-summary");
+  await expect(sheet.getByText("Pemilik:")).toHaveCount(0);
+
+  await page.getByLabel("Nama pemilik").fill("   ");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Isi nama pemilik 1 sampai 80 karakter.")).toBeVisible();
+
+  await page.getByLabel("Nama pemilik").fill("  Sari Wulandari ");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Nama pemilik tersimpan.")).toBeVisible();
+  await expect(sheet.getByText("Sari Wulandari", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Nama pemilik")).toHaveValue("Sari Wulandari");
+
+  const href = (await page.getByRole("link", { name: "Unduh Excel (CSV)" }).getAttribute("href"))!;
+  expect(await (await page.request.get(href)).text()).toContain("Pemilik;Sari Wulandari");
 });
 
 test("print: the app chrome and toolbar disappear, the summary stays", async ({ page }) => {
@@ -94,7 +120,7 @@ test("print: the app chrome and toolbar disappear, the summary stays", async ({ 
   await expect(page.getByRole("button", { name: "Cetak / Simpan PDF" })).toBeHidden();
   await expect(page.getByLabel("Jumlah pinjaman")).toBeHidden();
   for (const nav of await page.locator('nav[aria-label="Menu toko"]').all()) await expect(nav).toBeHidden();
-  await expect(page.getByRole("heading", { level: 2, name: "Ringkasan usaha" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Ringkasan usaha" })).toBeVisible();
   await expect(page.getByTestId("loan-summary").getByText("Kedai Kopi Contoh", { exact: true })).toBeVisible();
 });
 

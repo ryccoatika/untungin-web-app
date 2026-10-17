@@ -1,6 +1,6 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { CalcError, tryAnalyzeStore } from "@/lib/calc";
+import { CalcError, EXPENSE_CATEGORIES, tryAnalyzeStore } from "@/lib/calc";
 import type { Database } from "@/lib/supabase/database.types";
 import { buildLoanSummary, type LoanSummary } from "@/lib/report/loan-summary";
 import { parseInstallmentParams } from "@/lib/report/installment";
@@ -50,4 +50,20 @@ export async function loadLoanSummary(
     input,
   );
   return { kind: "ok", summary, errors };
+}
+
+type Lookup = { has: (key: never) => boolean; (key: never): string };
+
+/**
+ * Expense category labels for the bank-facing report: the `Report.categories` label when one exists
+ * (the casual "Gaji kamu sendiri" becomes "Gaji pemilik"), else the app's ExpenseCategory label.
+ * Shared by the page and the CSV route so both say the same thing.
+ */
+export function expenseCategoryLabels(tReport: Lookup, tCategory: Lookup): Record<string, string> {
+  return Object.fromEntries(
+    EXPENSE_CATEGORIES.map((category) => {
+      const key = `categories.${category}` as never;
+      return [category, tReport.has(key) ? tReport(key) : tCategory(category as never)];
+    }),
+  );
 }

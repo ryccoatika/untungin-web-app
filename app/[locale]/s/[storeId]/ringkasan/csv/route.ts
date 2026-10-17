@@ -1,10 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import type { NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
-import { loadLoanSummary } from "@/lib/data/loan-summary";
+import { expenseCategoryLabels, loadLoanSummary } from "@/lib/data/loan-summary";
 import { createClient } from "@/lib/supabase/server";
 import { loanSummaryCsv, type CsvLabels } from "@/lib/report/csv";
-import { EXPENSE_CATEGORIES } from "@/lib/calc";
 
 /** ASCII file-name part from a store name: "Kedai Kopi Contoh" gives "kedai-kopi-contoh". */
 function slugify(name: string): string {
@@ -28,9 +27,9 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ locale:
   const supabase = await createClient();
   const { data: auth, error: authError } = await supabase.auth.getClaims();
   const userId = auth?.claims?.sub;
-  if (authError || !userId) return new Response("Unauthorized", { status: 401 });
-
   const t = await getTranslations({ locale, namespace: "Report" });
+  if (authError || !userId) return new Response(t("csvUnauthorized"), { status: 401 });
+
   const tBusiness = await getTranslations({ locale, namespace: "BusinessType" });
   const tMarket = await getTranslations({ locale, namespace: "TargetMarket" });
   const tCategory = await getTranslations({ locale, namespace: "ExpenseCategory" });
@@ -82,7 +81,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ locale:
     monthlyInstallment: t("monthlyInstallment"),
     totalRepaid: t("totalRepaid"),
     shareOfNetProfitPct: t("shareLabel"),
-    categories: Object.fromEntries(EXPENSE_CATEGORIES.map((category) => [category, tCategory(category)])),
+    categories: expenseCategoryLabels(t, tCategory),
   };
 
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
