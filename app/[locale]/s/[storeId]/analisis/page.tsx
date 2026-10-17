@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { EmptyIllustration } from "@/components/empty-illustration";
 import { EmptyState } from "@/components/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -45,7 +46,7 @@ export default async function AnalysisPage({ params }: Props) {
     return (
       <div className="space-y-6">
         {header}
-        <EmptyState title={t("emptyTitle")} body={t("emptyBody")}>
+        <EmptyState title={t("emptyTitle")} body={t("emptyBody")} illustration={<EmptyIllustration />}>
           <Link href={`/s/${data.store.id}/produk`} className={buttonVariants({ variant: "outline" })}>
             {t("emptyAction")}
           </Link>

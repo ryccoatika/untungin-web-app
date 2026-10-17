@@ -231,6 +231,18 @@
     "title": "Your stores",
     "add": "Add store"
   },
+  "Visuals": {
+    "chartTitle": "What each product brings in",
+    "chartHint": "Monthly contribution: (net price − material cost) × estimated sales, before fixed costs.",
+    "chartLabel": "3D chart of each product's monthly contribution. The numbers are in the 2D view and the product table.",
+    "moreIn2d": "+{count} more, see 2D",
+    "view3d": "3D",
+    "view2d": "2D",
+    "viewSwitch": "Chart view",
+    "welcome": "Your store is ready! Start by adding the materials you buy.",
+    "firstProfit": "Congratulations! Your business is now making a profit.",
+    "dismiss": "Close"
+  },
   "Dashboard": {
     "tryAnalysis": "Analyze my business",
     "trySimulation": "Try a simulation",

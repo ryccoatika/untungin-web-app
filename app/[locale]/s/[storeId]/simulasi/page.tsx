@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { EmptyIllustration } from "@/components/empty-illustration";
 import { EmptyState } from "@/components/empty-state";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
@@ -27,7 +28,7 @@ export default async function SimulationPage({ params }: Props) {
       {hasSomethingToSimulate ? (
         <SimulationPanel data={data} />
       ) : (
-        <EmptyState title={t("emptyTitle")} body={t("emptyBody")}>
+        <EmptyState title={t("emptyTitle")} body={t("emptyBody")} illustration={<EmptyIllustration />}>
           <Link href={`/s/${data.store.id}/produk`} className={buttonVariants({ variant: "outline" })}>
             {t("emptyAction")}
           </Link>

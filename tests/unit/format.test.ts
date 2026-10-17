@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatPercent, formatNumber, formatRupiah, formatDateTime } from "@/lib/format";
+import { formatPercent, formatNumber, formatRupiah, formatRupiahCompact, formatDateTime } from "@/lib/format";
 
 describe("formatPercent", () => {
   it.each([
@@ -53,5 +53,21 @@ describe("formatDateTime", () => {
     // 2026-10-17 01:05 UTC = 08:05 WIB
     expect(formatDateTime("2026-10-17T01:05:00.000Z", "id")).toBe("17 Okt 2026, 08.05");
     expect(formatDateTime("2026-10-17T01:05:00.000Z", "en")).toBe("Oct 17, 2026, 8:05 AM");
+  });
+});
+
+describe("formatRupiahCompact", () => {
+  const plain = (text: string) => text.replace(/\s/gu, " ");
+  it("shortens large amounts in the locale", () => {
+    expect(plain(formatRupiahCompact(1_820_000, "id"))).toBe("Rp1,8 jt");
+    expect(plain(formatRupiahCompact(25_000, "id"))).toBe("Rp25 rb");
+    expect(plain(formatRupiahCompact(1_234_567_890, "id"))).toBe("Rp1,2 M");
+    expect(formatRupiahCompact(1_820_000, "en")).toBe("Rp1.8M");
+    expect(formatRupiahCompact(950, "en")).toBe("Rp950");
+  });
+
+  it("puts the minus before Rp and never shows -0", () => {
+    expect(plain(formatRupiahCompact(-180_000, "id"))).toBe("-Rp180 rb");
+    expect(formatRupiahCompact(-0.2, "en")).toBe("Rp0");
   });
 });

@@ -370,7 +370,7 @@ Referenced IDs are validated against the snapshot; a recommendation with an unkn
   - Dashboard: 3D product chart (profit/contribution bars per product) with **number labels**; 3D/2D toggle; the choice is saved in `localStorage` (try/catch).
   - Moments: animation when onboarding finishes and when net profit first becomes > 0.
   - Empty state: lightweight 3D illustration.
-- Fallback to 2D/static if: `prefers-reduced-motion: reduce`, WebGL is unavailable, or the device is weak (`navigator.hardwareConcurrency ≤ 4` or `deviceMemory ≤ 4` when available).
+- Fallback to 2D/static if: `prefers-reduced-motion: reduce`, WebGL is unavailable, or the device is weak (`navigator.hardwareConcurrency ≤ 2` or `deviceMemory ≤ 2` when available).
 - Renderer: `pixelRatio` capped at ≤ 2; the render loop stops when the canvas is not visible (IntersectionObserver) or the tab is hidden; geometry/materials are disposed on unmount.
 - Form pages (materials, products, costs, inventory, channels) do not load Three.js.
 
@@ -437,6 +437,7 @@ Every phase can be deployed. One implementation plan per phase.
 5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
    Phase 5 notes: usage is counted in an `ai_usage` ledger (survives store deletion) through `claim_ai_usage`, which claims atomically; a failed run gives its usage back; the cache check runs before the quota check, and the snapshot includes the locale; the page shows the latest analysis, up to 10 older ones, the remaining quota and the privacy note; suggestions whose ids no longer exist lose their "Coba di simulasi" button; navigation in the sidebar and on "Lainnya", plus an "Analisis usahaku" button on the dashboard.
 6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.
+   Phase 6 notes: the chart shows each product's monthly contribution (Σ (net price − material cost) × estimated sales; products without an estimate are left out; at most 8 bars, the largest by size); 3D labels are canvas sprites, the 2D view and the product table are the accessible form; "store created" is flagged with `?welcome=1` on the redirect, "first profit" is remembered per store in localStorage; 3D empty states only on `simulasi` and `analisis`; Three.js loads only through `next/dynamic` in 3D mode.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
 
 ## 11. Manual Setup (done by the project owner)

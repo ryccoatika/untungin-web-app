@@ -1,0 +1,72 @@
+import { describe, expect, it } from "vitest";
+import { disposeObject } from "@/lib/three/dispose";
+import { PALETTES } from "@/lib/three/palette";
+import { COIN_CLEARANCE, createHeroScene, HERO_BAR_HEIGHTS, HERO_COINS } from "@/lib/three/scenes/hero";
+
+function step(controller: ReturnType<typeof createHeroScene>, seconds: number) {
+  let elapsed = 0;
+  for (let t = 0; t < seconds; t += 1 / 60) {
+    elapsed += 1 / 60;
+    controller.update(1 / 60, elapsed);
+  }
+}
+
+describe("createHeroScene", () => {
+  it("has one bar per height and the coins", () => {
+    const hero = createHeroScene(PALETTES.light);
+    const bars = hero.root.getObjectsByProperty("name", "bar");
+    const coins = hero.root.getObjectsByProperty("name", "coin");
+    expect(bars).toHaveLength(HERO_BAR_HEIGHTS.length);
+    expect(coins).toHaveLength(HERO_COINS);
+  });
+
+  it("grows the bars to their heights, rising left to right", () => {
+    const hero = createHeroScene(PALETTES.light);
+    step(hero, 3);
+    const heights = hero.root.getObjectsByProperty("name", "bar").map((bar) => bar.scale.y);
+    heights.forEach((height, i) => expect(height).toBeCloseTo(HERO_BAR_HEIGHTS[i], 2));
+    expect([...heights].sort((a, b) => a - b)).toEqual(heights);
+  });
+
+  it("keeps coins above their own bar while they fall and respawn", () => {
+    const hero = createHeroScene(PALETTES.light);
+    const bars = hero.root.getObjectsByProperty("name", "bar");
+    const coins = hero.root.getObjectsByProperty("name", "coin");
+    let seen = 0;
+    for (let frame = 1; frame <= 60 * 12; frame++) {
+      hero.update(1 / 60, frame / 60);
+      if (frame % 6 !== 0) continue;
+      for (const coin of hero.root.getObjectsByProperty("name", "coin")) {
+        expect(coin.position.y).toBeLessThanOrEqual(6);
+        expect(Number.isFinite(coin.position.x)).toBe(true);
+        if (!coin.visible) continue;
+        seen++;
+        expect(coin.userData.bar).toBe(coins.indexOf(coin));
+        const bar = bars[coin.userData.bar as number];
+        expect(coin.position.y).toBeGreaterThanOrEqual(bar.scale.y + COIN_CLEARANCE - 1e-6);
+      }
+      const visible = coins.filter((coin) => coin.visible);
+      for (const [i, a] of visible.entries()) {
+        for (const b of visible.slice(i + 1)) expect(a.position.distanceTo(b.position)).toBeGreaterThanOrEqual(0.52);
+      }
+    }
+    expect(seen).toBeGreaterThan(0);
+  });
+
+  it("tilts toward the pointer and back", () => {
+    const hero = createHeroScene(PALETTES.light);
+    hero.setPointer!(1, 0);
+    step(hero, 2);
+    expect(hero.root.rotation.y).toBeGreaterThan(0.15);
+    hero.setPointer!(0, 0);
+    step(hero, 3);
+    expect(Math.abs(hero.root.rotation.y)).toBeLessThan(0.1);
+  });
+
+  it("never finishes and disposes cleanly", () => {
+    const hero = createHeroScene(PALETTES.dark);
+    step(hero, 1);
+    expect(hero.done?.() ?? false).toBe(false);
+    expect(() => disposeObject(hero.root)).not.toThrow();
+  });
+});

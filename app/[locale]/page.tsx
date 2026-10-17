@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HeroVisual } from "@/components/landing/hero-visual";
 import { BrandLogo } from "@/components/brand-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
@@ -15,17 +16,26 @@ export default async function LandingPage() {
   const loggedIn = Boolean(data?.claims);
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-10 px-4 py-16">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2">
-          <BrandLogo />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <LocaleSwitcher />
-          </div>
+    <main className="mx-auto flex min-h-dvh max-w-5xl flex-col justify-center gap-10 px-4 py-12 lg:py-16">
+      <div className="flex items-center justify-between gap-2">
+        <BrandLogo />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LocaleSwitcher />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t("heading")}</h1>
-        <p className="text-lg text-muted-foreground">{t("intro")}</p>
+      </div>
+      <div className="grid items-center gap-8 lg:grid-cols-2">
+        <div className="space-y-4">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{t("heading")}</h1>
+          <p className="text-lg text-muted-foreground">{t("intro")}</p>
+          <Link
+            href={loggedIn ? "/mulai" : "/login"}
+            className={buttonVariants({ size: "lg", className: "w-full sm:w-auto" })}
+          >
+            {loggedIn ? t("openApp") : t("startFree")}
+          </Link>
+        </div>
+        <HeroVisual />
       </div>
       <ul className="grid gap-3 sm:grid-cols-3">
         {FEATURES.map((feature) => (
@@ -35,12 +45,6 @@ export default async function LandingPage() {
           </li>
         ))}
       </ul>
-      <Link
-        href={loggedIn ? "/mulai" : "/login"}
-        className={buttonVariants({ size: "lg", className: "w-full sm:w-auto sm:self-start" })}
-      >
-        {loggedIn ? t("openApp") : t("startFree")}
-      </Link>
     </main>
   );
 }
