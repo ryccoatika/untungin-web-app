@@ -112,6 +112,37 @@ describe("RenderLoop", () => {
   });
 });
 
+describe("RenderLoop resume and restart", () => {
+  it("starts the next frame with delta 0 after a pause and resume", () => {
+    const queue = new Map<number, (now: number) => void>();
+    let next = 1;
+    const raf = (cb: (now: number) => void) => (queue.set(next, cb), next++);
+    const caf = (id: number) => void queue.delete(id);
+    const flush = (now: number) => {
+      const pending = [...queue.values()];
+      queue.clear();
+      for (const cb of pending) cb(now);
+    };
+    const frame = vi.fn();
+    const loop = new RenderLoop(frame, raf, caf);
+    loop.start();
+    flush(0);
+    flush(50);
+    loop.setVisible(false);
+    loop.setVisible(true);
+    flush(10_000);
+    expect(frame.mock.calls[2][0]).toBe(0);
+  });
+
+  it("does not schedule two frames when started twice", () => {
+    const raf = vi.fn(() => 1);
+    const loop = new RenderLoop(vi.fn(), raf, vi.fn());
+    loop.start();
+    loop.start();
+    expect(raf).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("PALETTES", () => {
   it("has the same keys for light and dark", () => {
     expect(Object.keys(PALETTES.dark).sort()).toEqual(Object.keys(PALETTES.light).sort());

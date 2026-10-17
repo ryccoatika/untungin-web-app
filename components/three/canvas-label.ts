@@ -1,8 +1,9 @@
 import { CanvasTexture, SRGBColorSpace } from "three";
 import type { LabelFactory } from "@/lib/three/scene";
 
-const FONT_PX = 48;
-const PADDING_PX = 18;
+const SCALE = 2;
+const FONT_PX = 48 * SCALE;
+const PADDING_PX = 18 * SCALE;
 
 /** Draws `text` on a rounded pill and returns it as a texture (2× pixel density for crisp sprites). */
 export const makeCanvasLabel: LabelFactory = (text, style) => {

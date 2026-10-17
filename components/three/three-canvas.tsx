@@ -11,20 +11,18 @@ import { cn } from "@/lib/utils";
 const MAX_PIXEL_RATIO = 2;
 
 type Props = {
-  /** Called once on mount; remount with a `key` to rebuild the scene with new data. */
+  /** Called once on mount; rebuild the scene with new data only by remounting with a `key`. */
   create: () => SceneController;
   className?: string;
-  /** Accessible name; omit together with `decorative` for purely decorative scenes. */
-  label?: string;
-  decorative?: boolean;
   interactive?: boolean;
   onDone?: () => void;
-  /** WebGL failed (context creation or loss): the parent should show its static version. */
+  /** WebGL failed (context creation, scene creation or loss): the parent should show its static version. */
   onFail?: () => void;
-};
+} & ({ decorative: true; label?: never } | { decorative?: false; label: string });
 
 export function ThreeCanvas({ create, className, label, decorative, interactive, onDone, onFail }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<SceneController | null>(null);
   const callbacks = useRef({ create, onDone, onFail });
   // Keep the latest callbacks without re-running the scene effect (declared first, so it runs first).
   useEffect(() => {
@@ -41,11 +39,21 @@ export function ThreeCanvas({ create, className, label, decorative, interactive,
       callbacks.current.onFail?.();
       return;
     }
+    let controller: SceneController;
+    try {
+      controller = callbacks.current.create();
+    } catch {
+      renderer.dispose();
+      renderer.forceContextLoss();
+      callbacks.current.onFail?.();
+      return;
+    }
+    controllerRef.current = controller;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO));
-    renderer.domElement.style.display = "block";
-    host.appendChild(renderer.domElement);
+    const canvas = renderer.domElement;
+    Object.assign(canvas.style, { position: "absolute", inset: "0", width: "100%", height: "100%", display: "block" });
+    host.appendChild(canvas);
 
-    const controller = callbacks.current.create();
     const scene = new Scene();
     scene.add(controller.root);
 
@@ -62,51 +70,59 @@ export function ThreeCanvas({ create, className, label, decorative, interactive,
       const width = host.clientWidth;
       const height = host.clientHeight;
       if (width === 0 || height === 0) return;
-      renderer.setSize(width, height);
+      renderer.setSize(width, height, false);
       controller.camera.aspect = width / height;
       controller.camera.updateProjectionMatrix();
       controller.resize?.(width, height);
+      // setSize clears the drawing buffer; redraw so a stopped loop does not leave a blank canvas.
+      renderer.render(scene, controller.camera);
     };
     resize();
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(host);
-    const intersectionObserver = new IntersectionObserver(([entry]) => loop.setVisible(entry.isIntersecting));
+    const intersectionObserver = new IntersectionObserver((entries) => loop.setVisible(entries[entries.length - 1].isIntersecting));
     intersectionObserver.observe(host);
     const onVisibility = () => loop.setPageVisible(document.visibilityState === "visible");
     document.addEventListener("visibilitychange", onVisibility);
     onVisibility();
 
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = host.getBoundingClientRect();
-      controller.setPointer?.(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1));
-    };
-    const onPointerLeave = () => controller.setPointer?.(0, 0);
-    if (interactive) {
-      host.addEventListener("pointermove", onPointerMove);
-      host.addEventListener("pointerleave", onPointerLeave);
-    }
     const onContextLost = (event: Event) => {
       event.preventDefault();
       loop.stop();
       callbacks.current.onFail?.();
     };
-    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+    canvas.addEventListener("webglcontextlost", onContextLost);
 
     loop.start();
 
     return () => {
       loop.stop();
+      controllerRef.current = null;
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
-      host.removeEventListener("pointermove", onPointerMove);
-      host.removeEventListener("pointerleave", onPointerLeave);
-      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+      canvas.removeEventListener("webglcontextlost", onContextLost);
       scene.remove(controller.root);
       disposeObject(controller.root);
       renderer.dispose();
       renderer.forceContextLoss();
-      renderer.domElement.remove();
+      canvas.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host || !interactive) return;
+    const onPointerMove = (event: PointerEvent) => {
+      const rect = host.getBoundingClientRect();
+      controllerRef.current?.setPointer?.(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1));
+    };
+    const onPointerLeave = () => controllerRef.current?.setPointer?.(0, 0);
+    host.addEventListener("pointermove", onPointerMove);
+    host.addEventListener("pointerleave", onPointerLeave);
+    return () => {
+      host.removeEventListener("pointermove", onPointerMove);
+      host.removeEventListener("pointerleave", onPointerLeave);
     };
   }, [interactive]);
 

@@ -2,7 +2,11 @@ import type { BufferGeometry, Material, Object3D, Texture } from "three";
 
 type Renderable = Object3D & { geometry?: BufferGeometry; material?: Material | Material[] };
 
-/** Frees the GPU resources under `root`: each geometry, material and texture exactly once. */
+/**
+ * Frees the GPU resources under `root`: each geometry, material and texture exactly once.
+ * Not covered: ShaderMaterial uniform textures, InstancedMesh buffers, render targets,
+ * and scene.background / scene.environment (dispose those where they are created).
+ */
 export function disposeObject(root: Object3D): void {
   const geometries = new Set<BufferGeometry>();
   const materials = new Set<Material>();
