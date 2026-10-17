@@ -181,6 +181,7 @@
     "defaultChannelName": "Offline – Tunai"
   },
   "StoreShell": {
+    "moreActions": "Menu lainnya",
     "switchStore": "Ganti toko",
     "menu": "Menu toko",
     "nav": {
@@ -276,6 +277,7 @@
     "en": "English"
   },
   "Theme": {
+    "label": "Tema",
     "trigger": "Tema: {mode}",
     "system": "Ikuti perangkat",
     "light": "Terang",

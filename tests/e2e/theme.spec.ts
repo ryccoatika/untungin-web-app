@@ -42,12 +42,12 @@ test.describe("device in light mode", () => {
   });
 });
 
-test("the theme button fits on a phone store header", async ({ page }, testInfo) => {
+test("the header menu fits on a phone store header", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await page.setViewportSize({ width: 360, height: 800 });
   await signIn(page);
   await createStoreViaOnboarding(page, "TokoDenganNamaSangatPanjangSekaliTanpaSpasiUntukUjiTampilan");
-  await expect(page.getByRole("button", { name: /^Tema:/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Menu lainnya" })).toBeVisible();
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { requireUser } from "@/lib/auth/require-user";
 import { listStores } from "@/lib/data/stores";
@@ -28,7 +29,7 @@ export default async function OnboardingPage() {
       </div>
       <OnboardingForm />
       {!isFirstStore && (
-        <Link href="/toko" className="block text-center text-sm text-muted-foreground underline">
+        <Link href="/toko" className={buttonVariants({ variant: "ghost", className: "w-full text-muted-foreground" })}>
           {t("cancel")}
         </Link>
       )}

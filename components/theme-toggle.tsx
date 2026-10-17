@@ -14,26 +14,32 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
-const MODES = [
+export const THEME_MODES = [
   { value: "system", Icon: Monitor },
   { value: "light", Icon: Sun },
   { value: "dark", Icon: Moon },
 ] as const;
-type Mode = (typeof MODES)[number]["value"];
+type Mode = (typeof THEME_MODES)[number]["value"];
 
 function isMode(value: string | undefined): value is Mode {
-  return MODES.some((mode) => mode.value === value);
+  return THEME_MODES.some((mode) => mode.value === value);
 }
 
 const noopSubscribe = () => () => {};
 
-export function ThemeToggle({ className }: { className?: string }) {
-  const t = useTranslations("Theme");
+/** The chosen theme mode and its setter; shared by the header toggle and the phone menu. */
+export function useThemeMode() {
   const { theme, setTheme } = useTheme();
   // The stored choice is only known in the browser; render the default until hydrated.
   const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
   const current: Mode = hydrated && isMode(theme) ? theme : "system";
-  const { Icon } = MODES.find((mode) => mode.value === current)!;
+  const { Icon } = THEME_MODES.find((mode) => mode.value === current)!;
+  return { current, Icon, setTheme: (value: string) => setTheme(value) };
+}
+
+export function ThemeToggle({ className }: { className?: string }) {
+  const t = useTranslations("Theme");
+  const { current, Icon, setTheme } = useThemeMode();
 
   return (
     <DropdownMenu>
@@ -45,7 +51,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-44">
         <DropdownMenuRadioGroup value={current} onValueChange={(value) => setTheme(String(value))}>
-          {MODES.map(({ value, Icon: ItemIcon }) => (
+          {THEME_MODES.map(({ value, Icon: ItemIcon }) => (
             <DropdownMenuRadioItem key={value} value={value} className="min-h-10">
               <ItemIcon aria-hidden />
               {t(value)}

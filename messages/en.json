@@ -181,6 +181,7 @@
     "defaultChannelName": "Offline – Cash"
   },
   "StoreShell": {
+    "moreActions": "More options",
     "switchStore": "Switch store",
     "menu": "Store menu",
     "nav": {
@@ -276,6 +277,7 @@
     "en": "English"
   },
   "Theme": {
+    "label": "Theme",
     "trigger": "Theme: {mode}",
     "system": "Follow device",
     "light": "Light",
