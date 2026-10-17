@@ -144,7 +144,7 @@ The total asset value is used as the **initial capital** for the payback period 
 - RLS is enabled on all tables.
 - Function `public.is_store_owner(sid uuid) returns boolean` (`security definer`, `stable`): `exists (select 1 from stores where id = sid and owner_id = auth.uid())`.
 - `profiles`: select/update only `id = auth.uid()`. The `authenticated` role is only granted `grant update (full_name, locale)`, so the `plan` column cannot be changed by users.
-- `stores`: all operations only `owner_id = auth.uid()`; inserts are limited by the number of stores per plan (checked in the Server Action as a friendly message, and enforced in the database by the trigger `stores_enforce_limit` that mirrors `lib/config/plans.ts`, SQLSTATE `BN001`; RLS still guarantees ownership).
+- `stores`: all operations only `owner_id = auth.uid()`; inserts are limited by the number of stores per plan (checked in the Server Action as a friendly message, and enforced in the database by the trigger `stores_enforce_limit` that mirrors `lib/config/plans.ts`, SQLSTATE `UT001`; RLS still guarantees ownership).
 - Tables with `store_id`: all operations `is_store_owner(store_id)`.
 - `product_materials` and `product_channel_prices` also have `store_id` (denormalized) to keep policies simple; the **composite FK** `(x_id, store_id) → table(id, store_id)` ensures the referenced product, material, and channel come from the same store.
 - `ai_analyses`: no insert/update/delete policies for users; inserts are done by the Server Action using the client secret key (`SUPABASE_SECRET_KEY`) (after verifying the session + store ownership). Select: `is_store_owner(store_id)`.

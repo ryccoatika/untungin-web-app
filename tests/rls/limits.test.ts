@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { admin, createStore, createTestUser, type TestUser } from "./helpers";
 
 // SQLSTATE raised by the stores_enforce_limit trigger (see 20261016000003_store_limit.sql).
-const STORE_LIMIT = "BN001";
+const STORE_LIMIT = "UT001";
 
 describe("store limit enforced by the database", () => {
   let free: TestUser;
