@@ -54,8 +54,21 @@ test("the full flow shows profit, break-even and payback", async ({ page }) => {
   await expect(page.getByTestId("metric-bep")).toHaveText("22 terjual/hari");
   await expect(page.getByTestId("metric-payback")).toHaveText("≈ 3,5 bulan");
   await expect(page.getByText("Langkah awal")).toBeHidden();
-  await expect(page.getByText("Margin di bawah target: Es teh manis (Offline – Tunai).")).toBeVisible();
+  const warning = page.getByRole("listitem").filter({ hasText: "Margin di bawah target:" });
+  await expect(warning).toBeVisible();
+  await expect(warning.getByRole("listitem")).toHaveText(["Es teh manis (Offline – Tunai)"]);
   await expect(page.getByRole("link", { name: /Es teh manis/ })).toContainText("Di bawah target");
+
+  // At 768 the cards are still stacked; a price never breaks inside the number.
+  await page.setViewportSize({ width: 768, height: 1024 });
+  const price = page.getByRole("link", { name: /Es teh manis/ }).getByText("Rp5.000", { exact: false }).first();
+  await expect(price).toBeVisible();
+  const lines = await price.evaluate((el) => {
+    const style = getComputedStyle(el);
+    return Math.round(el.getBoundingClientRect().height / parseFloat(style.lineHeight));
+  });
+  expect(lines).toBe(1);
+  await page.setViewportSize({ width: 1280, height: 800 });
 
   await page.getByRole("link", { name: "Coba simulasi" }).click();
   await expect(page).toHaveURL(/\/simulasi$/);

@@ -3,6 +3,8 @@ import { useTranslations } from "next-intl";
 import type { LineRef, StoreWarning, WarningCode } from "@/lib/calc";
 import { cn } from "@/lib/utils";
 
+const LISTED: WarningCode[] = ["LOSS_PRODUCTS", "BELOW_TARGET", "COMPETITOR_GAP"];
+const MAX_LINES = 3;
 const SERIOUS: WarningCode[] = ["NET_LOSS", "LOSS_PRODUCTS", "NEGATIVE_CONTRIBUTION"];
 
 export function WarningsList({ warnings, lineLabel }: { warnings: StoreWarning[]; lineLabel: (ref: LineRef) => string }) {
@@ -27,7 +29,23 @@ export function WarningsList({ warnings, lineLabel }: { warnings: StoreWarning[]
             )}
           >
             <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
-            <span>{tWarnings(warning.code, { products: warning.lines.map(lineLabel).join(", ") })}</span>
+            <div className="min-w-0 space-y-1">
+              {warning.lines.length > 0 && LISTED.includes(warning.code) ? (
+                <>
+                  <p>{tWarnings(`${warning.code}_intro` as "BELOW_TARGET_intro")}</p>
+                  <ul className="list-disc space-y-0.5 pl-5">
+                    {warning.lines.slice(0, MAX_LINES).map((ref) => (
+                      <li key={`${ref.productId}:${ref.channelId}`}>{lineLabel(ref)}</li>
+                    ))}
+                  </ul>
+                  {warning.lines.length > MAX_LINES && (
+                    <p className="font-medium">{tWarnings("moreLines", { count: warning.lines.length - MAX_LINES })}</p>
+                  )}
+                </>
+              ) : (
+                <p>{tWarnings(warning.code, { products: warning.lines.map(lineLabel).join(", ") })}</p>
+              )}
+            </div>
           </li>
         ))}
       </ul>

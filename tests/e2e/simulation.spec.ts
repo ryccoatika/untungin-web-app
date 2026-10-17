@@ -134,3 +134,21 @@ test("fits a phone without horizontal scrolling", async ({ page }, testInfo) => 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("on phones a sticky bar keeps the simulated profit in view while the sliders are used", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "the bar is hidden from lg");
+  await storeWithOneProduct(page);
+  const bar = page.getByTestId("sim-bar");
+  await expect(page.getByTestId("sim-bar-sim")).toHaveText("Rp1.820.000");
+  await page.getByLabel("Harga semua bahan").fill("100");
+  await page.getByLabel("Harga semua bahan").scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(bar).toBeInViewport();
+  await expect(page.getByTestId("sim-bar-sim")).toHaveText("Rp1.640.000");
+  await expect(page.getByTestId("sim-bar-diff")).toHaveText("-Rp180.000");
+  // Sits right under the sticky header, and the results card keeps the real test ids.
+  const header = await page.locator("header").boundingBox();
+  const box = await bar.boundingBox();
+  expect(Math.abs(box!.y - (header!.y + header!.height))).toBeLessThan(2);
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.640.000");
+});

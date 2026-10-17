@@ -5,14 +5,14 @@ import { Link } from "@/i18n/navigation";
 import type { StoreAnalysis, StoreData } from "@/lib/calc";
 import { formatPercent, formatRupiah } from "@/lib/format";
 
-/** One row per product and channel; stacked on phones, columns from `sm`. */
+/** One row per product and channel; stacked on phones, columns from `lg`. */
 export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data: StoreData }) {
   const t = useTranslations("Dashboard");
   const locale = useLocale();
   if (analysis.lines.length === 0 && analysis.productsWithoutPrice.length === 0) return null;
   const productName = (id: string) => data.products.find((p) => p.id === id)?.name ?? "?";
   const channelName = (id: string) => data.channels.find((c) => c.id === id)?.name ?? "?";
-  const columns = "sm:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))_auto] sm:items-center sm:gap-3";
+  const columns = "lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))_auto] lg:items-center lg:gap-3";
 
   return (
     <Card>
@@ -22,7 +22,7 @@ export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data
       <CardContent className="space-y-3">
         {analysis.lines.length > 0 && (
           <div>
-            <div className={`hidden px-2 pb-2 text-xs text-muted-foreground sm:grid ${columns}`} aria-hidden>
+            <div className={`hidden px-2 pb-2 text-xs text-muted-foreground lg:grid ${columns}`} aria-hidden>
               <span>{t("productsTitle")}</span>
               <span>{t("price")}</span>
               <span>{t("cost")}</span>
@@ -40,16 +40,16 @@ export function ProductLines({ analysis, data }: { analysis: StoreAnalysis; data
                       <span className="block font-medium [overflow-wrap:anywhere]">{productName(line.productId)}</span>
                       <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">{channelName(line.channelId)}</span>
                     </span>
-                    <span className="text-sm [overflow-wrap:anywhere]">
-                      <span className="text-muted-foreground sm:sr-only">{t("price")}: </span>
+                    <span className="text-sm whitespace-nowrap">
+                      <span className="text-muted-foreground lg:sr-only">{t("price")}: </span>
                       {formatRupiah(line.price, locale)}
                     </span>
-                    <span className="text-sm [overflow-wrap:anywhere]">
-                      <span className="text-muted-foreground sm:sr-only">{t("cost")}: </span>
+                    <span className="text-sm whitespace-nowrap">
+                      <span className="text-muted-foreground lg:sr-only">{t("cost")}: </span>
                       {formatRupiah(line.fullCost ?? line.materialCost, locale)}
                     </span>
-                    <span className="text-sm">
-                      <span className="text-muted-foreground sm:sr-only">{t("margin")}: </span>
+                    <span className="text-sm whitespace-nowrap">
+                      <span className="text-muted-foreground lg:sr-only">{t("margin")}: </span>
                       {line.marginPct === null ? "—" : formatPercent(line.marginPct, locale)}
                     </span>
                     <StatusBadge status={line.status} />

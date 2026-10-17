@@ -76,7 +76,6 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
         <div className="space-y-1">
           <Label htmlFor="material-qty">{t("purchaseQty")}</Label>
           <Input id="material-qty" name="purchaseQty" inputMode="decimal" defaultValue={defaults.purchaseQty} />
-          <FieldError errors={errors.purchaseQty} />
         </div>
         <div className="space-y-1">
           <Label htmlFor="material-unit">{t("purchaseUnit")}</Label>
@@ -87,6 +86,10 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
               </option>
             ))}
           </NativeSelect>
+        </div>
+        {/* Errors sit under the whole row so a long hint does not squeeze a half-width column. */}
+        <div className="col-span-2 space-y-1 empty:hidden">
+          <FieldError errors={errors.purchaseQty} />
           <FieldError errors={errors.purchaseUnit} />
         </div>
       </div>

@@ -25,7 +25,7 @@ export async function AnalysisView({
     <div className="space-y-5 text-sm [overflow-wrap:anywhere]">
       <section className="space-y-1">
         <h3 className="font-medium">{t("summary")}</h3>
-        <p>{output.summary}</p>
+        <p className="text-base leading-relaxed">{output.summary}</p>
       </section>
 
       {output.highlights.length > 0 && (
