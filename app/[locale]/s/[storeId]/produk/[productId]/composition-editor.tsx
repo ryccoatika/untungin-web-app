@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
 import { BASE_UNIT, BASES, dimensionOf, unitsOf, type Basis, type MaterialCategory, type Unit } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 
 export type EditorMaterial = { id: string; name: string; category: MaterialCategory; purchaseUnit: Unit };
 export type EditorRow = {
@@ -26,14 +26,13 @@ export type EditorRow = {
   costPerUnit: number;
 };
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
 type Props = {
   rows: EditorRow[];
   materials: EditorMaterial[];
-  addAction: Action;
-  updateActions: Record<string, Action>;
-  deleteActions: Record<string, Action>;
+  addAction: FormAction;
+  updateActions: Record<string, FormAction>;
+  deleteActions: Record<string, FormAction>;
   materialsHref: string;
 };
 
@@ -80,8 +79,8 @@ function RowEditor({
 }: {
   row: EditorRow;
   material: EditorMaterial | undefined;
-  updateAction: Action;
-  deleteAction: Action;
+  updateAction: FormAction;
+  deleteAction: FormAction;
 }) {
   const t = useTranslations("Composition");
   const tCommon = useTranslations("Common");
@@ -153,7 +152,7 @@ function RowEditor({
   );
 }
 
-function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action: Action }) {
+function AddRowForm({ materials, action }: { materials: EditorMaterial[]; action: FormAction }) {
   const tCommon = useTranslations("Common");
   const t = useTranslations("Composition");
   const [state, formAction] = useActionState(action, undefined);

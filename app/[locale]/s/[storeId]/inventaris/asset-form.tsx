@@ -10,13 +10,12 @@ import { useRemountKey } from "@/components/forms/use-remount-key";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ASSET_CATEGORIES } from "@/lib/calc";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 
 export type AssetFormDefaults = Partial<Record<"name" | "category" | "qty" | "unitPrice" | "usefulLifeMonths", string>>;
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-type Props = { action: Action; defaults?: AssetFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
+type Props = { action: FormAction; defaults?: AssetFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function AssetForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {
   const t = useTranslations("Assets");

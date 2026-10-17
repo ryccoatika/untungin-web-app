@@ -8,14 +8,13 @@ import { SubmitButton } from "@/components/forms/submit-button";
 import { useRemountKey } from "@/components/forms/use-remount-key";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 
 export type ProductFormDefaults = Partial<Record<"name" | "category" | "yieldQty" | "targetMarginPct" | "isActive", string>>;
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
 type Props = {
-  action: Action;
+  action: FormAction;
   mode: "create" | "edit";
   /** The store's target margin, already formatted (e.g. "40%"). */
   storeTargetMargin: string;

@@ -3,14 +3,13 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 import { FormMessage } from "./form-message";
 import { SubmitButton } from "./submit-button";
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
 /** Two-step delete: the first click asks for confirmation, the second runs `action`. */
-export function DeleteButton({ action, label }: { action: Action; label: string }) {
+export function DeleteButton({ action, label }: { action: FormAction; label: string }) {
   const t = useTranslations("Common");
   const [state, formAction] = useActionState(action, undefined);
   const [confirming, setConfirming] = useState(false);

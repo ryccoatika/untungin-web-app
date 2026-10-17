@@ -11,13 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { tryAnalyzeStore, type CalcChannel, type MetricsLine, type StoreData } from "@/lib/calc";
 import { formatPercent, formatRupiah } from "@/lib/format";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 import { priceInputSchema } from "@/lib/validation/price";
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 type Defaults = { price: string; estMonthlySales: string };
 
-type Props = { id: string; action: Action; data: StoreData; productId: string; channel: CalcChannel; defaults: Defaults; inactive?: boolean };
+type Props = { id: string; action: FormAction; data: StoreData; productId: string; channel: CalcChannel; defaults: Defaults; inactive?: boolean };
 
 export function PriceForm({ id, action, data, productId, channel, defaults, inactive }: Props) {
   const t = useTranslations("Pricing");

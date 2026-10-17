@@ -10,13 +10,12 @@ import { useRemountKey } from "@/components/forms/use-remount-key";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EXPENSE_CATEGORIES, FREQUENCIES } from "@/lib/calc";
-import type { FormState } from "@/lib/forms";
+import type { FormAction } from "@/lib/forms";
 
 export type ExpenseFormDefaults = Partial<Record<"name" | "category" | "amount" | "frequency", string>>;
 
-type Action = (prev: FormState, formData: FormData) => Promise<FormState>;
 
-type Props = { action: Action; defaults?: ExpenseFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
+type Props = { action: FormAction; defaults?: ExpenseFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
 
 export function ExpenseForm({ action, defaults = {}, submitLabel, pendingLabel, id }: Props) {
   const t = useTranslations("Expenses");
