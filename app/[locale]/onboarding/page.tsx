@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { requireUser } from "@/lib/auth/require-user";
 import { listStores } from "@/lib/data/stores";
+import { DemoStoreButton } from "./demo-store-button";
 import { OnboardingForm } from "./onboarding-form";
 
 export default async function OnboardingPage() {
@@ -28,6 +29,12 @@ export default async function OnboardingPage() {
         </p>
       </div>
       <OnboardingForm />
+      <div className="flex items-center gap-3 text-xs text-muted-foreground" aria-hidden>
+        <span className="h-px flex-1 bg-border" />
+        {t("or")}
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <DemoStoreButton />
       {!isFirstStore && (
         <Link href="/toko" className={buttonVariants({ variant: "ghost", className: "w-full text-muted-foreground" })}>
           {t("cancel")}

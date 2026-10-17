@@ -53,7 +53,13 @@
     "next": "Next",
     "back": "Back",
     "submit": "Create store",
-    "submitPending": "Creating store…"
+    "submitPending": "Creating store…",
+    "or": "or",
+    "demoTitle": "Not ready to enter your own data?",
+    "demoBody": "Explore a complete sample coffee shop first: materials, packaging, products, GoFood, costs including your salary, and equipment. You can change or delete it later.",
+    "demoButton": "Try with sample data",
+    "demoPending": "Preparing the sample…",
+    "demoFailed": "The sample data couldn't be created. Try again."
   },
   "StoreFields": {
     "name": "Store name",

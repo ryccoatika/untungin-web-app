@@ -53,7 +53,13 @@
     "next": "Lanjut",
     "back": "Kembali",
     "submit": "Buat toko",
-    "submitPending": "Membuat toko…"
+    "submitPending": "Membuat toko…",
+    "or": "atau",
+    "demoTitle": "Belum siap mengisi data sendiri?",
+    "demoBody": "Lihat dulu contoh kedai kopi yang sudah lengkap: bahan, kemasan, produk, GoFood, biaya termasuk gajimu, dan inventaris. Nanti bisa kamu ubah atau hapus.",
+    "demoButton": "Coba dengan data contoh",
+    "demoPending": "Menyiapkan contoh…",
+    "demoFailed": "Data contoh gagal dibuat. Coba lagi."
   },
   "StoreFields": {
     "name": "Nama toko",
