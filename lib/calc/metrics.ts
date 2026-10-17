@@ -48,7 +48,7 @@ export type StoreMetrics = {
 
 /** Rounds up, ignoring floating-point noise just above a whole number (141.0000000001 → 141). */
 function ceilUnits(value: number): number {
-  return Math.ceil(value - 1e-9);
+  return Math.ceil(value - 1e-9) || 0;
 }
 
 export function lineStatus(contribution: number, marginPct: number | null, targetMarginPct: number): LineStatus {
@@ -103,8 +103,7 @@ export function computeMetrics(data: StoreData): StoreMetrics {
   const grossProfit = netRevenue - materialCosts;
   const netProfit = grossProfit - fixedTotal;
   const avgContribution = totalUnits > 0 ? sum((l) => l.contribution * l.estMonthlySales) / totalUnits : null;
-  const bepUnitsMonthly =
-    avgContribution !== null && avgContribution > 0 ? (fixedTotal === 0 ? 0 : ceilUnits(fixedTotal / avgContribution)) : null;
+  const bepUnitsMonthly = avgContribution !== null && avgContribution > 0 ? ceilUnits(fixedTotal / avgContribution) : null;
   const capital = totalCapital(data.assets);
 
   return {

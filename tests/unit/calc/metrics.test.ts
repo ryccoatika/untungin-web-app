@@ -111,6 +111,7 @@ describe("computeMetrics — edge cases", () => {
     data.expenses = [];
     data.assets = [];
     expect(computeMetrics(data).bepUnitsMonthly).toBe(0);
+    expect(computeMetrics(data).bepUnitsDaily).toBe(0);
   });
 
   it("does not round an exact break-even up because of floating point", () => {
