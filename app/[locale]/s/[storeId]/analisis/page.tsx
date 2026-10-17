@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/empty-state";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { refsFromStoreData, sanitizeOutput } from "@/lib/ai/output";
@@ -61,9 +61,17 @@ export default async function AnalysisPage({ params }: Props) {
   ]);
   const limit = PLAN_LIMITS[toPlan(profile.data?.plan)].aiAnalysesPerDay;
   const remaining = remainingQuota(limit, used);
-  const currentHash = analysis
-    ? snapshotHash(buildSnapshot(data, analysis, { businessType: store.business_type, targetMarket: store.target_market }, locale))
-    : null;
+  // buildSnapshot throws on a non-finite number; the stale note is optional, so the page must survive it.
+  let currentHash: string | null = null;
+  if (analysis) {
+    try {
+      currentHash = snapshotHash(
+        buildSnapshot(data, analysis, { businessType: store.business_type, targetMarket: store.target_market }, locale),
+      );
+    } catch (error) {
+      console.error("analysis snapshot failed:", error instanceof Error ? error.message : "unknown error");
+    }
+  }
   const refs = refsFromStoreData(data);
   const productName = (id: string) => data.products.find((product) => product.id === id)?.name ?? "?";
   const [latest, ...older] = analyses;
@@ -100,7 +108,7 @@ export default async function AnalysisPage({ params }: Props) {
       {latest ? (
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle>{t("latest")}</CardTitle>
+            <h2 className="font-heading text-base leading-snug font-medium">{t("latest")}</h2>
             <p className="text-xs text-muted-foreground">{t("createdAt", { date: formatDateTime(latest.createdAt, locale) })}</p>
             {currentHash !== null && latest.snapshotHash !== currentHash && (
               <p className="text-sm text-amber-700 dark:text-amber-300">{t("stale")}</p>

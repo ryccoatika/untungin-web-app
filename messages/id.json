@@ -231,6 +231,7 @@
     "add": "Tambah toko"
   },
   "Dashboard": {
+    "tryAnalysis": "Analisis usahaku",
     "trySimulation": "Coba simulasi",
     "basis": "Dasar perhitungan",
     "operatingDays": "Hari buka per bulan",
@@ -255,8 +256,7 @@
     "status": "Status",
     "withoutPrice": "Belum ada harga: {products}",
     "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi angkanya belum bisa dihitung.",
-    "calcErrorAction": "Perbaiki",
-    "tryAnalysis": "Analisis usahaku"
+    "calcErrorAction": "Perbaiki"
   },
   "Settings": {
     "title": "Pengaturan toko",
@@ -306,19 +306,8 @@
     "pcs": "buah (pcs)",
     "lusin": "lusin (12 pcs)"
   },
-  "UnitShort": {
-    "g": "g",
-    "ons": "ons",
-    "kg": "kg",
-    "ml": "ml",
-    "l": "l",
-    "pcs": "pcs",
-    "lusin": "lusin"
-  },
-  "MaterialCategory": {
-    "bahan": "Bahan baku",
-    "kemasan": "Kemasan"
-  },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin" },
+  "MaterialCategory": { "bahan": "Bahan baku", "kemasan": "Kemasan" },
   "Materials": {
     "title": "Bahan & kemasan",
     "intro": "Semua yang kamu beli untuk membuat produk: bahan baku dan kemasan.",
@@ -354,12 +343,7 @@
     "pemasaran": "Pemasaran",
     "lainnya": "Lainnya"
   },
-  "Frequency": {
-    "harian": "per hari",
-    "mingguan": "per minggu",
-    "bulanan": "per bulan",
-    "tahunan": "per tahun"
-  },
+  "Frequency": { "harian": "per hari", "mingguan": "per minggu", "bulanan": "per bulan", "tahunan": "per tahun" },
   "Expenses": {
     "title": "Biaya operasional",
     "intro": "Biaya rutin di luar bahan: sewa, listrik, gaji, dan lainnya.",
@@ -415,15 +399,8 @@
     "created": "Barang ditambahkan.",
     "delete": "Hapus barang"
   },
-  "LineStatus": {
-    "red": "Rugi",
-    "yellow": "Di bawah target",
-    "green": "Sesuai target"
-  },
-  "Basis": {
-    "batch": "Per resep (dibagi hasil)",
-    "unit": "Per porsi/unit"
-  },
+  "LineStatus": { "red": "Rugi", "yellow": "Di bawah target", "green": "Sesuai target" },
+  "Basis": { "batch": "Per resep (dibagi hasil)", "unit": "Per porsi/unit" },
   "Composition": {
     "title": "Komposisi",
     "intro": "Bahan dan kemasan untuk produk ini. 1 resep = {yield} porsi/unit.",
@@ -555,14 +532,6 @@
     }
   },
   "Analysis": {
-    "result": {
-      "created": "Analisis selesai.",
-      "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
-      "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
-      "failed": "Analisis gagal, coba lagi.",
-      "notConfigured": "Analisis AI belum disiapkan di server ini.",
-      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
-    },
     "title": "Analisis AI",
     "intro": "AI membaca angka tokomu lalu memberi saran sederhana. Cek dampaknya di simulasi sebelum mengubah apa pun.",
     "analyze": "Analisis usahaku",
@@ -581,16 +550,20 @@
     "highlights": "Yang sudah bagus",
     "issues": "Yang perlu diperbaiki",
     "recommendations": "Saran",
-    "priority": {
-      "tinggi": "Penting",
-      "sedang": "Sedang",
-      "rendah": "Rendah"
-    },
+    "priority": {"tinggi": "Penting", "sedang": "Sedang", "rendah": "Rendah"},
     "relatedProducts": "Produk terkait",
     "trySimulation": "Coba di simulasi",
     "emptyTitle": "Belum ada yang bisa dianalisis",
     "emptyBody": "Tambahkan produk dengan resep dan harga jual dulu, lalu kembali ke sini.",
     "emptyAction": "Ke halaman produk",
-    "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor."
+    "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor.",
+    "result": {
+      "created": "Analisis selesai.",
+      "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
+      "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
+      "failed": "Analisis gagal, coba lagi.",
+      "notConfigured": "Analisis AI belum disiapkan di server ini.",
+      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
+    }
   }
 }

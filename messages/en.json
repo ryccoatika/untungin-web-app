@@ -231,6 +231,7 @@
     "add": "Add store"
   },
   "Dashboard": {
+    "tryAnalysis": "Analyze my business",
     "trySimulation": "Try a simulation",
     "basis": "Calculation basis",
     "operatingDays": "Open days per month",
@@ -255,8 +256,7 @@
     "status": "Status",
     "withoutPrice": "No price yet: {products}",
     "calcError": "A composition row in {product} uses a unit that doesn't match its material, so the numbers can't be calculated yet.",
-    "calcErrorAction": "Fix it",
-    "tryAnalysis": "Analyze my business"
+    "calcErrorAction": "Fix it"
   },
   "Settings": {
     "title": "Store settings",
@@ -306,19 +306,8 @@
     "pcs": "piece (pcs)",
     "lusin": "dozen (12 pcs)"
   },
-  "UnitShort": {
-    "g": "g",
-    "ons": "ons",
-    "kg": "kg",
-    "ml": "ml",
-    "l": "l",
-    "pcs": "pcs",
-    "lusin": "dozen"
-  },
-  "MaterialCategory": {
-    "bahan": "Ingredient",
-    "kemasan": "Packaging"
-  },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen" },
+  "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
   "Materials": {
     "title": "Materials & packaging",
     "intro": "Everything you buy to make your products: ingredients and packaging.",
@@ -354,12 +343,7 @@
     "pemasaran": "Marketing",
     "lainnya": "Other"
   },
-  "Frequency": {
-    "harian": "per day",
-    "mingguan": "per week",
-    "bulanan": "per month",
-    "tahunan": "per year"
-  },
+  "Frequency": { "harian": "per day", "mingguan": "per week", "bulanan": "per month", "tahunan": "per year" },
   "Expenses": {
     "title": "Operating costs",
     "intro": "Running costs besides materials: rent, electricity, wages and more.",
@@ -415,15 +399,8 @@
     "created": "Item added.",
     "delete": "Delete item"
   },
-  "LineStatus": {
-    "red": "Loss",
-    "yellow": "Below target",
-    "green": "On target"
-  },
-  "Basis": {
-    "batch": "Per recipe (split by yield)",
-    "unit": "Per unit"
-  },
+  "LineStatus": { "red": "Loss", "yellow": "Below target", "green": "On target" },
+  "Basis": { "batch": "Per recipe (split by yield)", "unit": "Per unit" },
   "Composition": {
     "title": "Composition",
     "intro": "Materials and packaging for this product. 1 recipe = {yield} units.",
@@ -555,14 +532,6 @@
     }
   },
   "Analysis": {
-    "result": {
-      "created": "Analysis done.",
-      "cached": "Your data hasn't changed since the last analysis, so the result is the same. No quota used.",
-      "quota": "You've used today's analyses. Try again tomorrow.",
-      "failed": "Analysis failed, try again.",
-      "notConfigured": "AI analysis isn't set up on this server yet.",
-      "unavailable": "This store can't be analysed yet. Reload the page and try again."
-    },
     "title": "AI analysis",
     "intro": "AI reads your store's numbers and gives simple advice. Check the effect in the simulation before you change anything.",
     "analyze": "Analyze my business",
@@ -581,16 +550,20 @@
     "highlights": "What's going well",
     "issues": "What to fix",
     "recommendations": "Advice",
-    "priority": {
-      "tinggi": "Important",
-      "sedang": "Medium",
-      "rendah": "Low"
-    },
+    "priority": {"tinggi": "Important", "sedang": "Medium", "rendah": "Low"},
     "relatedProducts": "Related products",
     "trySimulation": "Try in simulation",
     "emptyTitle": "Nothing to analyse yet",
     "emptyBody": "Add a product with a recipe and a selling price first, then come back here.",
     "emptyAction": "Go to products",
-    "calcError": "Some product data needs fixing first. See the dashboard."
+    "calcError": "Some product data needs fixing first. See the dashboard.",
+    "result": {
+      "created": "Analysis done.",
+      "cached": "Your data hasn't changed since the last analysis, so the result is the same. No quota used.",
+      "quota": "You've used today's analyses. Try again tomorrow.",
+      "failed": "Analysis failed, try again.",
+      "notConfigured": "AI analysis isn't set up on this server yet.",
+      "unavailable": "This store can't be analysed yet. Reload the page and try again."
+    }
   }
 }
