@@ -15,10 +15,10 @@ const FIELDS = ["name", "commissionPct", "fixedFee"] as const;
 
 type Supabase = Awaited<ReturnType<typeof requireUser>>["supabase"];
 
+/** The store's channels, or null when the lookup fails (callers answer with saveFailed/deleteFailed). */
 async function storeChannels(supabase: Supabase, storeId: string) {
   const { data, error } = await supabase.from("sales_channels").select("id, name, sort_order").eq("store_id", storeId);
-  if (error) throw error;
-  return data;
+  return error ? null : data;
 }
 
 const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -31,6 +31,7 @@ export async function createChannelAction(storeId: string, _prev: FormState, for
 
   const { supabase } = await requireUser();
   const channels = await storeChannels(supabase, storeId);
+  if (!channels) return { message: tCommon("saveFailed"), values: parsed.values };
   if (channels.some((channel) => sameName(channel.name, parsed.input.name))) {
     const tValidation = await getValidationTranslator();
     return { fieldErrors: { name: [tValidation(CHANNEL_DUPLICATE_KEY)] }, values: parsed.values };
@@ -52,6 +53,7 @@ export async function addTemplateChannelAction(storeId: string, templateKey: str
 
   const { supabase } = await requireUser();
   const channels = await storeChannels(supabase, storeId);
+  if (!channels) return { message: tCommon("saveFailed") };
   if (channels.some((channel) => sameName(channel.name, template.name))) {
     return { message: (await getTranslations("Channels"))("templateExists", { name: template.name }) };
   }
@@ -82,6 +84,7 @@ export async function updateChannelAction(
 
   const { supabase } = await requireUser();
   const channels = await storeChannels(supabase, storeId);
+  if (!channels) return { message: tCommon("saveFailed"), values: parsed.values };
   if (channels.some((channel) => channel.id !== channelId && sameName(channel.name, parsed.input.name))) {
     const tValidation = await getValidationTranslator();
     return { fieldErrors: { name: [tValidation(CHANNEL_DUPLICATE_KEY)] }, values: parsed.values };
@@ -104,7 +107,9 @@ export async function deleteChannelAction(storeId: string, channelId: string): P
 
   const { supabase } = await requireUser();
   // Products need at least one channel to have a price.
-  if ((await storeChannels(supabase, storeId)).length <= 1) {
+  const channels = await storeChannels(supabase, storeId);
+  if (!channels) return { message: tCommon("deleteFailed") };
+  if (channels.length <= 1) {
     return { message: (await getTranslations("Channels"))("lastChannel") };
   }
   // Prices and channel-only composition rows cascade with the channel.

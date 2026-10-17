@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addChannel, addProduct, addTemplateChannel, createStoreViaOnboarding, priceSection, signIn, storeUrl } from "./helpers";
+import { addChannel, addCompositionRow, addMaterial, addProduct, setPrice, addTemplateChannel, createStoreViaOnboarding, priceSection, signIn, storeUrl } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await signIn(page);
@@ -45,10 +45,15 @@ test("the last channel can't be deleted", async ({ page }) => {
 
 test("deleting a channel removes its prices from products", async ({ page }) => {
   await addTemplateChannel(page, "GoFood");
+  await page.goto(storeUrl(page, "bahan"));
+  await addMaterial(page, { name: "Bubble wrap", qty: "100", unit: "pcs", price: "20.000", category: "kemasan" });
   await page.goto(storeUrl(page, "produk"));
   await addProduct(page, { name: "Es teh", yieldQty: "10" });
   const productUrl = page.url();
   await expect(priceSection(page, "GoFood")).toBeVisible();
+  await setPrice(page, { channel: "GoFood", price: "8.000", est: "50" });
+  await addCompositionRow(page, { material: "Bubble wrap", qty: "1", channel: "GoFood" });
+  await expect(page.getByText("Hanya di GoFood")).toBeVisible();
 
   await page.goto(storeUrl(page, "kanal"));
   await page.getByRole("link", { name: /GoFood/ }).click();
@@ -59,4 +64,7 @@ test("deleting a channel removes its prices from products", async ({ page }) => 
   await page.goto(productUrl);
   await expect(priceSection(page, "GoFood")).toHaveCount(0);
   await expect(priceSection(page, "Offline – Tunai")).toBeVisible();
+  await expect(page.getByText("Hanya di GoFood")).toHaveCount(0);
+  await page.goto(storeUrl(page, "dashboard"));
+  await expect(page.getByText("(GoFood)")).toHaveCount(0);
 });

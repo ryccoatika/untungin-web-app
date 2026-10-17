@@ -46,6 +46,7 @@ test("warns while the composition is empty", async ({ page }) => {
   await page.goto(storeUrl(page, "produk"));
   await addProduct(page, { name: "Kopi", yieldQty: "1" });
   await expect(page.getByText(/Komposisi produk ini masih kosong/)).toBeVisible();
+  await expect(page.getByText(/Harga rekomendasi/)).toHaveCount(0);
   await setPrice(page, { price: "10.000", est: "100" });
 });
 
@@ -57,7 +58,8 @@ test("recommends a price and fills it in", async ({ page }) => {
   await expect(form.getByText("Harga rekomendasi: Rp500")).toBeVisible();
   await form.getByRole("button", { name: "Pakai harga rekomendasi" }).click();
   await expect(form.getByLabel("Harga jual (Rp)")).toHaveValue("500");
-  await expect(form).toContainText("40%");
+  // The margin row (not the "(target 40%)" suffix) reads 40% once the recommended price is filled in.
+  await expect(form.locator("dt", { hasText: /^Margin$/ }).locator("xpath=following-sibling::dd[1]")).toContainText(/^40%/);
   await expect(form).toContainText("Sesuai target");
   await form.getByRole("button", { name: "Simpan harga" }).click();
   await expect(form.getByText("Harga tersimpan.")).toBeVisible();
@@ -79,12 +81,27 @@ test("the recommendation follows a typed sales estimate before a price is set", 
   await expect(form.getByText(/Belum termasuk biaya operasional/)).toHaveCount(0);
 });
 
+test("the recommendation follows other changes on the page without touching the price form", async ({ page }) => {
+  const productUrl = page.url();
+  await page.goto(storeUrl(page, "bahan"));
+  await addMaterial(page, { name: "Teh", qty: "100", unit: "g", price: "10.000" });
+  await page.goto(productUrl);
+  await page.waitForLoadState("networkidle");
+  const section = priceSection(page, "Offline – Tunai");
+  await setPrice(page, { price: "5.000", est: "600" });
+  // Material Rp300, no fixed costs: 300 / 0,6 = 500.
+  await expect(section.getByText("Harga rekomendasi: Rp500")).toBeVisible();
+  // Teh 50 g = Rp5.000 per batch of 10 → +Rp500 per unit: 800 / 0,6 = 1.333,3 → Rp1.500.
+  await addCompositionRow(page, { material: "Teh", qty: "50" });
+  await expect(section.getByText("Harga rekomendasi: Rp1.500")).toBeVisible();
+});
+
 test("commission plus margin of 100% or more has no recommended price", async ({ page }) => {
   const productUrl = page.url();
   await page.goto(page.url().replace(/\/produk\/.*$/, "/kanal"));
   await addChannel(page, { name: "Titip 70", commissionPct: "70" });
   await page.goto(productUrl);
-  await expect(priceSection(page, "Titip 70")).toContainText("Komisi + target margin ≥ 100%");
+  await expect(priceSection(page, "Titip 70")).toContainText("Komisi + target margin terlalu besar");
   await expect(priceSection(page, "Titip 70").getByRole("button", { name: "Pakai harga rekomendasi" })).toHaveCount(0);
 });
 

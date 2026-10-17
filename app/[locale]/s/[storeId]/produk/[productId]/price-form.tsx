@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useMemo, useRef, useState } from "react";
 import { FieldError } from "@/components/forms/field-error";
 import { FormMessage } from "@/components/forms/form-message";
 import { SubmitButton } from "@/components/forms/submit-button";
@@ -129,21 +129,28 @@ function PriceFields({
   const t = useTranslations("Pricing");
   const locale = useLocale();
   const priceRef = useRef<HTMLInputElement>(null);
-  const [{ line, recommendation }, setPreview] = useState(() => preview(data, productId, channel.id, defaults));
+  // The typed values live in state; the preview is derived, so it follows new `data` after other saves.
+  const [values, setValues] = useState<Record<string, unknown>>(defaults);
+  const { line, recommendation } = useMemo(
+    () => preview(data, productId, channel.id, values),
+    [data, productId, channel.id, values],
+  );
   const field = (name: string) => `price-${channel.id}-${name}`;
 
-  function refresh(form: HTMLFormElement | null | undefined) {
-    if (form) setPreview(preview(data, productId, channel.id, Object.fromEntries(new FormData(form))));
-  }
-
-  function useRecommended() {
+  function applyRecommendation() {
     if (recommendation?.kind !== "price" || !priceRef.current) return;
     priceRef.current.value = String(recommendation.price);
-    refresh(priceRef.current.form);
+    setValues((current) => ({ ...current, price: String(recommendation.price) }));
   }
 
   return (
-    <fieldset className="space-y-3" onChange={(event) => refresh(event.currentTarget.form)}>
+    <fieldset
+      className="space-y-3"
+      onChange={(event) => {
+        const form = event.currentTarget.form;
+        if (form) setValues(Object.fromEntries(new FormData(form)));
+      }}
+    >
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label htmlFor={field("price")}>{t("price")}</Label>
@@ -170,25 +177,33 @@ function PriceFields({
         </div>
       </div>
 
-      {!inactive && recommendation && (
-        <div className="space-y-2 rounded-lg border p-3 text-sm">
-          {recommendation.kind === "impossible" ? (
-            <p>{t("recommendationImpossible")}</p>
-          ) : (
-            <>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-medium">{t("recommendation", { price: formatRupiah(recommendation.price, locale) })}</span>
-                <Button type="button" variant="outline" onClick={useRecommended}>
-                  {t("useRecommendation")}
-                </Button>
-              </div>
-              {!recommendation.includesOperatingCosts && (
-                <p className="text-xs text-muted-foreground">{t("recommendationNoOverhead")}</p>
-              )}
-            </>
-          )}
-        </div>
-      )}
+      <div aria-live="polite" className="space-y-3">
+        {!inactive && recommendation && (
+          <div className="space-y-2 rounded-lg border p-3 text-sm">
+            {recommendation.kind === "impossible" ? (
+              <p>{t("recommendationImpossible")}</p>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium">{t("recommendation", { price: formatRupiah(recommendation.price, locale) })}</span>
+                  <Button type="button" variant="outline" onClick={applyRecommendation}>
+                    {t("useRecommendation")}
+                  </Button>
+                </div>
+                {!recommendation.includesOperatingCosts && (
+                  <p className="text-xs text-muted-foreground">{t("recommendationNoOverhead")}</p>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {!inactive && line && (
+          <div className="flex flex-wrap items-center gap-2">
+            <StatusBadge status={line.status} />
+            {line.fullCost === null && <span className="text-xs text-muted-foreground">{t("fullCostUnknown")}</span>}
+          </div>
+        )}
+      </div>
 
       {inactive ? (
         <p className="text-sm text-muted-foreground">{t("inactivePreview")}</p>
@@ -217,10 +232,6 @@ function PriceFields({
               <span className="font-normal text-muted-foreground">({t("target", { pct: formatPercent(line.targetMarginPct, locale) })})</span>
             </dd>
           </dl>
-          <div aria-live="polite" className="flex flex-wrap items-center gap-2">
-            <StatusBadge status={line.status} />
-            {line.fullCost === null && <span className="text-xs text-muted-foreground">{t("fullCostUnknown")}</span>}
-          </div>
           <p className="text-xs text-muted-foreground">{t("marginHint")}</p>
         </div>
       ) : (
