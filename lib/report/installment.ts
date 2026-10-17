@@ -4,6 +4,7 @@ import { localeNumber, parseWholeNumber } from "@/lib/validation/number";
 export const DEFAULT_KUR_RATE_PCT = 6;
 export const MAX_TENOR_MONTHS = 60;
 export const MAX_RATE_PCT = 30;
+export const MAX_PRINCIPAL = 2_000_000_000;
 
 export type InstallmentInput = { principal: number; months: number; annualRatePct: number };
 
@@ -36,7 +37,7 @@ export function parseInstallmentParams(query: Query): { input: InstallmentInput 
   const errors: ("principal" | "months" | "rate")[] = [];
 
   const principal = parseWholeNumber(rawPrincipal);
-  if (principal === undefined || !Number.isFinite(principal) || principal <= 0) errors.push("principal");
+  if (principal === undefined || !Number.isFinite(principal) || principal <= 0 || principal > MAX_PRINCIPAL) errors.push("principal");
 
   const months = parseWholeNumber(rawMonths);
   if (months === undefined || !Number.isFinite(months) || months < 1 || months > MAX_TENOR_MONTHS) errors.push("months");

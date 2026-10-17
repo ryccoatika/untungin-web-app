@@ -49,7 +49,10 @@ export type CsvLabels = {
 /** One CSV field for a semicolon-separated file: quoted when it holds ; , " or a line break. */
 export function csvEscape(value: string | number | null): string {
   if (value === null) return "";
-  const text = typeof value === "number" ? (Number.isFinite(value) ? String(value) : "") : value;
+  let text: string;
+  if (typeof value === "number") text = Number.isFinite(value) ? String(value) : "";
+  // Strings that a spreadsheet could read as a formula get a leading apostrophe (numbers stay numeric).
+  else text = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
   return /[;,"\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
@@ -98,5 +101,5 @@ export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels): string 
     lines.push([labels.monthlyInstallment, rp(i.monthly)], [labels.totalRepaid, rp(i.totalRepaid)], [labels.shareOfNetProfitPct, i.shareOfNetProfitPct]);
   }
 
-  return "﻿sep=;\r\n" + lines.map((row) => row.map(csvEscape).join(";")).join("\r\n") + "\r\n";
+  return "\uFEFFsep=;\r\n" + lines.map((row) => row.map(csvEscape).join(";")).join("\r\n") + "\r\n";
 }

@@ -43,6 +43,10 @@ describe("parseInstallmentParams", () => {
   it("reads a decimal comma", () => {
     expect(parseInstallmentParams({ pinjaman: "5000000", tenor: "6", bunga: "6,5" }).input?.annualRatePct).toBe(6.5);
   });
+  it("rejects a principal above the cap", () => {
+    expect(parseInstallmentParams({ pinjaman: "2000000000", tenor: "12" }).errors).toEqual([]);
+    expect(parseInstallmentParams({ pinjaman: "2000000001", tenor: "12" }).errors).toEqual(["principal"]);
+  });
   it("flags bad tenor, principal and rate", () => {
     expect(parseInstallmentParams({ pinjaman: "1000000", tenor: "0" }).errors).toEqual(["months"]);
     expect(parseInstallmentParams({ pinjaman: "1000000", tenor: "61" }).errors).toEqual(["months"]);
@@ -82,6 +86,15 @@ describe("buildLoanSummary", () => {
     expect(allNumbersValid(summary)).toBe(true);
     expect(summary.installment?.shareOfNetProfitPct).toBeNull();
   });
+  it("reports missing assets and missing sales estimates", () => {
+    const noAssets: StoreData = { ...demoAsStoreData(buildDemoStore("id")), assets: [] };
+    expect(buildLoanSummary(noAssets, analyzeStore(noAssets), info, null).missing).toContain("assets");
+    const base = demoAsStoreData(buildDemoStore("id"));
+    const noSales: StoreData = { ...base, prices: base.prices.map((p) => ({ ...p, estMonthlySales: 0 })) };
+    const summary = buildLoanSummary(noSales, analyzeStore(noSales), info, null);
+    expect(summary.missing).toContain("salesEstimate");
+    expect(allNumbersValid(summary)).toBe(true);
+  });
   it("gives a null share when net profit is not positive", () => {
     const data = demoAsStoreData(buildDemoStore("id"));
     data.expenses.push({ id: "big", name: "Big", category: "lainnya", amount: 1_000_000_000, frequency: "bulanan" });
@@ -112,13 +125,26 @@ describe("csv", () => {
     expect(csvEscape("a b")).toBe("a b");
     expect(csvEscape('Kopi "Senja"; susu, gula\nbaru')).toBe('"Kopi ""Senja""; susu, gula\nbaru"');
   });
+  it("neutralises spreadsheet formulas in strings only", () => {
+    expect(csvEscape("=1+1")).toBe("'=1+1");
+    expect(csvEscape("@SUM(A1)")).toBe("'@SUM(A1)");
+    expect(csvEscape("+1")).toBe("'+1");
+    expect(csvEscape("-1")).toBe("'-1");
+    expect(csvEscape(-5)).toBe("-5");
+    const { data, analysis } = sample();
+    data.products[0].name = '=HYPERLINK("x")';
+    const csv = loanSummaryCsv(buildLoanSummary(data, analysis, info, null), labels);
+    expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
+    expect(csv).not.toContain(";=HYPERLINK");
+  });
   it("builds an Excel-friendly file", () => {
     const { summary } = sample({ principal: 10_000_000, months: 12, annualRatePct: 6 }, 'Kopi "Senja"; susu, gula\nbaru');
     const csv = loanSummaryCsv(summary, labels);
-    expect(csv.startsWith("﻿sep=;\r\n")).toBe(true);
+    expect(csv.startsWith("\uFEFFsep=;\r\n")).toBe(true);
     expect(csv).toContain('"Kopi ""Senja""; susu, gula\nbaru"');
     expect(csv).toContain(`L_netProfit;${summary.monthly.netProfit}\r\n`);
-    expect(csv).not.toMatch(/\d\.\d{3}\b/);
+    const netLine = csv.split("\r\n").find((line) => line.startsWith("L_netProfit;"));
+    expect(netLine).toBe(`L_netProfit;${Math.round(summary.monthly.netProfit)}`);
     for (const key of ["sectionStore", "sectionMonthly", "sectionFixedCosts", "sectionProducts", "sectionAssets", "sectionIndicators", "sectionInstallment"]) {
       expect(csv.split(`L_${key}\r\n`).length - 1).toBe(1);
     }
