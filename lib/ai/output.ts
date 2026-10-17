@@ -12,7 +12,7 @@ export const MAX_ITEMS = 8;
 const MAX_SALES_MULTIPLIER = 1 + SIMULATION_LIMITS.maxPct / 100;
 
 const text = (max: number) => z.string().trim().min(1).max(max);
-const list = <T extends z.ZodType>(item: T) => z.array(item).transform((items) => items.slice(0, MAX_ITEMS));
+const list = <T extends z.ZodType>(item: T) => z.array(z.unknown()).transform((items) => items.slice(0, MAX_ITEMS)).pipe(z.array(item));
 
 const simulationSchema = z.discriminatedUnion("type", [
   z.object({
@@ -161,7 +161,9 @@ function knownSimulation(raw: unknown, refs: KnownRefs): AiSimulation | undefine
     case "change_material_price":
       return refs.materialIds.has(simulation.material_id) ? simulation : undefined;
     case "change_sales_volume":
-      return simulation;
+      // Drop simulation if multiplier rounds to 1 at 4 decimals of percent (no change)
+      const pctRounded = Math.round((simulation.multiplier - 1) * 100 * 1e4) / 1e4;
+      return pctRounded === 0 ? undefined : simulation;
   }
 }
 
@@ -192,7 +194,7 @@ function toOverrides(simulation: AiSimulation): Overrides {
     case "change_price":
       return { prices: { [priceKey(simulation.product_id, simulation.channel_id)]: simulation.new_price } };
     case "change_material_price":
-      return { materialPricePct: { [simulation.material_id]: simulation.pct } };
+      return { materialPricePct: { [simulation.material_id]: Math.round(simulation.pct * 1e4) / 1e4 } };
     case "change_sales_volume":
       return { salesMultiplier: simulation.multiplier };
   }

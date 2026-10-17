@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_ITEMS, refsFromStoreData, sanitizeOutput, simulationHref, type KnownRefs } from "@/lib/ai/output";
+import { MAX_ITEMS, refsFromSnapshot, refsFromStoreData, sanitizeOutput, simulationHref, type KnownRefs } from "@/lib/ai/output";
 import { systemInstruction, userPrompt } from "@/lib/ai/prompt";
 import type { AnalysisSnapshot } from "@/lib/ai/snapshot";
 import { parseOverrides } from "@/lib/simulation/query";
@@ -53,6 +53,29 @@ describe("sanitizeOutput", () => {
   it("keeps at most MAX_ITEMS of each list", () => {
     const many = Array.from({ length: 12 }, (_, i) => `Bagus ${i}`);
     expect(sanitizeOutput(output({ highlights: many }), refs)?.highlights).toHaveLength(MAX_ITEMS);
+    const issuesList = Array.from({ length: 12 }, (_, i) => ({ title: `i${i}`, explanation: `e${i}`, related_product_ids: [], priority: "sedang" as const }));
+    expect(sanitizeOutput(output({ issues: issuesList }), refs)?.issues).toHaveLength(MAX_ITEMS);
+    const recsList = Array.from({ length: 12 }, (_, i) => ({ action: `a${i}`, reason: `r${i}` }));
+    expect(sanitizeOutput(output({ recommendations: recsList }), refs)?.recommendations).toHaveLength(MAX_ITEMS);
+  });
+
+  it("slices invalid items out instead of rejecting the whole answer", () => {
+    // 8 valid highlights + empty 9th → result has 8 highlights, not null
+    const highlights = Array.from({ length: 8 }, (_, i) => `Valid ${i}`);
+    highlights.push("");
+    const result = sanitizeOutput(output({ highlights }), refs);
+    expect(result?.highlights).toHaveLength(8);
+
+    // Invalid priority at index 10 of issues → not null
+    const issues = Array.from({ length: 10 }, (_, i) => ({ title: `t${i}`, explanation: `e${i}`, related_product_ids: [], priority: "sedang" as const }));
+    issues.push({ title: "t10", explanation: "e10", related_product_ids: [], priority: "invalid" } as unknown);
+    const result2 = sanitizeOutput(output({ issues }), refs);
+    expect(result2?.issues).toHaveLength(MAX_ITEMS);
+
+    // Invalid priority at index 0 → still null
+    const badIssues = [{ title: "t", explanation: "e", related_product_ids: [], priority: "invalid" } as unknown];
+    const result3 = sanitizeOutput(output({ issues: badIssues }), refs);
+    expect(result3).toBeNull();
   });
 
   it("keeps only known, distinct product ids", () => {
@@ -80,6 +103,37 @@ describe("sanitizeOutput", () => {
     const result = sanitizeOutput(output({ recommendations: [{ action: "Coba", reason: "Karena", simulation: null }] }), refs);
     expect(result?.recommendations).toEqual([{ action: "Coba", reason: "Karena" }]);
   });
+
+  it("rounds material price pct to avoid scientific notation", () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const simulation: any = { type: "change_material_price", material_id: M, pct: 1e-7 };
+    const href = simulationHref("s1", simulation);
+    expect(href).not.toContain("e-");
+    expect(parseOverrides(Object.fromEntries(new URL(href, "https://x.test").searchParams))).toBeDefined();
+  });
+
+  it("drops change_sales_volume when multiplier rounds to 1", () => {
+    const result = sanitizeOutput(output({ recommendations: [{ action: "Coba", reason: "Karena", simulation: { type: "change_sales_volume", multiplier: 1 } }] }), refs);
+    expect(result?.recommendations).toEqual([{ action: "Coba", reason: "Karena" }]);
+  });
+
+  it("never throws on hostile inputs", () => {
+    // 10,000 highlights
+    expect(() => sanitizeOutput(output({ highlights: Array.from({ length: 10000 }, (_, i) => `h${i}`) }), refs)).not.toThrow();
+
+    // Prototype pollution attempt
+    const proto = JSON.parse('{"__proto__":{"x":1},"summary":"s","highlights":[],"issues":[],"recommendations":[]}');
+    expect(() => sanitizeOutput(proto, refs)).not.toThrow();
+
+    // new_price as a string
+    expect(() => sanitizeOutput(output({ recommendations: [{ action: "a", reason: "r", simulation: { type: "change_price", product_id: P, channel_id: C, new_price: "6000" } }] }), refs)).not.toThrow();
+
+    // Deeply nested object as simulation
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nested: any = { type: "change_price", product_id: P, channel_id: C, new_price: 6000 };
+    nested.deep = { very: { nested: { object: "here" } } };
+    expect(() => sanitizeOutput(output({ recommendations: [{ action: "a", reason: "r", simulation: nested }] }), refs)).not.toThrow();
+  });
 });
 
 describe("refsFromStoreData", () => {
@@ -102,6 +156,56 @@ describe("refsFromStoreData", () => {
       assets: [],
     } satisfies StoreData;
     const known = refsFromStoreData(data);
+    expect([...known.productIds]).toEqual([P]);
+    expect([...known.materialIds]).toEqual([M]);
+    expect([...known.priceLines]).toEqual([`${P}:${C}`]);
+  });
+});
+
+describe("refsFromSnapshot", () => {
+  it("extracts productIds, materialIds and priceLines from a snapshot", () => {
+    const snapshot: AnalysisSnapshot = {
+      locale: "id",
+      store: { name: "T", businessType: "food", targetMarket: null, targetMarginPct: 40, operatingDaysPerMonth: 26 },
+      channels: [{ id: C, name: "Tunai", commissionPct: 0, fixedFee: 0 }],
+      materials: [{ id: M, name: "Gula", category: "bahan", purchaseQty: 1, purchaseUnit: "kg", purchasePrice: 1, wastePct: 0 }],
+      products: [
+        {
+          id: P,
+          name: "Es teh",
+          lines: [
+            {
+              channelId: C,
+              price: 5000,
+              competitorPrice: null,
+              estMonthlySales: 1,
+              materialCost: 1000,
+              fullCost: 1000,
+              netPrice: 5000,
+              contribution: 4000,
+              marginPct: 80,
+              targetMarginPct: 40,
+              status: "green",
+            },
+          ],
+        },
+      ],
+      totals: {
+        grossRevenue: 5000,
+        netRevenue: 5000,
+        materialCosts: 1000,
+        netProfit: 4000,
+        netMarginPct: 80,
+        totalUnits: 1,
+        fixedCosts: { byCategory: {}, depreciation: 0, total: 0 },
+        bepUnitsMonthly: 1,
+        bepUnitsDaily: 0.1,
+        totalCapital: 0,
+        paybackMonths: null,
+      },
+      warnings: [],
+    };
+    const known = refsFromSnapshot(snapshot);
     expect([...known.productIds]).toEqual([P]);
     expect([...known.materialIds]).toEqual([M]);
     expect([...known.priceLines]).toEqual([`${P}:${C}`]);
