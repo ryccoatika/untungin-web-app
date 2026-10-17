@@ -12,6 +12,8 @@ export type LoanSummary = {
   store: { name: string; businessType: string; targetMarket: string | null; ownerName: string | null; operatingDaysPerMonth: number };
   monthly: {
     grossRevenue: number;
+    /** Commission and per-order fees the channels keep: grossRevenue − netRevenue. */
+    channelFees: number;
     materialCosts: number;
     grossProfit: number;
     fixedCostsByCategory: { category: ExpenseCategory; amount: number }[];
@@ -83,6 +85,7 @@ export function buildLoanSummary(
     store: { name: data.store.name, businessType: info.businessType, targetMarket: info.targetMarket, ownerName: info.ownerName, operatingDaysPerMonth: days },
     monthly: {
       grossRevenue: analysis.grossRevenue,
+      channelFees: analysis.grossRevenue - analysis.netRevenue,
       materialCosts: analysis.materialCosts,
       grossProfit: analysis.grossProfit,
       fixedCostsByCategory,

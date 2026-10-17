@@ -13,8 +13,11 @@ export type CsvLabels = {
   businessType: string;
   targetMarket: string;
   ownerName: string;
+  madeOn: string;
+  footnote: string;
   operatingDays: string;
   grossRevenue: string;
+  channelFees: string;
   materialCosts: string;
   grossProfit: string;
   depreciation: string;
@@ -60,7 +63,8 @@ const rp = (value: number | null) => (value === null ? null : Math.round(value))
 const dec = (value: number | null) => (value === null ? null : Math.round(value * 10) / 10);
 
 /** Excel-friendly CSV: UTF-8 BOM, `sep=;` hint, CRLF line breaks. Rupiah are plain integers. */
-export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels): string {
+/** `madeOn` is the already formatted date the printed sheet shows. */
+export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels, madeOn: string): string {
   const lines: (string | number | null)[][] = [];
   const section = (title: string) => {
     if (lines.length > 0) lines.push([]);
@@ -70,10 +74,10 @@ export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels): string 
 
   section(labels.sectionStore);
   lines.push([labels.storeName, store.name], [labels.businessType, store.businessType], [labels.targetMarket, store.targetMarket]);
-  lines.push([labels.ownerName, store.ownerName], [labels.operatingDays, store.operatingDaysPerMonth]);
+  lines.push([labels.ownerName, store.ownerName], [labels.operatingDays, store.operatingDaysPerMonth], [labels.madeOn, madeOn]);
 
   section(labels.sectionMonthly);
-  lines.push([labels.grossRevenue, rp(monthly.grossRevenue)], [labels.materialCosts, rp(monthly.materialCosts)], [labels.grossProfit, rp(monthly.grossProfit)]);
+  lines.push([labels.grossRevenue, rp(monthly.grossRevenue)], [labels.channelFees, rp(monthly.channelFees)], [labels.materialCosts, rp(monthly.materialCosts)], [labels.grossProfit, rp(monthly.grossProfit)]);
   lines.push([labels.depreciation, rp(monthly.depreciation)], [labels.fixedCostsTotal, rp(monthly.fixedCostsTotal)]);
   lines.push([labels.netProfit, rp(monthly.netProfit)], [labels.netMarginPct, dec(monthly.netMarginPct)]);
 
@@ -100,6 +104,8 @@ export function loanSummaryCsv(summary: LoanSummary, labels: CsvLabels): string 
     lines.push([labels.principal, rp(i.principal)], [labels.months, i.months], [labels.annualRatePct, i.annualRatePct]);
     lines.push([labels.monthlyInstallment, rp(i.monthly)], [labels.totalRepaid, rp(i.totalRepaid)], [labels.shareOfNetProfitPct, i.shareOfNetProfitPct]);
   }
+
+  lines.push([], [labels.footnote]);
 
   return "\uFEFFsep=;\r\n" + lines.map((row) => row.map(csvEscape).join(";")).join("\r\n") + "\r\n";
 }

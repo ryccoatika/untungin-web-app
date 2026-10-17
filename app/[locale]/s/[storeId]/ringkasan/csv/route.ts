@@ -3,13 +3,14 @@ import type { NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { expenseCategoryLabels, loadLoanSummary } from "@/lib/data/loan-summary";
 import { createClient } from "@/lib/supabase/server";
+import { formatDateTime } from "@/lib/format";
 import { loanSummaryCsv, type CsvLabels } from "@/lib/report/csv";
 
 /** ASCII file-name part from a store name: "Kedai Kopi Contoh" gives "kedai-kopi-contoh". */
 function slugify(name: string): string {
   const slug = name
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
@@ -35,7 +36,10 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ locale:
   const tCategory = await getTranslations({ locale, namespace: "ExpenseCategory" });
   const lookup = (tr: typeof tBusiness) => (value: string) => (tr.has(value as never) ? tr(value as never) : value);
 
-  const query = Object.fromEntries(request.nextUrl.searchParams.entries());
+  // searchParams.get returns the first value of a repeated key, like firstParam on the page.
+  const query = Object.fromEntries(
+    ["pinjaman", "tenor", "bunga"].map((key) => [key, request.nextUrl.searchParams.get(key) ?? undefined]),
+  );
   const result = await loadLoanSummary(supabase, userId, storeId, query, lookup(tBusiness), lookup(tMarket));
   if (result.kind === "not-found") return new Response("Not found", { status: 404 });
   if (result.kind === "calc-error") return new Response(t("calcError", { product: result.productName }), { status: 422 });
@@ -52,8 +56,11 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ locale:
     businessType: t("businessType"),
     targetMarket: t("targetMarket"),
     ownerName: t("ownerName"),
+    madeOn: t("madeOnLabel"),
+    footnote: t("footnote"),
     operatingDays: t("operatingDays"),
     grossRevenue: t("grossRevenue"),
+    channelFees: t("channelFees"),
     materialCosts: t("materialCosts"),
     grossProfit: t("grossProfit"),
     depreciation: t("depreciation"),
@@ -86,7 +93,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ locale:
 
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
   const filename = `ringkasan-${slugify(result.summary.store.name)}-${date}.csv`;
-  return new Response(loanSummaryCsv(result.summary, labels), {
+  return new Response(loanSummaryCsv(result.summary, labels, formatDateTime(new Date().toISOString(), locale)), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${filename}"`,

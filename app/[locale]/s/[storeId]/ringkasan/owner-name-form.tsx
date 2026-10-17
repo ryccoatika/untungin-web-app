@@ -8,6 +8,7 @@ import { SubmitButton } from "@/components/forms/submit-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MAX_OWNER_NAME_LENGTH } from "@/lib/report/installment";
 import { saveOwnerNameAction } from "./actions";
 
 /** The name printed on the summary for the bank. Saved to the user's profile. */
@@ -25,7 +26,7 @@ export function OwnerNameForm({ current }: { current: string }) {
             <Input
               id={`${id}-owner`}
               name="ownerName"
-              maxLength={80}
+              maxLength={MAX_OWNER_NAME_LENGTH}
               autoComplete="name"
               // Remount on every result so the saved value (not React's reset) fills the field.
               key={state?.values?.ownerName ?? current}
@@ -39,7 +40,7 @@ export function OwnerNameForm({ current }: { current: string }) {
           <FieldError errors={error} />
           <FormMessage state={state} />
           <p id={`${id}-owner-hint`} className="text-xs text-muted-foreground">
-            {t("ownerNameHint")}
+            {t("ownerNameHint", { max: MAX_OWNER_NAME_LENGTH })}
           </p>
         </form>
       </CardContent>

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
@@ -8,19 +9,23 @@ import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { requireUser } from "@/lib/auth/require-user";
 import { expenseCategoryLabels, loadLoanSummary } from "@/lib/data/loan-summary";
+import { getStore } from "@/lib/data/stores";
 import { formatDateTime, formatNumber, formatPercent, formatRupiah } from "@/lib/format";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
+import { DEFAULT_KUR_RATE_PCT, firstParam, type Query } from "@/lib/report/installment";
 import { InstallmentForm } from "./installment-form";
 import { OwnerNameForm } from "./owner-name-form";
 import { ReportToolbar } from "./report-toolbar";
 
-type Query = Record<string, string | string[] | undefined>;
 type Props = { params: Promise<{ locale: string; storeId: string }>; searchParams: Promise<Query> };
 
-const rawParam = (query: Query, key: string) => {
-  const value = query[key];
-  return (Array.isArray(value) ? value[0] : value)?.trim() ?? "";
-};
+/** The tab and the default PDF file name: "Ringkasan usaha – <store>". */
+export async function generateMetadata({ params }: Pick<Props, "params">): Promise<Metadata> {
+  const { storeId } = await params;
+  const store = await getStore(storeId);
+  const t = await getTranslations("Report");
+  return { title: store ? t("metaTitle", { store: store.name }) : t("title") };
+}
 
 /** A table that scrolls inside its own box on a phone and prints at full width. */
 function TableBox({ children }: { children: ReactNode }) {
@@ -37,7 +42,7 @@ const num = "text-right tabular-nums";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="report-section space-y-2 print:space-y-1">
+    <section className="report-section space-y-2 print:space-y-0.5">
       <h2 className="border-b pb-1 font-heading text-base font-semibold print:pb-0">{title}</h2>
       {children}
     </section>
@@ -96,7 +101,7 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
   const csvParams = new URLSearchParams();
   if (installment) {
     for (const key of ["pinjaman", "tenor", "bunga"] as const) {
-      const value = rawParam(query, key);
+      const value = firstParam(query, key);
       if (value !== "") csvParams.set(key, value);
     }
   }
@@ -114,18 +119,18 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
         <ReportToolbar query={csvParams.toString()} />
         <OwnerNameForm current={store.ownerName ?? ""} />
         <InstallmentForm
-          initial={{ pinjaman: rawParam(query, "pinjaman"), tenor: rawParam(query, "tenor"), bunga: rawParam(query, "bunga") || "6" }}
+          initial={{ pinjaman: firstParam(query, "pinjaman"), tenor: firstParam(query, "tenor"), bunga: firstParam(query, "bunga") || String(DEFAULT_KUR_RATE_PCT) }}
           errors={errors}
         />
       </div>
 
       <article
         data-testid="loan-summary"
-        className="report-sheet mx-auto max-w-[210mm] space-y-5 rounded-lg border bg-card p-4 text-card-foreground sm:p-8 print:space-y-2"
+        className="report-sheet mx-auto max-w-[210mm] space-y-5 rounded-lg border bg-card p-4 text-card-foreground sm:p-8 print:space-y-1.5"
       >
-        <header className="space-y-3">
+        <header className="space-y-3 print:space-y-1">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h1 className="text-xl font-semibold">{t("title")}</h1>
+            <h1 className="text-xl font-semibold print:text-lg">{t("title")}</h1>
             <p className="text-sm text-muted-foreground">
               {t("subtitle")} · {t("madeOn", { date: formatDateTime(new Date().toISOString(), locale) })}
             </p>
@@ -147,15 +152,27 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
             <tbody className="divide-y">
               <tr>
                 <td className={td}>{t("grossRevenue")}</td>
-                <td className={`${td} ${num}`}>{rp(monthly.grossRevenue)}</td>
+                <td className={`${td} ${num}`} data-testid="report-gross-revenue">
+                  {rp(monthly.grossRevenue)}
+                </td>
+              </tr>
+              <tr>
+                <td className={td}>{t("channelFees")}</td>
+                <td className={`${td} ${num}`} data-testid="report-channel-fees">
+                  {rp(monthly.channelFees)}
+                </td>
               </tr>
               <tr>
                 <td className={td}>{t("materialCosts")}</td>
-                <td className={`${td} ${num}`}>{rp(monthly.materialCosts)}</td>
+                <td className={`${td} ${num}`} data-testid="report-material-costs">
+                  {rp(monthly.materialCosts)}
+                </td>
               </tr>
               <tr className="font-medium">
                 <td className={td}>{t("grossProfit")}</td>
-                <td className={`${td} ${num}`}>{rp(monthly.grossProfit)}</td>
+                <td className={`${td} ${num}`} data-testid="report-gross-profit">
+                  {rp(monthly.grossProfit)}
+                </td>
               </tr>
               <tr>
                 <td className={`${td} pt-2 font-medium`} colSpan={2}>
@@ -272,6 +289,9 @@ export default async function LoanSummaryPage({ params, searchParams }: Props) {
               </dd>
             </div>
           </dl>
+          {monthly.netProfit <= 0 && !summary.missing.includes("salesEstimate") && (
+            <p className="text-sm text-muted-foreground">{t("noProfitNote")}</p>
+          )}
         </Section>
 
         {installment && (

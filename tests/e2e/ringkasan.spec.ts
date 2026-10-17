@@ -37,6 +37,17 @@ test("sample store: summary shows the store, the dashboard's net profit, product
   await expect(sheet.getByRole("heading", { name: "Peralatan dan modal" })).toBeVisible();
   await expect(sheet.getByText("Total modal awal")).toBeVisible();
   await expect(sheet.getByText(/bukan laporan keuangan yang diaudit/)).toBeVisible();
+  // The printed monthly lines add up: revenue − channel fees − material costs = gross profit.
+  const rupiah = async (id: string) => Number((await page.getByTestId(id).innerText()).replace(/[^\d-]/g, ""));
+  const [revenue, fees, materials, gross] = [
+    await rupiah("report-gross-revenue"),
+    await rupiah("report-channel-fees"),
+    await rupiah("report-material-costs"),
+    await rupiah("report-gross-profit"),
+  ];
+  expect(fees).toBeGreaterThan(0);
+  expect(Math.abs(revenue - fees - materials - gross)).toBeLessThanOrEqual(1);
+  await expect(sheet.getByText("Potongan kanal (komisi & biaya)")).toBeVisible();
   // Bank-facing wording: not the casual "Gaji kamu sendiri".
   await expect(sheet.getByRole("cell", { name: "Gaji pemilik", exact: true })).toBeVisible();
   await expect(sheet.getByText("Gaji kamu sendiri")).toHaveCount(0);
@@ -86,6 +97,9 @@ test("CSV download: Excel-friendly file with the store and the net profit", asyn
   expect(body).toContain("Kedai Kopi Contoh");
   expect(body).toContain("Cek cicilan");
   expect(body).toContain("Gaji pemilik;");
+  expect(body).toContain("Dibuat;");
+  expect(body).toContain("Potongan kanal (komisi & biaya);");
+  expect(body.trimEnd().split("\r\n").pop()).toMatch(/bukan laporan keuangan yang diaudit/);
   expect(body).not.toContain("Gaji kamu sendiri");
 
   const reportProfit = Number(squash(await page.getByTestId("report-net-profit").innerText()).replace(/[^\d-]/g, ""));
@@ -98,10 +112,6 @@ test("owner name: saved to the profile, shown in the header and in the CSV", asy
   const sheet = page.getByTestId("loan-summary");
   await expect(sheet.getByText("Pemilik:")).toHaveCount(0);
 
-  await page.getByLabel("Nama pemilik").fill("   ");
-  await page.getByRole("button", { name: "Simpan", exact: true }).click();
-  await expect(page.getByText("Isi nama pemilik 1 sampai 80 karakter.")).toBeVisible();
-
   await page.getByLabel("Nama pemilik").fill("  Sari Wulandari ");
   await page.getByRole("button", { name: "Simpan", exact: true }).click();
   await expect(page.getByText("Nama pemilik tersimpan.")).toBeVisible();
@@ -110,6 +120,16 @@ test("owner name: saved to the profile, shown in the header and in the CSV", asy
 
   const href = (await page.getByRole("link", { name: "Unduh Excel (CSV)" }).getAttribute("href"))!;
   expect(await (await page.request.get(href)).text()).toContain("Pemilik;Sari Wulandari");
+
+  // Clearing the field removes the name again (full_name becomes null) and the owner line disappears.
+  await page.getByLabel("Nama pemilik").fill("   ");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Nama pemilik tersimpan.")).toBeVisible();
+  await expect(sheet.getByText("Sari Wulandari")).toHaveCount(0);
+  await expect(sheet.getByText("Pemilik:")).toHaveCount(0);
+  await expect(page.getByLabel("Nama pemilik")).toHaveValue("");
+  await page.reload();
+  await expect(sheet.getByText("Pemilik:")).toHaveCount(0);
 });
 
 test("print: the app chrome and toolbar disappear, the summary stays", async ({ page }) => {

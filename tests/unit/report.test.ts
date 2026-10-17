@@ -30,6 +30,16 @@ describe("monthlyInstallment", () => {
   });
 });
 
+describe("monthly lines reconcile", () => {
+  it("revenue − channel fees − material costs = gross profit on a store with a commission channel", () => {
+    const { data, summary } = sample();
+    expect(data.channels.some((c) => c.commissionPct > 0 || c.fixedFee > 0)).toBe(true);
+    const m = summary.monthly;
+    expect(m.channelFees).toBeGreaterThan(0);
+    expect(Math.abs(m.grossRevenue - m.channelFees - m.materialCosts - m.grossProfit)).toBeLessThanOrEqual(1);
+  });
+});
+
 describe("parseInstallmentParams", () => {
   it("returns null input without params", () => {
     expect(parseInstallmentParams({})).toEqual({ input: null, errors: [] });
@@ -109,7 +119,7 @@ const labels: CsvLabels = {
   ...Object.fromEntries(
     [
       "sectionStore", "sectionMonthly", "sectionFixedCosts", "sectionProducts", "sectionAssets", "sectionIndicators", "sectionInstallment",
-      "storeName", "businessType", "targetMarket", "ownerName", "operatingDays", "grossRevenue", "materialCosts", "grossProfit",
+      "storeName", "businessType", "targetMarket", "ownerName", "operatingDays", "madeOn", "footnote", "grossRevenue", "channelFees", "materialCosts", "grossProfit",
       "depreciation", "fixedCostsTotal", "netProfit", "netMarginPct", "product", "channel", "price", "fullCost", "materialCost",
       "marginPct", "estMonthlySales", "assetName", "qty", "value", "usefulLifeMonths", "totalCapital", "breakEvenMonthly",
       "breakEvenDaily", "paybackMonths", "principal", "months", "annualRatePct", "monthlyInstallment", "totalRepaid", "shareOfNetProfitPct",
@@ -133,18 +143,22 @@ describe("csv", () => {
     expect(csvEscape(-5)).toBe("-5");
     const { data, analysis } = sample();
     data.products[0].name = '=HYPERLINK("x")';
-    const csv = loanSummaryCsv(buildLoanSummary(data, analysis, info, null), labels);
+    const csv = loanSummaryCsv(buildLoanSummary(data, analysis, info, null), labels, "18 Okt 2026, 10.00");
     expect(csv).toContain(`"'=HYPERLINK(""x"")"`);
     expect(csv).not.toContain(";=HYPERLINK");
   });
   it("builds an Excel-friendly file", () => {
     const { summary } = sample({ principal: 10_000_000, months: 12, annualRatePct: 6 }, 'Kopi "Senja"; susu, gula\nbaru');
-    const csv = loanSummaryCsv(summary, labels);
+    const csv = loanSummaryCsv(summary, labels, "18 Okt 2026, 10.00");
     expect(csv.startsWith("\uFEFFsep=;\r\n")).toBe(true);
     expect(csv).toContain('"Kopi ""Senja""; susu, gula\nbaru"');
     expect(csv).toContain(`L_netProfit;${summary.monthly.netProfit}\r\n`);
     const netLine = csv.split("\r\n").find((line) => line.startsWith("L_netProfit;"));
     expect(netLine).toBe(`L_netProfit;${Math.round(summary.monthly.netProfit)}`);
+    expect(csv).toContain('L_madeOn;"18 Okt 2026, 10.00"\r\n'); // quoted: the date holds a comma
+    expect(csv).toContain(`L_channelFees;${Math.round(summary.monthly.channelFees)}\r\n`);
+    // The disclaimer is the last row.
+    expect(csv.trimEnd().split("\r\n").pop()).toBe("L_footnote");
     for (const key of ["sectionStore", "sectionMonthly", "sectionFixedCosts", "sectionProducts", "sectionAssets", "sectionIndicators", "sectionInstallment"]) {
       expect(csv.split(`L_${key}\r\n`).length - 1).toBe(1);
     }

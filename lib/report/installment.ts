@@ -5,6 +5,8 @@ export const DEFAULT_KUR_RATE_PCT = 6;
 export const MAX_TENOR_MONTHS = 60;
 export const MAX_RATE_PCT = 30;
 export const MAX_PRINCIPAL = 2_000_000_000;
+/** Longest owner name the summary accepts (the form and the Server Action share it). */
+export const MAX_OWNER_NAME_LENGTH = 80;
 
 export type InstallmentInput = { principal: number; months: number; annualRatePct: number };
 
@@ -15,9 +17,10 @@ export function monthlyInstallment(principal: number, annualRatePct: number, mon
   return Math.round(raw);
 }
 
-type Query = Record<string, string | string[] | undefined>;
+export type Query = Record<string, string | string[] | undefined>;
 
-function first(query: Query, key: string): string {
+/** First value of a query key, trimmed; "" when absent. */
+export function firstParam(query: Query, key: string): string {
   const value = query[key];
   return (Array.isArray(value) ? value[0] : value)?.trim() ?? "";
 }
@@ -29,9 +32,9 @@ const rateSchema = localeNumber(z.number().finite());
  * a blank rate defaults to the KUR rate when principal and tenor are valid.
  */
 export function parseInstallmentParams(query: Query): { input: InstallmentInput | null; errors: ("principal" | "months" | "rate")[] } {
-  const rawPrincipal = first(query, "pinjaman");
-  const rawMonths = first(query, "tenor");
-  const rawRate = first(query, "bunga");
+  const rawPrincipal = firstParam(query, "pinjaman");
+  const rawMonths = firstParam(query, "tenor");
+  const rawRate = firstParam(query, "bunga");
   if (rawPrincipal === "" && rawMonths === "" && rawRate === "") return { input: null, errors: [] };
 
   const errors: ("principal" | "months" | "rate")[] = [];
