@@ -3,7 +3,7 @@ import type { LabelFactory } from "@/lib/three/scene";
 
 const SCALE = 2;
 const FONT_PX = 48 * SCALE;
-const PADDING_PX = 18 * SCALE;
+const PADDING_PX = 10 * SCALE;
 
 /** Draws `text` on a rounded pill and returns it as a texture (2× pixel density for crisp sprites). */
 export const makeCanvasLabel: LabelFactory = (text, style) => {

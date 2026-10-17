@@ -46,15 +46,16 @@ const STATUS_BAR: Record<ChartSceneBar["status"], string> = {
   red: "bg-red-500",
 };
 
-/** Product contribution chart (spec §5.2, §7): 3D with labels on capable devices, 2D otherwise or by choice. */
 export type ProductChartBar = ChartSceneBar & { productId: string; fullValueLabel: string; statusLabel: string };
 
+/** Product contribution chart (spec §5.2, §7): 3D with labels on capable devices, 2D otherwise or by choice. */
 export function ProductChart({ bars }: { bars: ProductChartBar[] }) {
   const t = useTranslations("Visuals");
   const mode = useRenderMode();
   const savedView = useSyncExternalStore(subscribe, readView, () => "3d" as View);
   const [failed, setFailed] = useState(false);
   const canShow3d = mode === "3d" && !failed;
+  const pending = mode === null; // server render and first paint: keep the 3D box's height so the page does not jump
   const view: View = canShow3d ? savedView : "2d";
   const maxAbs = Math.max(...bars.map((bar) => Math.abs(bar.value)), 1);
 
@@ -85,8 +86,16 @@ export function ProductChart({ bars }: { bars: ProductChartBar[] }) {
         )}
       </CardHeader>
       <CardContent>
-        {view === "3d" ? (
-          <ProfitChart3D bars={bars} label={t("chartLabel")} className="h-72 w-full sm:h-80" onFail={() => setFailed(true)} />
+        {pending ? (
+          <div className="h-72 w-full sm:h-80" aria-hidden="true" />
+        ) : view === "3d" ? (
+          <ProfitChart3D
+            bars={bars}
+            label={t("chartLabel")}
+            className="h-72 w-full sm:h-80"
+            onFail={() => setFailed(true)}
+            onShow2d={() => saveView("2d")}
+          />
         ) : (
           <ul className="space-y-3" data-testid="chart-2d">
             {bars.map((bar) => (

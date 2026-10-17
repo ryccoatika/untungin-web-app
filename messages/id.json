@@ -235,6 +235,7 @@
     "chartTitle": "Sumbangan tiap produk",
     "chartHint": "Kontribusi per bulan: (harga bersih − biaya bahan) × perkiraan terjual, sebelum biaya tetap.",
     "chartLabel": "Grafik 3D sumbangan tiap produk per bulan. Angkanya ada di tampilan 2D dan tabel produk.",
+    "moreIn2d": "+{count} lainnya, lihat di 2D",
     "view3d": "3D",
     "view2d": "2D",
     "viewSwitch": "Tampilan grafik"

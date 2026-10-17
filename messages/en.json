@@ -235,6 +235,7 @@
     "chartTitle": "What each product brings in",
     "chartHint": "Monthly contribution: (net price − material cost) × estimated sales, before fixed costs.",
     "chartLabel": "3D chart of each product's monthly contribution. The numbers are in the 2D view and the product table.",
+    "moreIn2d": "+{count} more, see 2D",
     "view3d": "3D",
     "view2d": "2D",
     "viewSwitch": "Chart view"
