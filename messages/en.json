@@ -193,7 +193,27 @@
     "basis": "Calculation basis",
     "operatingDays": "Open days per month",
     "operatingDaysValue": "{days, plural, one {# day} other {# days}}",
-    "targetMargin": "Target margin"
+    "targetMargin": "Target margin",
+    "netProfit": "Net profit / month",
+    "grossRevenue": "Revenue / month",
+    "bep": "Break-even",
+    "bepValue": "{units, plural, one {# sale/day} other {# sales/day}}",
+    "bepMonthly": "{units, number} per month",
+    "bepLoss": "Every sale loses money",
+    "needSales": "Fill in prices and sales estimates",
+    "payback": "Payback",
+    "paybackValue": "≈ {months} months",
+    "paybackUnknown": "Not profitable yet, so no payback",
+    "paybackNoCapital": "Add your inventory to calculate payback",
+    "warningsTitle": "Needs attention",
+    "productsTitle": "Products",
+    "price": "Price",
+    "cost": "Cost",
+    "margin": "Margin",
+    "status": "Status",
+    "withoutPrice": "No price yet: {products}",
+    "calcError": "A composition row in {product} uses a unit that doesn't match its material, so the numbers can't be calculated yet.",
+    "calcErrorAction": "Fix it"
   },
   "Settings": {
     "title": "Store settings",
@@ -389,5 +409,27 @@
     "previewEmpty": "Enter a selling price to see cost and margin.",
     "noComposition": "This product has no composition yet, so its material cost is Rp0. Fill in the composition first.",
     "calcError": "A composition row uses a unit that doesn't match its material. Fix the composition so the cost can be calculated."
+  },
+  "Warnings": {
+    "NET_LOSS": "Your business loses money each month: fixed costs are higher than gross profit.",
+    "LOSS_PRODUCTS": "Loses money on every sale: {products}. Raise the price or lower material costs.",
+    "NEGATIVE_CONTRIBUTION": "On average every sale loses money. The more you sell, the bigger the loss.",
+    "NO_OWNER_SALARY": "Profit looks bigger because your own salary has not been counted.",
+    "BELOW_TARGET": "Margin below target: {products}.",
+    "COMPETITOR_GAP": "Price differs from competitors by more than 25%: {products}.",
+    "NO_SALES_ESTIMATE": "Fill in your monthly sales estimate so profit and break-even can be calculated."
+  },
+  "Checklist": {
+    "title": "Getting started",
+    "intro": "Complete these steps so your numbers are accurate.",
+    "done": "(done)",
+    "todo": "(to do)",
+    "items": {
+      "materials": "Add materials & packaging",
+      "products": "Create a product with composition, price and sales estimate",
+      "expenses": "Add operating costs",
+      "ownerSalary": "Count your own salary",
+      "assets": "Add your inventory"
+    }
   }
 }

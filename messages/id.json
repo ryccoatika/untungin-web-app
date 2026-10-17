@@ -193,7 +193,27 @@
     "basis": "Dasar perhitungan",
     "operatingDays": "Hari buka per bulan",
     "operatingDaysValue": "{days} hari",
-    "targetMargin": "Target margin"
+    "targetMargin": "Target margin",
+    "netProfit": "Laba bersih / bulan",
+    "grossRevenue": "Omzet / bulan",
+    "bep": "Titik impas",
+    "bepValue": "{units, number} terjual/hari",
+    "bepMonthly": "{units, number} per bulan",
+    "bepLoss": "Setiap penjualan rugi",
+    "needSales": "Isi harga dan perkiraan penjualan",
+    "payback": "Balik modal",
+    "paybackValue": "≈ {months} bulan",
+    "paybackUnknown": "Belum untung, jadi belum bisa balik modal",
+    "paybackNoCapital": "Catat inventaris untuk menghitung balik modal",
+    "warningsTitle": "Perlu diperhatikan",
+    "productsTitle": "Produk",
+    "price": "Harga",
+    "cost": "HPP",
+    "margin": "Margin",
+    "status": "Status",
+    "withoutPrice": "Belum ada harga: {products}",
+    "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi angkanya belum bisa dihitung.",
+    "calcErrorAction": "Perbaiki"
   },
   "Settings": {
     "title": "Pengaturan toko",
@@ -389,5 +409,27 @@
     "previewEmpty": "Isi harga jual untuk melihat HPP dan margin.",
     "noComposition": "Komposisi produk ini masih kosong, jadi HPP bahan masih Rp0. Isi komposisinya dulu.",
     "calcError": "Ada komposisi dengan satuan yang tidak cocok dengan bahannya. Perbaiki komposisinya supaya HPP bisa dihitung."
+  },
+  "Warnings": {
+    "NET_LOSS": "Usahamu rugi per bulan: biaya tetap lebih besar dari laba kotor.",
+    "LOSS_PRODUCTS": "Rugi setiap terjual: {products}. Naikkan harga atau kurangi biaya bahan.",
+    "NEGATIVE_CONTRIBUTION": "Rata-rata setiap penjualan rugi. Makin banyak terjual, makin besar ruginya.",
+    "NO_OWNER_SALARY": "Laba terlihat lebih besar karena gajimu sendiri belum dihitung.",
+    "BELOW_TARGET": "Margin di bawah target: {products}.",
+    "COMPETITOR_GAP": "Harga beda lebih dari 25% dari pesaing: {products}.",
+    "NO_SALES_ESTIMATE": "Isi perkiraan penjualan per bulan supaya laba dan titik impas bisa dihitung."
+  },
+  "Checklist": {
+    "title": "Langkah awal",
+    "intro": "Lengkapi langkah ini supaya hitunganmu akurat.",
+    "done": "(selesai)",
+    "todo": "(belum)",
+    "items": {
+      "materials": "Catat bahan & kemasan",
+      "products": "Buat produk lengkap dengan komposisi, harga, dan perkiraan penjualan",
+      "expenses": "Isi biaya operasional",
+      "ownerSalary": "Hitung gaji kamu sendiri",
+      "assets": "Catat inventaris"
+    }
   }
 }

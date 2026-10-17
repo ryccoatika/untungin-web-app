@@ -166,7 +166,7 @@ The store limit is also enforced by a database trigger (`supabase/migrations/202
 
 ## 4. Calculation (`lib/calc`)
 
-Validation note (Phase 2): `localeNumber` treats "." as a decimal when there is no comma. Rupiah input needs a separate integer parser that strips thousand-separator dots ("15.000" → 15000).
+Number input: quantities and percentages use `localeNumber` ("," or "." as the decimal separator); Rupiah amounts and counts use `wholeNumber`, which reads thousand separators ("15.000", "Rp 15.000", "15,000" → 15000) and rejects decimals.
 
 Pure functions, no database/network access. Input = a complete store data object (`StoreData`); output = a result object (`StoreMetrics`). Used in Server Components (dashboard) and Client Components (live product page, simulation).
 
@@ -390,11 +390,12 @@ app/
 i18n/          routing.ts request.ts navigation.ts
 messages/      id.json en.json
 lib/
-  calc/        units.ts materials.ts products.ts expenses.ts assets.ts metrics.ts pricing.ts warnings.ts overrides.ts index.ts
+  calc/        units.ts types.ts materials.ts products.ts expenses.ts assets.ts metrics.ts warnings.ts index.ts (pricing.ts: Phase 3, overrides.ts: Phase 4)
   ai/          analyze.ts schema.ts snapshot.ts prompt.ts
   supabase/    server.ts client.ts proxy.ts
   i18n/        paths.ts translate.ts server.ts saved-locale.ts save-locale.ts
-  data/        load-store-data.ts (query Supabase → StoreData)
+  data/        store-data.ts (fetchStoreData: Supabase → StoreData) load-store-data.ts (per-request cache) stores.ts
+  dashboard/   checklist.ts
   validation/  zod schema per entity
   config/      plans.ts channel-templates.ts
   seed/        demo-store.ts
@@ -425,6 +426,7 @@ Every phase can be deployed. One implementation plan per phase.
 1. **Foundation**: scaffold Next.js, Tailwind, shadcn; database schema + RLS + profile trigger; Google login; middleware; onboarding (without sample data); `/toko`; layout + navigation.
 1b. **i18n**: `next-intl`, `app/[locale]` routing, message catalogs (id + en), language switcher, `profiles.locale`, localized validation and formatting, English README/spec.
 2. **HPP core**: `lib/calc` (TDD); materials page, products + composition, operating costs, inventory; 2D dashboard (cards, warnings, table, checklist).
+   Phase 2 notes: price and monthly sales estimate are entered per existing channel (only the default channel until Phase 3); competitor price, channel-specific composition rows, and the price recommendation arrive with Phase 3. The checklist's product step requires a composition plus a price with a sales estimate. On phones the bottom nav is Dashboard, Produk, Bahan, Lainnya; "Lainnya" links Biaya, Inventaris, Pengaturan.
 3. **Channels & pricing**: channels + templates; price/estimate/competitor per channel; channel-specific packaging; price recommendation.
 4. **What-if simulation**.
 5. **AI analysis**: `lib/ai`, quota, cache, history, "Coba di simulasi".
