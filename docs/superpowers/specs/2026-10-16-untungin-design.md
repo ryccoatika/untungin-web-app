@@ -439,6 +439,7 @@ Every phase can be deployed. One implementation plan per phase.
 6. **3D visuals**: install threejs-skills; landing hero; 3D chart + toggle; moment animations; 3D empty state; fallback.
    Phase 6 notes: the chart shows each product's monthly contribution (Σ (net price − material cost) × estimated sales; products without an estimate are left out; at most 8 bars, the largest by size); 3D labels are canvas sprites, the 2D view and the product table are the accessible form; "store created" is flagged with `?welcome=1` on the redirect, "first profit" is remembered per store in localStorage; 3D empty states only on `simulasi` and `analisis`; Three.js loads only through `next/dynamic` in 3D mode.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
+   Phase 7 notes: the sample store is "Kedai Kopi Contoh" / "Sample Coffee Shop" (a numbered name if it already exists), seeded with the user's client and removed again if any insert fails; account deletion lives in Store settings, is confirmed by typing the account email, deletes the auth user (everything cascades) and signs out; anon has no table access and authenticated has no TRUNCATE/TRIGGER/REFERENCES; Rupiah inputs show grouped digits after leaving the field; the privacy page names Rycco Atika (me@ryccoatika.com) as operator.
 
 ## 11. Manual Setup (done by the project owner)
 

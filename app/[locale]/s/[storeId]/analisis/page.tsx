@@ -31,6 +31,7 @@ export default async function AnalysisPage({ params }: Props) {
   const [store, data] = await Promise.all([getStore(storeId), loadStoreData(storeId)]);
   if (!store || !data) notFound();
   const t = await getTranslations("Analysis");
+  const tp = await getTranslations("Privacy");
   const locale = (await getLocale()) as AppLocale;
   const { supabase, userId } = await requireUser();
 
@@ -103,6 +104,9 @@ export default async function AnalysisPage({ params }: Props) {
           <AnalyzeForm storeId={data.store.id} disabled={remaining === 0 || analysis === null} />
           {remaining === 0 && <p className="text-sm text-muted-foreground">{t("quotaUsedUp")}</p>}
           <p className="text-xs text-muted-foreground">{t("privacy")}</p>
+          <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline-offset-4 hover:underline">
+            {tp("link")}
+          </Link>
         </CardContent>
       </Card>
 

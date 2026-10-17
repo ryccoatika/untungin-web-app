@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { signIn } from "./helpers";
+import { createStoreViaOnboarding, signIn, storeUrl, userIdByEmail } from "./helpers";
 
 test("sample data creates a complete, profitable coffee shop", async ({ page }) => {
   await signIn(page, undefined, "/onboarding");
@@ -18,4 +18,38 @@ test("a second sample store gets a numbered name", async ({ page }) => {
   await page.goto("/onboarding");
   await page.getByRole("button", { name: "Coba dengan data contoh" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Kedai Kopi Contoh 2" })).toBeVisible();
+});
+
+test("the privacy page is public, in both languages, and linked from the landing and login pages", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Kebijakan privasi" }).click();
+  await expect(page).toHaveURL(/\/privasi$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Kebijakan privasi" })).toBeVisible();
+  await expect(page.getByText("Rycco Atika")).toBeVisible();
+  await expect(page.getByRole("link", { name: "me@ryccoatika.com" }).first()).toHaveAttribute("href", "mailto:me@ryccoatika.com");
+  await expect(page.getByText(/Google Gemini/)).toBeVisible();
+  await page.goto("/login");
+  await expect(page.getByRole("link", { name: "Kebijakan privasi" })).toBeVisible();
+  await page.goto("/en/privasi");
+  await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
+});
+
+test("a wrong email deletes nothing; the right one deletes the account and signs out", async ({ page }) => {
+  const email = await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Akun");
+  await page.goto(storeUrl(page, "pengaturan"));
+
+  await page.getByLabel("Ketik email-mu untuk konfirmasi").fill("orang-lain@test.local");
+  await page.getByRole("button", { name: "Hapus akun saya" }).click();
+  await expect(page.getByText("Email tidak cocok dengan akunmu.")).toBeVisible();
+  expect(await userIdByEmail(email)).toBeTruthy();
+
+  await page.getByLabel("Ketik email-mu untuk konfirmasi").fill(email.toUpperCase());
+  await page.getByRole("button", { name: "Hapus akun saya" }).click();
+  await expect(page).toHaveURL(/\/(id)?\?akun=dihapus$/);
+  await expect(page.getByRole("status").filter({ hasText: "Akunmu sudah dihapus" })).toBeVisible();
+  await expect(userIdByEmail(email)).rejects.toThrow(/No user/);
+
+  await page.goto("/toko");
+  await expect(page).toHaveURL(/\/login/);
 });

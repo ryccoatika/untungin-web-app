@@ -9,14 +9,25 @@ import { createClient } from "@/lib/supabase/server";
 
 const FEATURES = ["hpp", "price", "profit"] as const;
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const t = await getTranslations("Landing");
+  const tp = await getTranslations("Privacy");
+  const { akun } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const loggedIn = Boolean(data?.claims);
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-5xl flex-col justify-center gap-10 px-4 py-12 lg:py-16">
+      {akun === "dihapus" && (
+        <p role="status" className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
+          {t("accountDeleted")}
+        </p>
+      )}
       <div className="flex items-center justify-between gap-2">
         <BrandLogo />
         <div className="flex items-center gap-2">
@@ -45,6 +56,11 @@ export default async function LandingPage() {
           </li>
         ))}
       </ul>
+      <footer>
+        <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline-offset-4 hover:underline">
+          {tp("link")}
+        </Link>
+      </footer>
     </main>
   );
 }

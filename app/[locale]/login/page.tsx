@@ -18,6 +18,7 @@ export default async function LoginPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations("Auth");
+  const tp = await getTranslations("Privacy");
   const { next: rawNext, error } = await searchParams;
   const next = Array.isArray(rawNext) ? rawNext[0] : rawNext;
   const target = withLocale(
@@ -46,6 +47,9 @@ export default async function LoginPage({
         </p>
       )}
       <GoogleSignInButton next={target} />
+      <Link href="/privasi" className="inline-flex min-h-10 items-center justify-center text-sm underline-offset-4 hover:underline">
+        {tp("link")}
+      </Link>
     </main>
   );
 }

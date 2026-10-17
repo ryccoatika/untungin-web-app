@@ -4,6 +4,7 @@
     "description": "Hitung HPP, harga jual, biaya operasional, dan laba usahamu dengan mudah."
   },
   "Landing": {
+    "accountDeleted": "Akunmu sudah dihapus beserta semua datanya.",
     "heading": "Tahu untung-rugi usahamu sejak hari pertama.",
     "intro": "Hitung HPP dari bahan, biaya operasional, dan penyusutan alat. Dapatkan harga jual yang pas dan lihat kapan modalmu kembali — tanpa perlu paham akuntansi.",
     "features": {
@@ -586,5 +587,42 @@
       "notConfigured": "Analisis AI belum disiapkan di server ini.",
       "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
     }
+  },
+  "Account": {
+    "title": "Akun",
+    "deleteTitle": "Hapus akun",
+    "deleteDescription": "Semua toko dan datamu ikut terhapus permanen. Tidak bisa dibatalkan.",
+    "deleteWarning": "Akun <addr>{email}</addr> beserta semua toko, bahan, produk, biaya, inventaris, dan analisis AI akan dihapus. Ketik email-mu untuk melanjutkan.",
+    "confirmLabel": "Ketik email-mu untuk konfirmasi",
+    "confirmMismatch": "Email tidak cocok dengan akunmu.",
+    "deleteSubmit": "Hapus akun saya",
+    "deletePending": "Menghapus akun…",
+    "deleteFailed": "Akun gagal dihapus. Coba lagi atau hubungi kami.",
+    "deleted": "Akunmu sudah dihapus beserta semua datanya."
+  },
+  "Privacy": {
+    "title": "Kebijakan privasi",
+    "updated": "Terakhir diperbarui: 18 Oktober 2026",
+    "intro": "Untungin membantu kamu menghitung HPP, harga, dan laba usaha. Halaman ini menjelaskan data apa yang kami simpan, untuk apa, dan bagaimana kamu menghapusnya.",
+    "whoTitle": "Siapa kami",
+    "whoBody": "Untungin dikelola oleh {name}. Pertanyaan atau permintaan soal datamu: <mail>{email}</mail>.",
+    "dataTitle": "Data yang kami simpan",
+    "dataAccount": "Akun: nama dan email dari akun Google yang kamu pakai untuk masuk, serta pilihan bahasa.",
+    "dataStore": "Data usaha yang kamu isi: toko, bahan, produk, resep, harga, kanal penjualan, biaya, dan inventaris.",
+    "dataAi": "Hasil analisis AI yang kamu minta, beserta ringkasan angka toko yang dikirim untuk analisis itu, dan catatan pemakaian kuota harian.",
+    "useTitle": "Untuk apa",
+    "useBody": "Hanya untuk menjalankan Untungin untukmu: menghitung, menyimpan, dan menampilkan datamu. Kami tidak menjual data dan tidak memakainya untuk iklan.",
+    "thirdTitle": "Layanan pihak ketiga",
+    "thirdSupabase": "Supabase menyimpan database dan mengurus proses masuk.",
+    "thirdGoogle": "Google dipakai untuk masuk (Google Sign-In).",
+    "thirdGemini": "Google Gemini menerima ringkasan angka tokomu (nama toko, produk, bahan, kanal, harga, dan biaya) hanya saat kamu menekan \"Analisis usahaku\". Google memproses data itu sesuai ketentuan Gemini API.",
+    "thirdVercel": "Vercel menjalankan aplikasi ini.",
+    "storageTitle": "Cookie dan penyimpanan di perangkat",
+    "storageBody": "Cookie dipakai untuk menjaga kamu tetap masuk dan mengingat bahasa. Di perangkatmu kami juga menyimpan pilihan tema, tampilan grafik 3D/2D, dan tanda bahwa perayaan laba pertama sudah tampil. Tidak ada cookie iklan atau pelacak.",
+    "deleteTitle": "Menghapus data",
+    "deleteBody": "Kamu bisa menghapus satu toko atau seluruh akun kapan saja di Pengaturan toko. Menghapus akun menghapus semua toko dan datamu secara permanen.",
+    "rightsTitle": "Hak kamu",
+    "rightsBody": "Kamu berhak melihat, membetulkan, dan menghapus datamu, sesuai UU Pelindungan Data Pribadi. Sebagian besar bisa langsung kamu lakukan di aplikasi; untuk hal lain, hubungi <mail>{email}</mail>.",
+    "link": "Kebijakan privasi"
   }
 }
