@@ -11,13 +11,20 @@ import { getStore } from "@/lib/data/stores";
 import { formatPercent, formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
 import { MetricCards } from "./metric-cards";
+import { Moments } from "./moments";
 import { ProductChart, type ProductChartBar } from "./product-chart";
 import { ProductLines } from "./product-lines";
 import { SetupChecklist } from "./setup-checklist";
 import { WarningsList } from "./warnings-list";
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string; storeId: string }> }) {
+type Props = {
+  params: Promise<{ locale: string; storeId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function DashboardPage({ params, searchParams }: Props) {
   const { storeId } = await params;
+  const welcome = (await searchParams).welcome === "1";
   const [store, data] = await Promise.all([getStore(storeId), loadStoreData(storeId)]);
   if (!store || !data) notFound();
   const t = await getTranslations("Dashboard");
@@ -48,6 +55,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <h1 className="text-2xl font-semibold [overflow-wrap:anywhere]">{store.name}</h1>
         <p className="text-sm text-muted-foreground">{businessTypeLabel(store.business_type)}</p>
       </div>
+
+      <Moments
+        storeId={store.id}
+        welcome={welcome}
+        profitPositive={analysis !== null && analysis.totalUnits > 0 && analysis.netProfit > 0}
+      />
 
       {error && (
         <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm [overflow-wrap:anywhere]">

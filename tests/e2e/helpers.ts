@@ -77,7 +77,7 @@ export async function createStoreViaOnboarding(page: Page, name: string, margin 
   await page.getByRole("button", { name: "Lanjut" }).click();
   await page.getByLabel("Target margin (%)").fill(margin);
   await page.getByRole("button", { name: "Buat toko" }).click();
-  await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard$/);
+  await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard(\?welcome=1)?$/);
 }
 
 /** URL of another page of the store currently open, e.g. storeUrl(page, "bahan"). */

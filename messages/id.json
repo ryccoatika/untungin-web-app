@@ -238,7 +238,10 @@
     "moreIn2d": "+{count} lainnya, lihat di 2D",
     "view3d": "3D",
     "view2d": "2D",
-    "viewSwitch": "Tampilan grafik"
+    "viewSwitch": "Tampilan grafik",
+    "welcome": "Toko siap! Mulai dengan mencatat bahan yang kamu beli.",
+    "firstProfit": "Selamat! Usahamu mulai untung.",
+    "dismiss": "Tutup"
   },
   "Dashboard": {
     "tryAnalysis": "Analisis usahaku",

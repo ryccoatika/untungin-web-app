@@ -65,5 +65,5 @@ export async function createStoreAction(_prev: FormState, formData: FormData): P
     return { message: tStore("createFailed"), values };
   }
 
-  return redirect({ href: `/s/${storeId}/dashboard`, locale: await getLocale() });
+  return redirect({ href: `/s/${storeId}/dashboard?welcome=1`, locale: await getLocale() });
 }

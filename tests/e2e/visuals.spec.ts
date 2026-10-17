@@ -103,3 +103,40 @@ test.describe("dashboard chart", () => {
     expect(warnings.filter((text) => /too many|lost/i.test(text))).toEqual([]);
   });
 });
+
+test.describe("moments", () => {
+  test("a new store is welcomed once, and the address bar is cleaned", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await signIn(page);
+    await createStoreViaOnboarding(page, "Toko Baru");
+    await expect(page.getByRole("status").filter({ hasText: "Toko siap!" })).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard$/);
+    expect(await threeLoaded(page)).toBe(false);
+    await page.reload();
+    await expect(page.getByText("Toko siap!")).toHaveCount(0);
+  });
+
+  test("first profit is celebrated once per store, and the message can be closed", async ({ page }) => {
+    await storeWithChart(page);
+    await page.goto(storeUrl(page, "dashboard"));
+    const message = page.getByRole("status").filter({ hasText: "Selamat! Usahamu mulai untung." });
+    await expect(message).toBeVisible();
+    // The burst never blocks the page.
+    await page.getByRole("link", { name: "Coba simulasi" }).click({ trial: true });
+    await message.getByRole("button", { name: "Tutup" }).click();
+    await expect(message).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByText("Selamat! Usahamu mulai untung.")).toHaveCount(0);
+  });
+
+  test("empty simulation and analysis pages show the illustration; reduced motion keeps it static", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await signIn(page);
+    await createStoreViaOnboarding(page, "Toko Kosong");
+    for (const path of ["simulasi", "analisis"]) {
+      await page.goto(storeUrl(page, path));
+      await expect(page.getByTestId("empty-drawing")).toBeVisible();
+    }
+    expect(await threeLoaded(page)).toBe(false);
+  });
+});

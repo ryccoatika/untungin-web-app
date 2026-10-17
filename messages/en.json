@@ -238,7 +238,10 @@
     "moreIn2d": "+{count} more, see 2D",
     "view3d": "3D",
     "view2d": "2D",
-    "viewSwitch": "Chart view"
+    "viewSwitch": "Chart view",
+    "welcome": "Your store is ready! Start by adding the materials you buy.",
+    "firstProfit": "Congratulations! Your business is now making a profit.",
+    "dismiss": "Close"
   },
   "Dashboard": {
     "tryAnalysis": "Analyze my business",
