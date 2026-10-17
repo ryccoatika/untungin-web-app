@@ -30,6 +30,16 @@ describe("recommendPrice", () => {
     expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 70, targetMarginPct: 40 })).toEqual({ kind: "impossible" });
   });
 
+  it("treats decimal percentages that sum to 100 as impossible", () => {
+    expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 64.1, targetMarginPct: 35.9 })).toEqual({ kind: "impossible" });
+    expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 12.5, targetMarginPct: 87.5 })).toEqual({ kind: "impossible" });
+  });
+
+  it("is impossible when the price would exceed the maximum", () => {
+    // 3.000.000 / 0,001 = 3.000.000.000 > 2.000.000.000
+    expect(recommendPrice({ cost: 3_000_000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 99, targetMarginPct: 0.9 })).toEqual({ kind: "impossible" });
+  });
+
   it("uses integer-percent share to avoid floating-point issues", () => {
     // 70 + 30 = 100: exactly impossible, not ~5.5e-17 share
     expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 70, targetMarginPct: 30 })).toEqual({
@@ -71,6 +81,12 @@ describe("recommendForChannel — the coffee-shop fixture", () => {
     const extra = fixture();
     extra.channels.push({ id: "qris", name: "Offline – QRIS", commissionPct: 0, fixedFee: 0 });
     expect(recommendForChannel(extra, computeMetrics(extra), "eskopi", "qris")).toMatchObject({ kind: "price", price: 16500 });
+  });
+
+  it("returns null while the product has no composition", () => {
+    const empty = fixture();
+    empty.composition = [];
+    expect(recommendForChannel(empty, computeMetrics(empty), "eskopi", "offline")).toBeNull();
   });
 
   it("returns null for an unknown product or channel", () => {

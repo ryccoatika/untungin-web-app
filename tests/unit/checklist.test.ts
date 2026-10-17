@@ -31,6 +31,10 @@ describe("setupChecklist", () => {
     noComposition.composition = [];
     expect(done(noComposition).products).toBe(false);
 
+    const onlyChannelRow = fixture();
+    onlyChannelRow.composition = onlyChannelRow.composition.map((row) => ({ ...row, channelId: "online" }));
+    expect(done(onlyChannelRow).products).toBe(false);
+
     const inactive = fixture();
     inactive.products[0] = { ...inactive.products[0], isActive: false };
     expect(done(inactive).products).toBe(false);

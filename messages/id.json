@@ -103,7 +103,7 @@
       "nameRequired": "Nama bahan wajib diisi",
       "nameTooLong": "Nama bahan maksimal 80 karakter",
       "categoryInvalid": "Pilih jenis bahan",
-      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "qtyPositive": "Jumlah beli harus lebih dari 0",
       "unitInvalid": "Pilih satuan",
       "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
@@ -117,7 +117,7 @@
       "nameRequired": "Nama produk wajib diisi",
       "nameTooLong": "Nama produk maksimal 80 karakter",
       "categoryTooLong": "Kategori maksimal 40 karakter",
-      "yieldNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "yieldNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "yieldPositive": "Hasil per resep harus lebih dari 0",
       "marginNumber": "Isi margin dengan angka",
       "marginMin": "Margin tidak boleh negatif",
@@ -125,7 +125,7 @@
     },
     "composition": {
       "materialRequired": "Pilih bahan",
-      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik (1000), desimal pakai koma (1,5).",
+      "qtyNumber": "Isi dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
       "qtyPositive": "Jumlah harus lebih dari 0",
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
@@ -462,7 +462,7 @@
     "competitor": "Harga pesaing",
     "recommendation": "Harga rekomendasi: {price}",
     "recommendationNoOverhead": "Belum termasuk biaya operasional — isi perkiraan penjualan supaya lebih akurat.",
-    "recommendationImpossible": "Komisi + target margin ≥ 100%, tidak ada harga yang memenuhi. Turunkan target margin atau pakai kanal lain.",
+    "recommendationImpossible": "Komisi + target margin terlalu besar, tidak ada harga wajar yang memenuhi. Turunkan target margin atau pakai kanal lain.",
     "useRecommendation": "Pakai harga rekomendasi"
   },
   "Warnings": {

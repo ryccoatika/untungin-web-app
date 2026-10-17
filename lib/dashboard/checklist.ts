@@ -7,7 +7,7 @@ export type ChecklistItem = { key: ChecklistKey; done: boolean; href: string; op
 /** Setup steps shown on the dashboard until every required step is done, optional steps excluded (spec §5.2). */
 export function setupChecklist(data: StoreData): ChecklistItem[] {
   const base = `/s/${data.store.id}`;
-  const withComposition = new Set(data.composition.map((row) => row.productId));
+  const withComposition = new Set(data.composition.filter((row) => row.channelId === null).map((row) => row.productId));
   // A product is "done" once the dashboard can show its profit.
   const productReady = data.products.some(
     (product) =>

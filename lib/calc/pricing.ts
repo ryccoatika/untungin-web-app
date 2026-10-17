@@ -6,6 +6,9 @@ export type Recommendation =
   | { kind: "price"; price: number; includesOperatingCosts: boolean }
   | { kind: "impossible" };
 
+/** Matches the price field's maximum in lib/validation/common.ts (lib/calc must not import from it). */
+const MAX_RECOMMENDED_PRICE = 2_000_000_000;
+
 /** Rounds up to the next Rp500, ignoring floating-point noise just above a multiple. */
 export function ceilTo500(value: number): number {
   return (Math.ceil(value / 500 - 1e-9) || 0) * 500;
@@ -22,13 +25,12 @@ export function recommendPrice(input: {
   commissionPct: number;
   targetMarginPct: number;
 }): Recommendation {
-  const sharePct = 100 - input.commissionPct - input.targetMarginPct;
+  // Rounded to 6 decimals so decimal percentages (64,1 + 35,9) do not leave float noise above zero.
+  const sharePct = Math.round((100 - input.commissionPct - input.targetMarginPct) * 1e6) / 1e6;
   if (sharePct <= 0) return { kind: "impossible" };
-  return {
-    kind: "price",
-    price: ceilTo500((input.cost + input.fixedFee) / (sharePct / 100)),
-    includesOperatingCosts: input.includesOperatingCosts,
-  };
+  const price = ceilTo500((input.cost + input.fixedFee) / (sharePct / 100));
+  if (price > MAX_RECOMMENDED_PRICE) return { kind: "impossible" };
+  return { kind: "price", price, includesOperatingCosts: input.includesOperatingCosts };
 }
 
 /** Recommendation for one product in one channel, using the store's current overhead per unit. */
@@ -42,6 +44,8 @@ export function recommendForChannel(
   const channel = data.channels.find((candidate) => candidate.id === channelId);
   if (!product || !channel) return null;
   const materialCost = materialCostPerUnit(product, data.composition, mapById(data.materials), channel.id);
+  // Nothing to price until this channel has a composition.
+  if (materialCost === 0) return null;
   const overhead = metrics.overheadPerUnit;
   return recommendPrice({
     cost: overhead === null ? materialCost : materialCost + overhead,

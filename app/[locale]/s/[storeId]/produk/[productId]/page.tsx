@@ -52,7 +52,7 @@ export default async function ProductPage({ params }: { params: Params }) {
     });
   const tPricing = await getTranslations("Pricing");
   const { error: calcError } = tryAnalyzeStore(data);
-  const hasComposition = rows.length > 0;
+  const hasComposition = data.composition.some((row) => row.productId === product.id && row.channelId === null);
 
   return (
     <div className="max-w-2xl space-y-6">

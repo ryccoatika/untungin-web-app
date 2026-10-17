@@ -103,7 +103,7 @@
       "nameRequired": "Material name is required",
       "nameTooLong": "Material name can be at most 80 characters",
       "categoryInvalid": "Choose a type",
-      "qtyNumber": "Enter a number. Write thousands without a dot (1000) and use a comma or dot for decimals (1,5).",
+      "qtyNumber": "Enter a number. Write thousands without a dot or comma (1000), and decimals like 1,5 or 1.25.",
       "qtyPositive": "The amount bought must be more than 0",
       "unitInvalid": "Choose a unit",
       "priceNumber": "Enter the price as a whole number, e.g. 15,000",
@@ -117,7 +117,7 @@
       "nameRequired": "Product name is required",
       "nameTooLong": "Product name can be at most 80 characters",
       "categoryTooLong": "Category can be at most 40 characters",
-      "yieldNumber": "Enter a number. Write thousands without a dot (1000) and use a comma or dot for decimals (1,5).",
+      "yieldNumber": "Enter a number. Write thousands without a dot or comma (1000), and decimals like 1,5 or 1.25.",
       "yieldPositive": "Yield must be more than 0",
       "marginNumber": "Enter the margin as a number",
       "marginMin": "Margin can't be negative",
@@ -125,7 +125,7 @@
     },
     "composition": {
       "materialRequired": "Choose a material",
-      "qtyNumber": "Enter a number. Write thousands without a dot (1000) and use a comma or dot for decimals (1,5).",
+      "qtyNumber": "Enter a number. Write thousands without a dot or comma (1000), and decimals like 1,5 or 1.25.",
       "qtyPositive": "The amount must be more than 0",
       "unitInvalid": "Choose a unit",
       "basisInvalid": "Choose how it is counted",
@@ -462,7 +462,7 @@
     "competitor": "Competitor price",
     "recommendation": "Recommended price: {price}",
     "recommendationNoOverhead": "Doesn't include operating costs yet — fill in expected sales for a better estimate.",
-    "recommendationImpossible": "Commission + target margin ≥ 100%: no price satisfies this. Lower the target margin or use another channel.",
+    "recommendationImpossible": "Commission + target margin are too high: no sensible price satisfies this. Lower the target margin or use another channel.",
     "useRecommendation": "Use recommended price"
   },
   "Warnings": {
