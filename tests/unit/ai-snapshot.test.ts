@@ -159,12 +159,13 @@ describe("buildSnapshot", () => {
 
   it("serializes tiny negative contribution as 0, not -0", () => {
     const data = storeData({
-      prices: [{ ...storeData().prices[0], price: 350 }], // material cost ~300, so contribution ~50 or negative
+      prices: [{ ...storeData().prices[0], price: 299.6 }], // material cost 300, contribution = 299.6 - 300 = -0.4 → rounds to -0
     });
     const snapshot = snapshotOf(data);
-    const contrib = snapshot.products[0]?.lines[0]?.contribution ?? -1;
-    // Check it's not -0
-    expect(Object.is(contrib, -0)).toBe(false);
+    const line = snapshot.products[0]?.lines[0];
+    expect(line).toBeDefined();
+    expect(Object.is(line!.contribution, -0)).toBe(false);
+    expect(line!.contribution).toBe(0);
   });
 
   it("ignores price rows for non-existent channels", () => {
@@ -256,6 +257,18 @@ describe("buildSnapshot NaN handling", () => {
     const data = storeData();
     const analysis = analyzeStore(data);
     const badAnalysis = { ...analysis, netMarginPct: NaN } as unknown as typeof analysis;
+    expect(() => buildSnapshot(data, badAnalysis, info, "id")).toThrow(
+      "Non-finite number in AI snapshot",
+    );
+  });
+
+  it("throws on Infinity in line prices", () => {
+    const data = storeData();
+    const analysis = analyzeStore(data);
+    const badAnalysis = {
+      ...analysis,
+      lines: [{ ...analysis.lines[0]!, price: Infinity }],
+    } as unknown as typeof analysis;
     expect(() => buildSnapshot(data, badAnalysis, info, "id")).toThrow(
       "Non-finite number in AI snapshot",
     );
