@@ -333,6 +333,23 @@
     "delete": "Delete item"
   },
   "LineStatus": { "red": "Loss", "yellow": "Below target", "green": "On target" },
+  "Basis": { "batch": "Per recipe (split by yield)", "unit": "Per unit" },
+  "Composition": {
+    "title": "Composition",
+    "intro": "Materials and packaging for this product. 1 recipe = {yield} units.",
+    "material": "Material",
+    "materialPlaceholder": "Choose a material",
+    "qty": "Amount",
+    "unit": "Unit",
+    "basis": "Counted",
+    "add": "Add to composition",
+    "added": "Added to the composition.",
+    "empty": "No materials in the composition yet. Add the first one below.",
+    "noMaterials": "No materials to choose from yet.",
+    "goToMaterials": "Add materials first",
+    "rowCost": "{cost}/unit",
+    "deleteRow": "Remove {material} from the composition"
+  },
   "Products": {
     "title": "Products",
     "intro": "The products you sell. Open a product to fill in its composition and price.",

@@ -3,12 +3,20 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { DeleteButton } from "@/components/forms/delete-button";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
+import { mapById, sameDimension, toBase, unitCost } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
-import { formatPercent } from "@/lib/format";
-import { deleteProductAction, updateProductAction } from "../actions";
+import { formatNumber, formatPercent } from "@/lib/format";
+import {
+  addCompositionRowAction,
+  deleteCompositionRowAction,
+  deleteProductAction,
+  updateCompositionRowAction,
+  updateProductAction,
+} from "../actions";
 import { ProductForm } from "../product-form";
+import { CompositionEditor, type EditorRow } from "./composition-editor";
 
 type Params = Promise<{ locale: string; storeId: string; productId: string }>;
 
@@ -20,6 +28,25 @@ export default async function ProductPage({ params }: { params: Params }) {
   const t = await getTranslations("Products");
   const tCommon = await getTranslations("Common");
   const locale = await getLocale();
+  const tComposition = await getTranslations("Composition");
+  const materials = mapById(data.materials);
+  // Phase 2 rows are shared by every channel; channel-specific rows arrive with the channel page (Phase 3).
+  const rows: EditorRow[] = data.composition
+    .filter((row) => row.productId === product.id && row.channelId === null)
+    .map((row) => {
+      const material = materials.get(row.materialId);
+      const usable = material && sameDimension(row.unit, material.purchaseUnit);
+      const perBatch = usable ? toBase(row.qty, row.unit) * unitCost(material) : 0;
+      return {
+        id: row.id,
+        materialId: row.materialId,
+        materialName: material?.name ?? "?",
+        qty: row.qty,
+        unit: row.unit,
+        basis: row.basis,
+        costPerUnit: row.basis === "batch" ? perBatch / product.yieldQty : perBatch,
+      };
+    });
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -31,6 +58,27 @@ export default async function ProductPage({ params }: { params: Params }) {
         <h1 className="min-w-0 text-2xl font-semibold [overflow-wrap:anywhere]">{product.name}</h1>
         {!product.isActive && <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{t("inactive")}</span>}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{tComposition("title")}</CardTitle>
+          <CardDescription>{tComposition("intro", { yield: formatNumber(product.yieldQty, locale) })}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CompositionEditor
+            rows={rows}
+            materials={data.materials.map(({ id, name, category, purchaseUnit }) => ({ id, name, category, purchaseUnit }))}
+            addAction={addCompositionRowAction.bind(null, data.store.id, product.id)}
+            updateActions={Object.fromEntries(
+              rows.map((row) => [row.id, updateCompositionRowAction.bind(null, data.store.id, product.id, row.id)]),
+            )}
+            deleteActions={Object.fromEntries(
+              rows.map((row) => [row.id, deleteCompositionRowAction.bind(null, data.store.id, product.id, row.id)]),
+            )}
+            materialsHref={`/s/${data.store.id}/bahan`}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

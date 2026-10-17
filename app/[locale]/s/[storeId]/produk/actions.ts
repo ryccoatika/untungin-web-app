@@ -8,7 +8,9 @@ import { revalidateStore } from "@/lib/data/revalidate";
 import { rawValues, type FormState } from "@/lib/forms";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { translateFieldErrors } from "@/lib/i18n/translate";
+import { isUnit } from "@/lib/calc";
 import { isUuid } from "@/lib/uuid";
+import { compositionInputSchema, compositionUnitError, toCompositionColumns } from "@/lib/validation/composition";
 import { productInputSchema, toProductColumns } from "@/lib/validation/product";
 
 const PRODUCT_FIELDS = ["name", "category", "yieldQty", "targetMarginPct", "isActive"] as const;
@@ -76,4 +78,106 @@ export async function deleteProductAction(storeId: string, productId: string): P
 
   revalidateStore();
   return redirect({ href: `/s/${storeId}/produk`, locale: await getLocale() });
+}
+
+const ROW_FIELDS = ["materialId", "qty", "unit", "basis"] as const;
+
+type Supabase = Awaited<ReturnType<typeof requireUser>>["supabase"];
+
+async function parseRow(formData: FormData) {
+  const values = rawValues(formData, ROW_FIELDS);
+  const parsed = compositionInputSchema.safeParse(values);
+  if (parsed.success) return { values, input: parsed.data, error: undefined };
+  const tValidation = await getValidationTranslator();
+  const fieldErrors = translateFieldErrors(z.flattenError(parsed.error).fieldErrors, tValidation);
+  return { values, input: undefined, error: { fieldErrors, values } satisfies FormState };
+}
+
+/** The material must belong to the store and the row's unit must match its dimension. */
+async function rowErrors(supabase: Supabase, storeId: string, materialId: string, unit: Parameters<typeof compositionUnitError>[1]) {
+  const tValidation = await getValidationTranslator();
+  const { data: material } = await supabase
+    .from("materials")
+    .select("purchase_unit")
+    .eq("id", materialId)
+    .eq("store_id", storeId)
+    .maybeSingle();
+  if (!material || !isUnit(material.purchase_unit)) return { materialId: [tValidation("composition.materialRequired")] };
+  const key = compositionUnitError(material.purchase_unit, unit);
+  return key ? { unit: [tValidation(key)] } : null;
+}
+
+export async function addCompositionRowAction(
+  storeId: string,
+  productId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const tCommon = await getTranslations("Common");
+  const parsed = await parseRow(formData);
+  if (parsed.error) return parsed.error;
+  if (!isUuid(storeId) || !isUuid(productId)) return { message: tCommon("notFound"), values: parsed.values };
+
+  const { supabase } = await requireUser();
+  const fieldErrors = await rowErrors(supabase, storeId, parsed.input.materialId, parsed.input.unit);
+  if (fieldErrors) return { fieldErrors, values: parsed.values };
+
+  const { error } = await supabase.from("product_materials").insert({
+    store_id: storeId,
+    product_id: productId,
+    channel_id: null,
+    ...toCompositionColumns(parsed.input),
+  });
+  if (error) return { message: tCommon("saveFailed"), values: parsed.values };
+
+  revalidateStore();
+  return { ok: true, message: (await getTranslations("Composition"))("added") };
+}
+
+export async function updateCompositionRowAction(
+  storeId: string,
+  productId: string,
+  rowId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const tCommon = await getTranslations("Common");
+  const parsed = await parseRow(formData);
+  if (parsed.error) return parsed.error;
+  if (!isUuid(storeId) || !isUuid(productId) || !isUuid(rowId)) return { message: tCommon("notFound"), values: parsed.values };
+
+  const { supabase } = await requireUser();
+  const fieldErrors = await rowErrors(supabase, storeId, parsed.input.materialId, parsed.input.unit);
+  if (fieldErrors) return { fieldErrors, values: parsed.values };
+
+  // The material of an existing row never changes; only amount, unit and basis.
+  const { data, error } = await supabase
+    .from("product_materials")
+    .update({ qty: parsed.input.qty, unit: parsed.input.unit, basis: parsed.input.basis })
+    .eq("id", rowId)
+    .eq("product_id", productId)
+    .eq("store_id", storeId)
+    .select("id");
+  if (error || !data?.length) return { message: tCommon("saveFailed"), values: parsed.values };
+
+  revalidateStore();
+  return { ok: true, message: tCommon("saved"), values: parsed.values };
+}
+
+export async function deleteCompositionRowAction(storeId: string, productId: string, rowId: string): Promise<FormState> {
+  const tCommon = await getTranslations("Common");
+  if (!isUuid(storeId) || !isUuid(productId) || !isUuid(rowId)) return { message: tCommon("notFound") };
+
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase
+    .from("product_materials")
+    .delete()
+    .eq("id", rowId)
+    .eq("product_id", productId)
+    .eq("store_id", storeId)
+    .select("id");
+  if (error || !data?.length) return { message: tCommon("deleteFailed") };
+
+  revalidateStore();
+  return { ok: true };
 }

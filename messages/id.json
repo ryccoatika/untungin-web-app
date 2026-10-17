@@ -333,6 +333,23 @@
     "delete": "Hapus barang"
   },
   "LineStatus": { "red": "Rugi", "yellow": "Di bawah target", "green": "Sesuai target" },
+  "Basis": { "batch": "Per resep (dibagi hasil)", "unit": "Per porsi/unit" },
+  "Composition": {
+    "title": "Komposisi",
+    "intro": "Bahan dan kemasan untuk produk ini. 1 resep = {yield} porsi/unit.",
+    "material": "Bahan",
+    "materialPlaceholder": "Pilih bahan",
+    "qty": "Jumlah",
+    "unit": "Satuan",
+    "basis": "Dihitung",
+    "add": "Tambah ke komposisi",
+    "added": "Bahan ditambahkan ke komposisi.",
+    "empty": "Belum ada bahan di komposisi. Tambahkan bahan pertama di bawah.",
+    "noMaterials": "Belum ada bahan untuk dipilih.",
+    "goToMaterials": "Tambah bahan dulu",
+    "rowCost": "{cost}/porsi",
+    "deleteRow": "Hapus {material} dari komposisi"
+  },
   "Products": {
     "title": "Produk",
     "intro": "Produk yang kamu jual. Buka produk untuk mengisi komposisi dan harga.",

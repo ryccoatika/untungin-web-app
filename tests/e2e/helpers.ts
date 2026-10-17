@@ -140,3 +140,15 @@ export async function addProduct(page: Page, p: { name: string; yieldQty: string
   await form.getByRole("button", { name: "Tambah" }).click();
   await page.waitForURL(/\/produk\/[0-9a-f-]{36}$/);
 }
+
+export async function addCompositionRow(page: Page, r: { material: string; qty: string; unit?: string; basis?: "batch" | "unit" }) {
+  const form = page.locator("#add-composition");
+  await form.getByLabel("Bahan", { exact: true }).selectOption({ label: r.material });
+  await form.getByLabel("Jumlah").fill(r.qty);
+  if (r.unit) await form.getByLabel("Satuan").selectOption(r.unit);
+  if (r.basis) await form.getByLabel("Dihitung").selectOption(r.basis);
+  await form.getByRole("button", { name: "Tambah ke komposisi" }).click();
+  await expect(page.getByText("Bahan ditambahkan ke komposisi.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Bahan", { exact: true })).toHaveValue("");
+}
