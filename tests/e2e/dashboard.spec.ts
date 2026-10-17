@@ -21,6 +21,7 @@ test("a new store shows the checklist and no broken numbers", async ({ page }) =
   await expect(page.getByTestId("metric-bep")).toHaveText("—");
   await expect(page.getByTestId("metric-payback")).toHaveText("—");
   expect(await page.getByRole("main").innerText()).not.toMatch(/NaN|Infinity|undefined/);
+  await expect(page.getByRole("link", { name: "Coba simulasi" })).toHaveCount(0);
 });
 
 test("the full flow shows profit, break-even and payback", async ({ page }) => {
@@ -55,6 +56,10 @@ test("the full flow shows profit, break-even and payback", async ({ page }) => {
   await expect(page.getByText("Langkah awal")).toBeHidden();
   await expect(page.getByText("Margin di bawah target: Es teh manis (Offline – Tunai).")).toBeVisible();
   await expect(page.getByRole("link", { name: /Es teh manis/ })).toContainText("Di bawah target");
+
+  await page.getByRole("link", { name: "Coba simulasi" }).click();
+  await expect(page).toHaveURL(/\/simulasi$/);
+  await expect(page.getByTestId("sim-now-netProfit")).toHaveText("Rp170.000");
 });
 
 test("deleting a product removes it from the dashboard", async ({ page }) => {

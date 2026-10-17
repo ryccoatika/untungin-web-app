@@ -190,6 +190,7 @@
       "channels": "Kanal",
       "expenses": "Biaya",
       "assets": "Inventaris",
+      "simulation": "Simulasi",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
@@ -197,6 +198,7 @@
       "channels": "GoFood, Shopee, QRIS, dan tempat jualan lain",
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
+      "simulation": "Coba ubah harga dan penjualan tanpa mengubah datamu",
       "settings": "Ubah data toko atau hapus toko"
     }
   },
@@ -227,6 +229,7 @@
     "add": "Tambah toko"
   },
   "Dashboard": {
+    "trySimulation": "Coba simulasi",
     "basis": "Dasar perhitungan",
     "operatingDays": "Hari buka per bulan",
     "operatingDaysValue": "{days} hari",
@@ -464,6 +467,42 @@
     "recommendationNoOverhead": "Belum termasuk biaya operasional — isi perkiraan penjualan supaya lebih akurat.",
     "recommendationImpossible": "Komisi + target margin terlalu besar, tidak ada harga wajar yang memenuhi. Turunkan target margin atau pakai kanal lain.",
     "useRecommendation": "Pakai harga rekomendasi"
+  },
+  "Simulation": {
+    "title": "Simulasi",
+    "intro": "Coba ubah harga bahan, jumlah terjual, atau harga jual. Tidak ada yang disimpan — data aslimu aman.",
+    "controlsTitle": "Ubah angka",
+    "materialAll": "Harga semua bahan",
+    "sales": "Jumlah terjual",
+    "perMaterial": "Atur per bahan",
+    "perMaterialHint": "Kosongkan untuk ikut \"Harga semua bahan\".",
+    "materialPct": "Perubahan harga {material} (%)",
+    "prices": "Harga jual",
+    "priceFor": "Harga jual {product} ({channel})",
+    "reset": "Kembali ke angka sekarang",
+    "resultsTitle": "Hasil",
+    "now": "Sekarang",
+    "sim": "Simulasi",
+    "diff": "Selisih",
+    "points": "{value} poin",
+    "salesNeedsEstimates": "Isi perkiraan terjual per bulan di halaman produk dulu supaya simulasi penjualan berpengaruh.",
+    "metrics": {
+      "netProfit": "Laba bersih / bulan",
+      "grossRevenue": "Omzet / bulan",
+      "netMarginPct": "Margin bersih",
+      "bepUnitsDaily": "Titik impas",
+      "paybackMonths": "Balik modal"
+    },
+    "perDay": "{units, number} terjual/hari",
+    "months": "≈ {months} bulan",
+    "linesTitle": "Margin per produk",
+    "lineMargin": "{now} → {sim}",
+    "warningsTitle": "Peringatan di simulasi",
+    "shareHint": "Alamat halaman ini menyimpan pengaturan simulasi, jadi bisa dibuka lagi atau dibagikan.",
+    "emptyTitle": "Belum ada yang bisa disimulasikan",
+    "emptyBody": "Isi produk dengan komposisi, harga, dan perkiraan penjualan dulu.",
+    "emptyAction": "Ke halaman produk",
+    "calcError": "Ada komposisi dengan satuan yang tidak cocok. Perbaiki dulu di halaman produk."
   },
   "Warnings": {
     "NET_LOSS": "Usahamu rugi per bulan: biaya tetap lebih besar dari laba kotor.",

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import { tryAnalyzeStore, type LineRef } from "@/lib/calc";
@@ -48,6 +49,11 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
       {analysis && (
         <>
           <MetricCards analysis={analysis} />
+          {analysis.lines.length > 0 && (
+            <Link href={`/s/${data.store.id}/simulasi`} className={buttonVariants({ variant: "outline" })}>
+              {t("trySimulation")}
+            </Link>
+          )}
           <WarningsList warnings={analysis.warnings} lineLabel={lineLabel} />
           <ProductLines analysis={analysis} data={data} />
         </>
