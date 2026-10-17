@@ -1,0 +1,141 @@
+{
+  "Metadata": {
+    "title": "Untungin — Calculate COGS & Business Profit",
+    "description": "Calculate COGS, selling prices, operating costs, and your business profit with ease."
+  },
+  "Landing": {
+    "heading": "Know whether your business makes money from day one.",
+    "intro": "Calculate COGS from ingredients, operating costs, and equipment depreciation. Get the right selling price and see when you'll earn your capital back — no accounting knowledge needed.",
+    "features": {
+      "hpp": {
+        "title": "Automatic COGS",
+        "body": "Enter ingredients and amounts; the cost per portion is calculated instantly."
+      },
+      "price": {
+        "title": "The right price",
+        "body": "Price suggestions for your target margin, including GoFood & marketplace fees."
+      },
+      "profit": {
+        "title": "Profit & payback",
+        "body": "See monthly profit, daily sales targets, and when your capital comes back."
+      }
+    },
+    "openApp": "Open the app",
+    "startFree": "Start free with Google"
+  },
+  "Auth": {
+    "title": "Sign in to Untungin",
+    "subtitle": "Calculate COGS, selling prices, and your business profit.",
+    "error": "Sign-in failed. Please try again.",
+    "google": "Sign in with Google",
+    "googlePending": "Opening Google…",
+    "googleError": "Could not open Google sign-in. Try again.",
+    "signOut": "Sign out",
+    "signOutPending": "Signing out…"
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist, or you don't have access to it.",
+    "back": "Back to the app"
+  },
+  "Errors": {
+    "title": "Something went wrong",
+    "body": "Sorry, something went wrong. Please try again.",
+    "retry": "Try again",
+    "home": "Back to home"
+  },
+  "Onboarding": {
+    "titleFirst": "Welcome! Create your store",
+    "titleAnother": "Add a new store",
+    "subtitle": "Just the basics. You can change everything later in Settings.",
+    "cancel": "Cancel",
+    "step": "Step {step} of 2",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Create store",
+    "submitPending": "Creating store…"
+  },
+  "StoreFields": {
+    "name": "Store name",
+    "businessType": "Business type",
+    "businessTypePlaceholder": "Choose a business type",
+    "targetMarket": "Target market (optional)",
+    "targetMarketUnknown": "Not sure yet",
+    "targetMarketHint": "Used to tailor price suggestions.",
+    "operatingDays": "Open days per month",
+    "operatingDaysHint": "Used to calculate daily costs and daily sales targets.",
+    "targetMargin": "Target margin (%)",
+    "targetMarginHint": "A 40% margin means 40% of the selling price is profit. That differs from a 40% markup (price = cost + 40%), which only gives a margin of about 29%."
+  },
+  "BusinessType": {
+    "makanan": "Food",
+    "minuman": "Drinks",
+    "kue_roti": "Cakes & bakery",
+    "katering": "Catering",
+    "produk_olahan": "Processed goods (soap, candles, crafts, etc.)",
+    "lainnya": "Other"
+  },
+  "TargetMarket": {
+    "menengah_bawah": "Lower-middle",
+    "menengah": "Middle",
+    "menengah_atas": "Upper-middle"
+  },
+  "Validation": {
+    "store": {
+      "nameRequired": "Store name is required",
+      "nameTooLong": "Store name can be at most 60 characters",
+      "businessTypeInvalid": "Choose a business type",
+      "targetMarketInvalid": "Choose one of the available target markets",
+      "operatingDaysNumber": "Enter the number of open days",
+      "operatingDaysInteger": "Days must be a whole number",
+      "operatingDaysMin": "At least 1 day",
+      "operatingDaysMax": "At most 31 days",
+      "marginNumber": "Enter the target margin as a number",
+      "marginMin": "Target margin must be at least 0%",
+      "marginMax": "Target margin must be less than 100%",
+      "duplicateName": "You already have a store with this name.",
+      "confirmMismatch": "The store name does not match."
+    }
+  },
+  "Store": {
+    "createFailed": "Could not create the store. Try again.",
+    "limitReached": "You've reached your plan's store limit (maximum {max} stores).",
+    "notFound": "Store not found.",
+    "saveFailed": "Could not save. Try again.",
+    "saved": "Changes saved.",
+    "deleteFailed": "Could not delete the store. Try again.",
+    "defaultChannelName": "Offline – Cash"
+  },
+  "StoreShell": {
+    "switchStore": "Switch store",
+    "menu": "Store menu",
+    "nav": {
+      "dashboard": "Dashboard",
+      "settings": "Settings"
+    }
+  },
+  "StoreList": {
+    "title": "Your stores",
+    "add": "Add store"
+  },
+  "Dashboard": {
+    "basis": "Calculation basis",
+    "operatingDays": "Open days per month",
+    "operatingDaysValue": "{days, plural, one {# day} other {# days}}",
+    "targetMargin": "Target margin"
+  },
+  "Settings": {
+    "title": "Store settings",
+    "storeData": "Store details",
+    "save": "Save changes",
+    "savePending": "Saving…",
+    "deleteTitle": "Delete store",
+    "deleteDescription": "This cannot be undone.",
+    "deleteWarning": "All materials, products, costs, inventory, and analyses in this store will be permanently deleted. Type <name>{storeName}</name> to continue.",
+    "confirmLabel": "Type the store name to confirm",
+    "deleteSubmit": "Delete store",
+    "deletePending": "Deleting…"
+  },
+  "LocaleSwitcher": { "label": "Language", "id": "Bahasa Indonesia", "en": "English" },
+  "Theme": { "trigger": "Theme: {mode}", "system": "Follow device", "light": "Light", "dark": "Dark" }
+}

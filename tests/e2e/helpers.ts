@@ -1,0 +1,80 @@
+import { expect, test, type Page } from "@playwright/test";
+import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
+
+export function uniqueEmail(label: string) {
+  return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`;
+}
+
+const password = "password-123456";
+
+/**
+ * Signs `page` in as `email` without going through Google: creates the user (confirmed) with the admin API if
+ * needed, signs in with email/password in Node, and copies the session cookies @supabase/ssr would set into the
+ * browser. Needs the Email provider on local Supabase (production keeps it disabled). Then opens `next`.
+ */
+export async function signIn(page: Page, email = uniqueEmail("e2e"), next = "/mulai") {
+  const admin = adminClient();
+  const { error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  if (createError && createError.code !== "email_exists") throw createError;
+
+  const cookies: { name: string; value: string }[] = [];
+  const supabase = createServerClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"), {
+    cookies: { getAll: () => [], setAll: (toSet) => {
+        cookies.push(...toSet);
+      } },
+  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+
+  const { hostname } = new URL(test.info().project.use.baseURL!);
+  await page.context().addCookies(
+    cookies.map(({ name, value }) => ({ name, value, domain: hostname, path: "/", sameSite: "Lax" as const })),
+  );
+  await page.goto(next);
+  return email;
+}
+
+/**
+ * Clicks the Google button and returns the `next` path the OAuth round trip would come back to.
+ * The request to Supabase's /authorize endpoint is aborted, so Google is never contacted.
+ */
+export async function googleSignInNext(page: Page, buttonName: string): Promise<string | null> {
+  await page.route(/\/auth\/v1\/authorize\?/, (route) => route.abort());
+  const authorize = page.waitForRequest(/\/auth\/v1\/authorize\?/);
+  await page.getByRole("button", { name: buttonName }).click();
+  const redirectTo = new URL((await authorize).url()).searchParams.get("redirect_to");
+  return redirectTo ? new URL(redirectTo).searchParams.get("next") : null;
+}
+
+/** The locale saved on the user's profile, read with the admin API. */
+export async function savedLocale(email: string): Promise<string | null> {
+  const admin = adminClient();
+  const { data } = await admin.auth.admin.listUsers({ perPage: 1000 });
+  const user = data.users.find((candidate) => candidate.email === email);
+  if (!user) return null;
+  const { data: profile } = await admin.from("profiles").select("locale").eq("id", user.id).single();
+  return profile?.locale ?? null;
+}
+
+function adminClient() {
+  return createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SECRET_KEY"), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+function env(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`${name} missing. Run \`npm run db:start && npm run env:local\` first.`);
+  return value;
+}
+
+export async function createStoreViaOnboarding(page: Page, name: string, margin = "40") {
+  await page.goto("/onboarding");
+  await page.getByLabel("Nama toko").fill(name);
+  await page.getByLabel("Jenis usaha").selectOption("minuman");
+  await page.getByRole("button", { name: "Lanjut" }).click();
+  await page.getByLabel("Target margin (%)").fill(margin);
+  await page.getByRole("button", { name: "Buat toko" }).click();
+  await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard$/);
+}

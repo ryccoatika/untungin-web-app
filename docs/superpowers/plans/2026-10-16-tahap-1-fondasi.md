@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js 16.4, React 19, TypeScript strict, Tailwind CSS 4, shadcn/ui, `@supabase/ssr` 0.12, `@supabase/supabase-js` 2.118, Supabase CLI 2.121 (local stack in Docker), zod 4, Vitest 5, Playwright.
 
-**Spec:** `docs/superpowers/specs/2026-10-16-businessnote-design.md` (sections 2, 3, 5.1, 5.2 `pengaturan`, 5.3, 8, 9, 10 item 1, 11)
+**Spec:** `docs/superpowers/specs/2026-10-16-untungin-design.md` (sections 2, 3, 5.1, 5.2 `pengaturan`, 5.3, 8, 9, 10 item 1, 11)
 
 ## Global Constraints
 
@@ -196,7 +196,7 @@ In `app/layout.tsx`, keep the generated font setup, change `<html lang="en">` to
 
 ```ts
 export const metadata: Metadata = {
-  title: "BusinessNote — Hitung HPP & Laba Usaha",
+  title: "Untungin — Hitung HPP & Laba Usaha",
   description:
     "Hitung HPP, harga jual, biaya operasional, dan laba usahamu dengan mudah.",
 };
@@ -1624,7 +1624,7 @@ export default async function LoginPage({
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-6 px-4 py-10">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold">Masuk ke BusinessNote</h1>
+        <h1 className="text-2xl font-semibold">Masuk ke Untungin</h1>
         <p className="text-sm text-muted-foreground">
           Hitung HPP, harga jual, dan laba usahamu.
         </p>
@@ -2655,7 +2655,7 @@ export default async function StoreLayout({
   return (
     <div className="min-h-dvh md:flex">
       <aside className="hidden w-60 shrink-0 border-r p-4 md:block">
-        <p className="mb-4 px-3 text-sm font-semibold">BusinessNote</p>
+        <p className="mb-4 px-3 text-sm font-semibold">Untungin</p>
         <StoreNav storeId={store.id} variant="sidebar" />
       </aside>
       <div className="min-w-0 flex-1 pb-20 md:pb-0">
@@ -3209,7 +3209,7 @@ export default async function LandingPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-3xl flex-col justify-center gap-10 px-4 py-16">
       <div className="space-y-4">
-        <p className="text-sm font-medium text-primary">BusinessNote</p>
+        <p className="text-sm font-medium text-primary">Untungin</p>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Tahu untung-rugi usahamu sejak hari pertama.
         </h1>
@@ -3263,11 +3263,11 @@ Add this line to the end of `.gitignore` so the example is committed while real 
 Replace `README.md`:
 
 ````markdown
-# BusinessNote
+# Untungin
 
 Web app untuk pemula usaha: hitung HPP, harga jual, biaya operasional, laba, BEP, dan balik modal.
 
-Spec: `docs/superpowers/specs/2026-10-16-businessnote-design.md`
+Spec: `docs/superpowers/specs/2026-10-16-untungin-design.md`
 
 ## Development lokal
 

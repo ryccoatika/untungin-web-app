@@ -1,0 +1,141 @@
+{
+  "Metadata": {
+    "title": "Untungin — Hitung HPP & Laba Usaha",
+    "description": "Hitung HPP, harga jual, biaya operasional, dan laba usahamu dengan mudah."
+  },
+  "Landing": {
+    "heading": "Tahu untung-rugi usahamu sejak hari pertama.",
+    "intro": "Hitung HPP dari bahan, biaya operasional, dan penyusutan alat. Dapatkan harga jual yang pas dan lihat kapan modalmu kembali — tanpa perlu paham akuntansi.",
+    "features": {
+      "hpp": {
+        "title": "HPP otomatis",
+        "body": "Masukkan bahan dan takaran, biaya per porsi langsung terhitung."
+      },
+      "price": {
+        "title": "Harga jual pas",
+        "body": "Saran harga sesuai target margin, termasuk potongan GoFood & marketplace."
+      },
+      "profit": {
+        "title": "Laba & balik modal",
+        "body": "Lihat laba bulanan, target jual per hari, dan kapan modal kembali."
+      }
+    },
+    "openApp": "Buka aplikasi",
+    "startFree": "Mulai gratis dengan Google"
+  },
+  "Auth": {
+    "title": "Masuk ke Untungin",
+    "subtitle": "Hitung HPP, harga jual, dan laba usahamu.",
+    "error": "Gagal masuk. Silakan coba lagi.",
+    "google": "Masuk dengan Google",
+    "googlePending": "Membuka Google…",
+    "googleError": "Gagal membuka login Google. Coba lagi.",
+    "signOut": "Keluar",
+    "signOutPending": "Keluar…"
+  },
+  "NotFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Halaman ini tidak ada, atau kamu tidak punya akses ke sana.",
+    "back": "Kembali ke aplikasi"
+  },
+  "Errors": {
+    "title": "Terjadi kesalahan",
+    "body": "Maaf, ada yang tidak beres. Silakan coba lagi.",
+    "retry": "Coba lagi",
+    "home": "Kembali ke beranda"
+  },
+  "Onboarding": {
+    "titleFirst": "Selamat datang! Buat tokomu",
+    "titleAnother": "Tambah toko baru",
+    "subtitle": "Cukup isi data dasar. Semua bisa diubah nanti di Pengaturan.",
+    "cancel": "Batal",
+    "step": "Langkah {step} dari 2",
+    "next": "Lanjut",
+    "back": "Kembali",
+    "submit": "Buat toko",
+    "submitPending": "Membuat toko…"
+  },
+  "StoreFields": {
+    "name": "Nama toko",
+    "businessType": "Jenis usaha",
+    "businessTypePlaceholder": "Pilih jenis usaha",
+    "targetMarket": "Target pasar (opsional)",
+    "targetMarketUnknown": "Belum tahu",
+    "targetMarketHint": "Dipakai untuk menyesuaikan saran harga.",
+    "operatingDays": "Hari buka per bulan",
+    "operatingDaysHint": "Dipakai untuk menghitung biaya harian dan target penjualan per hari.",
+    "targetMargin": "Target margin (%)",
+    "targetMarginHint": "Margin 40% artinya 40% dari harga jual adalah untung. Ini berbeda dengan markup 40% (harga = modal + 40%), yang hanya memberi margin sekitar 29%."
+  },
+  "BusinessType": {
+    "makanan": "Makanan",
+    "minuman": "Minuman",
+    "kue_roti": "Kue & roti",
+    "katering": "Katering",
+    "produk_olahan": "Produk olahan (sabun, lilin, kerajinan, dll.)",
+    "lainnya": "Lainnya"
+  },
+  "TargetMarket": {
+    "menengah_bawah": "Menengah ke bawah",
+    "menengah": "Menengah",
+    "menengah_atas": "Menengah ke atas"
+  },
+  "Validation": {
+    "store": {
+      "nameRequired": "Nama toko wajib diisi",
+      "nameTooLong": "Nama toko maksimal 60 karakter",
+      "businessTypeInvalid": "Pilih jenis usaha",
+      "targetMarketInvalid": "Pilih target pasar yang tersedia",
+      "operatingDaysNumber": "Isi jumlah hari buka dengan angka",
+      "operatingDaysInteger": "Jumlah hari harus bilangan bulat",
+      "operatingDaysMin": "Minimal 1 hari",
+      "operatingDaysMax": "Maksimal 31 hari",
+      "marginNumber": "Isi target margin dengan angka",
+      "marginMin": "Target margin minimal 0%",
+      "marginMax": "Target margin harus kurang dari 100%",
+      "duplicateName": "Kamu sudah punya toko dengan nama ini.",
+      "confirmMismatch": "Nama toko tidak cocok."
+    }
+  },
+  "Store": {
+    "createFailed": "Gagal membuat toko. Coba lagi.",
+    "limitReached": "Batas jumlah toko untuk paketmu sudah tercapai (maksimal {max} toko).",
+    "notFound": "Toko tidak ditemukan.",
+    "saveFailed": "Gagal menyimpan. Coba lagi.",
+    "saved": "Perubahan tersimpan.",
+    "deleteFailed": "Gagal menghapus toko. Coba lagi.",
+    "defaultChannelName": "Offline – Tunai"
+  },
+  "StoreShell": {
+    "switchStore": "Ganti toko",
+    "menu": "Menu toko",
+    "nav": {
+      "dashboard": "Dashboard",
+      "settings": "Pengaturan"
+    }
+  },
+  "StoreList": {
+    "title": "Toko kamu",
+    "add": "Tambah toko"
+  },
+  "Dashboard": {
+    "basis": "Dasar perhitungan",
+    "operatingDays": "Hari buka per bulan",
+    "operatingDaysValue": "{days} hari",
+    "targetMargin": "Target margin"
+  },
+  "Settings": {
+    "title": "Pengaturan toko",
+    "storeData": "Data toko",
+    "save": "Simpan perubahan",
+    "savePending": "Menyimpan…",
+    "deleteTitle": "Hapus toko",
+    "deleteDescription": "Tindakan ini tidak bisa dibatalkan.",
+    "deleteWarning": "Semua bahan, produk, biaya, inventaris, dan analisis di toko ini akan terhapus permanen. Ketik <name>{storeName}</name> untuk melanjutkan.",
+    "confirmLabel": "Ketik nama toko untuk konfirmasi",
+    "deleteSubmit": "Hapus toko",
+    "deletePending": "Menghapus…"
+  },
+  "LocaleSwitcher": { "label": "Bahasa", "id": "Bahasa Indonesia", "en": "English" },
+  "Theme": { "trigger": "Tema: {mode}", "system": "Ikuti perangkat", "light": "Terang", "dark": "Gelap" }
+}
