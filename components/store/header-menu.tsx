@@ -68,6 +68,7 @@ export function HeaderMenu() {
           <DropdownMenuItem
             className="min-h-10"
             closeOnClick={false}
+            nativeButton
             render={<button type="submit" form={signOutFormId} />}
           >
             <LogOut aria-hidden />

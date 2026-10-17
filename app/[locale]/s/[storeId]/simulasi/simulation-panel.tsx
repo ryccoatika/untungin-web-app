@@ -168,19 +168,21 @@ export function SimulationPanel({ data }: { data: StoreData }) {
         <div
           aria-hidden
           data-testid="sim-bar"
-          className="sticky top-[65px] z-[5] -mx-4 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 border-b bg-background/95 px-4 py-2 text-sm backdrop-blur md:-mx-8 md:px-8 lg:hidden"
+          className="sticky top-(--store-header-h) z-[5] -mx-4 space-y-0.5 border-b bg-background px-4 py-2 text-sm md:-mx-8 md:px-8 lg:hidden"
         >
-          <span className="text-xs text-muted-foreground">{t(`metrics.${profit.key}`)}</span>
-          <span className="flex flex-wrap items-baseline gap-x-2">
+          <p className="whitespace-nowrap">
             <span data-testid="sim-bar-now">{formatValue(profit.key, profit.now)}</span>
-            <span className="text-muted-foreground">→</span>
+            <span className="px-2 text-muted-foreground">→</span>
             <span className="font-semibold" data-testid="sim-bar-sim">
               {formatValue(profit.key, profit.sim)}
             </span>
-          </span>
-          <span className={cn("font-medium", TONE[profit.tone])} data-testid="sim-bar-diff">
-            {formatDiff(profit.key, profit.diff)}
-          </span>
+          </p>
+          <p className="flex items-baseline justify-between gap-3">
+            <span className="text-xs text-muted-foreground">{t(`metrics.${profit.key}`)}</span>
+            <span className={cn("font-medium whitespace-nowrap", TONE[profit.tone])} data-testid="sim-bar-diff">
+              {formatDiff(profit.key, profit.diff)}
+            </span>
+          </p>
         </div>
       )}
 
@@ -227,7 +229,7 @@ export function SimulationPanel({ data }: { data: StoreData }) {
               {now.totalUnits === 0 && <p className="text-xs text-muted-foreground">{t("salesNeedsEstimates")}</p>}
             </div>
 
-            <details open={hasPerMaterial} className="space-y-3">
+            <details open={hasPerMaterial} className="open:space-y-3">
               <summary className="flex min-h-10 cursor-pointer items-center text-sm font-medium">{t("perMaterial")}</summary>
               <p className="text-xs text-muted-foreground">{t("perMaterialHint")}</p>
               {data.materials.map((material) => (

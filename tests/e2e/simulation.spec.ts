@@ -152,3 +152,15 @@ test("on phones a sticky bar keeps the simulated profit in view while the slider
   expect(Math.abs(box!.y - (header!.y + header!.height))).toBeLessThan(2);
   await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.640.000");
 });
+
+test("the sticky bar sits right under the header at 768 too", async ({ page }) => {
+  // Short viewport so the one-product page is long enough to scroll and the bar actually sticks.
+  await page.setViewportSize({ width: 768, height: 480 });
+  await storeWithOneProduct(page);
+  await page.getByLabel("Harga semua bahan").fill("50");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  const header = await page.locator("header").boundingBox();
+  const box = await page.getByTestId("sim-bar").boundingBox();
+  expect(Math.abs(box!.y - (header!.y + header!.height))).toBeLessThan(2);
+  await expect(page.getByTestId("sim-bar-sim")).toBeVisible();
+});

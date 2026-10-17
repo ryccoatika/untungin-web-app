@@ -33,7 +33,7 @@ export default async function StoreLayout({
         <StoreNav storeId={store.id} variant="sidebar" />
       </aside>
       <div className="min-w-0 flex-1 pb-20 lg:pb-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b bg-background px-4 py-3 md:px-8">
+        <header className="sticky top-0 z-10 flex h-(--store-header-h) items-center justify-between gap-2 border-b bg-background px-4 md:px-8">
           <Link
             href="/toko"
             aria-label={t("switchStore")}
