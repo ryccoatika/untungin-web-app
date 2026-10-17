@@ -31,6 +31,7 @@ describe("createHeroScene", () => {
   it("keeps coins above their own bar while they fall and respawn", () => {
     const hero = createHeroScene(PALETTES.light);
     const bars = hero.root.getObjectsByProperty("name", "bar");
+    const coins = hero.root.getObjectsByProperty("name", "coin");
     let seen = 0;
     for (let frame = 1; frame <= 60 * 12; frame++) {
       hero.update(1 / 60, frame / 60);
@@ -40,8 +41,13 @@ describe("createHeroScene", () => {
         expect(Number.isFinite(coin.position.x)).toBe(true);
         if (!coin.visible) continue;
         seen++;
+        expect(coin.userData.bar).toBe(coins.indexOf(coin));
         const bar = bars[coin.userData.bar as number];
         expect(coin.position.y).toBeGreaterThanOrEqual(bar.scale.y + COIN_CLEARANCE - 1e-6);
+      }
+      const visible = coins.filter((coin) => coin.visible);
+      for (const [i, a] of visible.entries()) {
+        for (const b of visible.slice(i + 1)) expect(a.position.distanceTo(b.position)).toBeGreaterThanOrEqual(0.52);
       }
     }
     expect(seen).toBeGreaterThan(0);

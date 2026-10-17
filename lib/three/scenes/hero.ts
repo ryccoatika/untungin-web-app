@@ -14,7 +14,8 @@ import { coinGeometry, createCoinMaterials } from "./coin";
 
 /** Bar heights in scene units, rising left to right ("profit goes up"). */
 export const HERO_BAR_HEIGHTS = [0.7, 1.15, 1.6, 2.2] as const;
-export const HERO_COINS = 5;
+/** One coin per bar: coin i always drops onto bar i. */
+export const HERO_COINS = HERO_BAR_HEIGHTS.length;
 
 const BAR_WIDTH = 0.62;
 const BAR_GAP = 0.32;
@@ -66,31 +67,22 @@ export function createHeroScene(palette: Palette): SceneController {
 
   const geometry = coinGeometry(COIN_RADIUS, COIN_THICKNESS);
   const materials = createCoinMaterials(palette);
-  type Coin = { mesh: Mesh; bar: number; level: number; velocity: number; delay: number; resting: number };
+  type Coin = { mesh: Mesh; bar: number; velocity: number; delay: number; resting: number };
   const coins: Coin[] = Array.from({ length: HERO_COINS }, (_, i) => {
     const mesh = new Mesh(geometry, materials);
     mesh.name = "coin";
     mesh.rotation.x = COIN_TILT;
+    mesh.userData.bar = i;
     root.add(mesh);
-    return { mesh, bar: i % bars.length, level: 0, velocity: 0, delay: i * 0.55, resting: 0 };
+    return { mesh, bar: i, velocity: 0, delay: i * 0.55, resting: 0 };
   });
-  /** Send a coin above the least-used bar; a coin sharing a bar stacks on the one already there. */
-  const placeAbove = (coin: Coin, preferred: number) => {
-    const load = (bar: number) => coins.filter((other) => other !== coin && other.bar === bar).length;
-    let best = preferred;
-    for (let k = 0; k < bars.length; k++) {
-      const candidate = (preferred + k) % bars.length;
-      if (load(candidate) < load(best)) best = candidate;
-    }
-    coin.bar = best;
-    coin.level = load(best);
-    coin.mesh.userData.bar = best;
-    coin.mesh.position.set(bars[best].position.x, DROP_HEIGHT, 0);
+  const placeAbove = (coin: Coin) => {
+    coin.mesh.position.set(bars[coin.bar].position.x, DROP_HEIGHT, 0);
     coin.velocity = 0;
     coin.resting = 0;
     coin.mesh.visible = false;
   };
-  coins.forEach((coin) => placeAbove(coin, coin.bar));
+  coins.forEach(placeAbove);
 
   let pointerX = 0;
   let pointerY = 0;
@@ -111,11 +103,11 @@ export function createHeroScene(palette: Palette): SceneController {
       for (const coin of coins) {
         if (elapsed < coin.delay) continue;
         coin.mesh.visible = true;
-        const top = bars[coin.bar].scale.y + COIN_CLEARANCE + coin.level * (COIN_THICKNESS + 0.05);
+        const top = bars[coin.bar].scale.y + COIN_CLEARANCE;
         if (coin.resting > 0) {
           coin.resting += delta;
           if (coin.resting > 0.9) {
-            placeAbove(coin, (coin.bar + 1) % bars.length);
+            placeAbove(coin);
           }
           continue;
         }
