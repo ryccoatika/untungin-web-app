@@ -13,7 +13,7 @@ export function StoreNav({ storeId, variant }: { storeId: string; variant: "side
     return (
       <nav
         aria-label={t("menu")}
-        className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-background pb-[env(safe-area-inset-bottom)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-background pb-[env(safe-area-inset-bottom)] lg:hidden print:hidden"
       >
         {items.map((item) => {
           const active = item.labelKey === "more" ? isMoreActive(pathname, storeId) : isNavActive(pathname, item.href);
@@ -38,7 +38,7 @@ export function StoreNav({ storeId, variant }: { storeId: string; variant: "side
 
   const items = storeNavItems(storeId);
   return (
-    <nav aria-label={t("menu")} className="flex flex-col gap-1">
+    <nav aria-label={t("menu")} className="flex flex-col gap-1 print:hidden">
       {items.map((item) => {
         const active = isNavActive(pathname, item.href);
         return (

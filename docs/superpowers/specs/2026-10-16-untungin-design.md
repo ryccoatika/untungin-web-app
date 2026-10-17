@@ -443,6 +443,7 @@ Every phase can be deployed. One implementation plan per phase.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
    Phase 7 notes: the sample store is "Kedai Kopi Contoh" / "Sample Coffee Shop" (a numbered name if it already exists), seeded with the user's client and removed again if any insert fails; account deletion lives in Store settings, is confirmed by typing the account email, deletes the auth user (everything cascades) and signs out; anon has no table access and authenticated has no TRUNCATE/TRIGGER/REFERENCES; Rupiah inputs show grouped digits after leaving the field; the privacy page names Rycco Atika (me@ryccoatika.com) as operator.
 8. **Post-v1 notes**: household recipe units (sdm, sdt, gelas) with a per-material spoon weight (§4.1).
+9. **Post-v1: Ringkasan pinjaman (KUR)**: printable A4 summary, browser print to PDF, CSV with `sep=;`, instalment check with an editable rate (default 6%).
 
 ## 11. Manual Setup (done by the project owner)
 
@@ -459,5 +460,4 @@ Every phase can be deployed. One implementation plan per phase.
 - Multiple store members & roles
 - Payment gateway / Pro subscription
 - Service businesses & resellers as a dedicated product type
-- PDF/Excel export
 - Native mobile app
