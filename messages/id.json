@@ -95,6 +95,65 @@
       "marginMax": "Target margin harus kurang dari 100%",
       "duplicateName": "Kamu sudah punya toko dengan nama ini.",
       "confirmMismatch": "Nama toko tidak cocok."
+    },
+    "common": { "amountTooLarge": "Angka terlalu besar" },
+    "material": {
+      "nameRequired": "Nama bahan wajib diisi",
+      "nameTooLong": "Nama bahan maksimal 80 karakter",
+      "categoryInvalid": "Pilih jenis bahan",
+      "qtyNumber": "Isi jumlah beli dengan angka",
+      "qtyPositive": "Jumlah beli harus lebih dari 0",
+      "unitInvalid": "Pilih satuan",
+      "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
+      "priceMin": "Harga tidak boleh negatif",
+      "wasteNumber": "Isi susut dengan angka",
+      "wasteMin": "Susut tidak boleh negatif",
+      "wasteMax": "Susut harus kurang dari 100%",
+      "unitInUse": "Satuan ini beda jenis dengan yang dipakai di komposisi produk. Pilih satuan sejenis (berat, volume, atau jumlah)."
+    },
+    "product": {
+      "nameRequired": "Nama produk wajib diisi",
+      "nameTooLong": "Nama produk maksimal 80 karakter",
+      "categoryTooLong": "Kategori maksimal 40 karakter",
+      "yieldNumber": "Isi hasil per resep dengan angka",
+      "yieldPositive": "Hasil per resep harus lebih dari 0",
+      "marginNumber": "Isi margin dengan angka",
+      "marginMin": "Margin tidak boleh negatif",
+      "marginMax": "Margin harus kurang dari 100%"
+    },
+    "composition": {
+      "materialRequired": "Pilih bahan",
+      "qtyNumber": "Isi jumlah dengan angka",
+      "qtyPositive": "Jumlah harus lebih dari 0",
+      "unitInvalid": "Pilih satuan",
+      "basisInvalid": "Pilih cara hitung",
+      "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)"
+    },
+    "price": {
+      "priceNumber": "Isi harga dengan angka bulat, contoh 15.000",
+      "priceMin": "Harga tidak boleh negatif",
+      "salesNumber": "Isi perkiraan terjual dengan angka bulat",
+      "salesMin": "Tidak boleh negatif"
+    },
+    "expense": {
+      "nameRequired": "Nama biaya wajib diisi",
+      "nameTooLong": "Nama biaya maksimal 80 karakter",
+      "categoryInvalid": "Pilih kategori",
+      "amountNumber": "Isi jumlah dengan angka bulat, contoh 1.500.000",
+      "amountMin": "Jumlah tidak boleh negatif",
+      "frequencyInvalid": "Pilih seberapa sering dibayar"
+    },
+    "asset": {
+      "nameRequired": "Nama barang wajib diisi",
+      "nameTooLong": "Nama barang maksimal 80 karakter",
+      "categoryInvalid": "Pilih kategori",
+      "qtyNumber": "Isi jumlah dengan angka bulat",
+      "qtyMin": "Jumlah minimal 1",
+      "priceNumber": "Isi harga dengan angka bulat, contoh 350.000",
+      "priceMin": "Harga tidak boleh negatif",
+      "lifeNumber": "Isi umur pakai dalam bulan (angka bulat)",
+      "lifeMin": "Umur pakai minimal 1 bulan",
+      "lifeMax": "Umur pakai maksimal 600 bulan"
     }
   },
   "Store": {

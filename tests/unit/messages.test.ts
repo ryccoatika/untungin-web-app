@@ -30,9 +30,18 @@ describe("app-generated data names", () => {
     expect(en.Store.defaultChannelName).toBe("Offline – Cash");
   });
 
-  it("has a validation message for every key the store schema can return", async () => {
-    const { STORE_VALIDATION_KEYS } = await import("@/lib/validation/store");
-    for (const key of STORE_VALIDATION_KEYS) {
+  it("has a validation message for every key the schemas can return", async () => {
+    const lists = await Promise.all([
+      import("@/lib/validation/store").then((m) => m.STORE_VALIDATION_KEYS),
+      import("@/lib/validation/common").then((m) => m.COMMON_VALIDATION_KEYS),
+      import("@/lib/validation/material").then((m) => m.MATERIAL_VALIDATION_KEYS),
+      import("@/lib/validation/product").then((m) => m.PRODUCT_VALIDATION_KEYS),
+      import("@/lib/validation/composition").then((m) => m.COMPOSITION_VALIDATION_KEYS),
+      import("@/lib/validation/price").then((m) => m.PRICE_VALIDATION_KEYS),
+      import("@/lib/validation/expense").then((m) => m.EXPENSE_VALIDATION_KEYS),
+      import("@/lib/validation/asset").then((m) => m.ASSET_VALIDATION_KEYS),
+    ]);
+    for (const key of lists.flat()) {
       const [group, name] = key.split(".");
       expect((id.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();
       expect((en.Validation as Record<string, Record<string, string>>)[group]?.[name], key).toBeTruthy();

@@ -95,6 +95,65 @@
       "marginMax": "Target margin must be less than 100%",
       "duplicateName": "You already have a store with this name.",
       "confirmMismatch": "The store name does not match."
+    },
+    "common": { "amountTooLarge": "That number is too large" },
+    "material": {
+      "nameRequired": "Material name is required",
+      "nameTooLong": "Material name can be at most 80 characters",
+      "categoryInvalid": "Choose a type",
+      "qtyNumber": "Enter the amount bought as a number",
+      "qtyPositive": "The amount bought must be more than 0",
+      "unitInvalid": "Choose a unit",
+      "priceNumber": "Enter the price as a whole number, e.g. 15,000",
+      "priceMin": "The price can't be negative",
+      "wasteNumber": "Enter waste as a number",
+      "wasteMin": "Waste can't be negative",
+      "wasteMax": "Waste must be less than 100%",
+      "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count)."
+    },
+    "product": {
+      "nameRequired": "Product name is required",
+      "nameTooLong": "Product name can be at most 80 characters",
+      "categoryTooLong": "Category can be at most 40 characters",
+      "yieldNumber": "Enter the yield as a number",
+      "yieldPositive": "Yield must be more than 0",
+      "marginNumber": "Enter the margin as a number",
+      "marginMin": "Margin can't be negative",
+      "marginMax": "Margin must be less than 100%"
+    },
+    "composition": {
+      "materialRequired": "Choose a material",
+      "qtyNumber": "Enter the amount as a number",
+      "qtyPositive": "The amount must be more than 0",
+      "unitInvalid": "Choose a unit",
+      "basisInvalid": "Choose how it is counted",
+      "unitDimension": "This unit doesn't match the material (weight, volume, or count)"
+    },
+    "price": {
+      "priceNumber": "Enter the price as a whole number, e.g. 15,000",
+      "priceMin": "The price can't be negative",
+      "salesNumber": "Enter estimated sales as a whole number",
+      "salesMin": "Can't be negative"
+    },
+    "expense": {
+      "nameRequired": "Cost name is required",
+      "nameTooLong": "Cost name can be at most 80 characters",
+      "categoryInvalid": "Choose a category",
+      "amountNumber": "Enter the amount as a whole number, e.g. 1,500,000",
+      "amountMin": "The amount can't be negative",
+      "frequencyInvalid": "Choose how often it is paid"
+    },
+    "asset": {
+      "nameRequired": "Item name is required",
+      "nameTooLong": "Item name can be at most 80 characters",
+      "categoryInvalid": "Choose a category",
+      "qtyNumber": "Enter the quantity as a whole number",
+      "qtyMin": "Quantity must be at least 1",
+      "priceNumber": "Enter the price as a whole number, e.g. 350,000",
+      "priceMin": "The price can't be negative",
+      "lifeNumber": "Enter the useful life in whole months",
+      "lifeMin": "At least 1 month",
+      "lifeMax": "At most 600 months"
     }
   },
   "Store": {
