@@ -101,3 +101,15 @@ export async function addMaterial(
   await form.getByRole("button", { name: "Tambah" }).click();
   await expect(page.getByText("Bahan ditambahkan.")).toBeVisible();
 }
+
+export async function addExpense(page: Page, e: { name: string; category: string; amount: string; frequency: string }) {
+  const form = page.locator("#add-expense");
+  await form.getByLabel("Nama biaya").fill(e.name);
+  await form.getByLabel("Kategori").selectOption(e.category);
+  await form.getByLabel("Jumlah (Rp)").fill(e.amount);
+  await form.getByLabel("Dibayar").selectOption(e.frequency);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Biaya ditambahkan.")).toBeVisible();
+  // The success message of a previous add stays visible, so also wait for the form to reset.
+  await expect(form.getByLabel("Nama biaya")).toHaveValue("");
+}

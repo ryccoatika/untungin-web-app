@@ -267,5 +267,37 @@
     "delete": "Hapus bahan",
     "deleteInUse": "Tidak bisa dihapus. Dipakai di: {products}",
     "usedIn": "Dipakai di: {products}"
+  },
+  "ExpenseCategory": {
+    "sewa": "Sewa tempat",
+    "listrik_air": "Listrik & air",
+    "internet_pulsa": "Internet & pulsa",
+    "gaji_karyawan": "Gaji karyawan",
+    "gaji_pemilik": "Gaji kamu sendiri",
+    "transportasi": "Transportasi",
+    "pemasaran": "Pemasaran",
+    "lainnya": "Lainnya"
+  },
+  "Frequency": { "harian": "per hari", "mingguan": "per minggu", "bulanan": "per bulan", "tahunan": "per tahun" },
+  "Expenses": {
+    "title": "Biaya operasional",
+    "intro": "Biaya rutin di luar bahan: sewa, listrik, gaji, dan lainnya.",
+    "addTitle": "Tambah biaya",
+    "editTitle": "Ubah biaya",
+    "name": "Nama biaya",
+    "namePlaceholder": "Contoh: Sewa kios",
+    "category": "Kategori",
+    "amount": "Jumlah (Rp)",
+    "frequency": "Dibayar",
+    "oneTimeHint": "Biaya sekali bayar seperti endorse: pilih \"per tahun\", atau bagi sendiri per bulan.",
+    "ownerSalaryHint": "Masukkan juga gaji untuk dirimu sendiri (kategori \"Gaji kamu sendiri\"), supaya laba yang terlihat tidak menipu.",
+    "monthlyTotal": "Total per bulan",
+    "amountPerFrequency": "{amount} {frequency}",
+    "monthlyValue": "≈ {amount}/bulan",
+    "emptyTitle": "Belum ada biaya",
+    "emptyBody": "Contoh: Sewa kios Rp1.500.000 per bulan, listrik Rp300.000 per bulan.",
+    "emptyAction": "Tambah biaya pertama",
+    "created": "Biaya ditambahkan.",
+    "delete": "Hapus biaya"
   }
 }

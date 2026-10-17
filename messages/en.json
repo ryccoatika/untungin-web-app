@@ -267,5 +267,37 @@
     "delete": "Delete material",
     "deleteInUse": "Can't delete. Used in: {products}",
     "usedIn": "Used in: {products}"
+  },
+  "ExpenseCategory": {
+    "sewa": "Rent",
+    "listrik_air": "Electricity & water",
+    "internet_pulsa": "Internet & phone credit",
+    "gaji_karyawan": "Staff wages",
+    "gaji_pemilik": "Your own salary",
+    "transportasi": "Transport",
+    "pemasaran": "Marketing",
+    "lainnya": "Other"
+  },
+  "Frequency": { "harian": "per day", "mingguan": "per week", "bulanan": "per month", "tahunan": "per year" },
+  "Expenses": {
+    "title": "Operating costs",
+    "intro": "Running costs besides materials: rent, electricity, wages and more.",
+    "addTitle": "Add cost",
+    "editTitle": "Edit cost",
+    "name": "Cost name",
+    "namePlaceholder": "E.g. Stall rent",
+    "category": "Category",
+    "amount": "Amount (Rp)",
+    "frequency": "Paid",
+    "oneTimeHint": "One-off costs such as a promotion: choose \"per year\", or split it per month yourself.",
+    "ownerSalaryHint": "Also add a salary for yourself (category \"Your own salary\"), so the profit you see isn't misleading.",
+    "monthlyTotal": "Monthly total",
+    "amountPerFrequency": "{amount} {frequency}",
+    "monthlyValue": "≈ {amount}/month",
+    "emptyTitle": "No costs yet",
+    "emptyBody": "E.g. stall rent Rp1,500,000 per month, electricity Rp300,000 per month.",
+    "emptyAction": "Add your first cost",
+    "created": "Cost added.",
+    "delete": "Delete cost"
   }
 }
