@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { analyzeStore } from "@/lib/calc";
-import { buildDemoStore, demoAsStoreData } from "@/lib/seed/demo-store";
+import { buildDemoStore, demoAsStoreData, seedDemoStore } from "@/lib/seed/demo-store";
 
 describe("buildDemoStore", () => {
   it("is a profitable coffee shop with every part the spec lists", () => {
@@ -51,5 +51,31 @@ describe("buildDemoStore", () => {
       expect(products.has(price.product)).toBe(true);
       expect(channels.has(price.channel)).toBe(true);
     }
+  });
+
+  it("has unique material and product names in every language (the seeder maps rows by name)", () => {
+    for (const locale of ["id", "en"] as const) {
+      const demo = buildDemoStore(locale);
+      expect(new Set(demo.materials.map((m) => m.name)).size).toBe(demo.materials.length);
+      expect(new Set(demo.products.map((p) => p.name)).size).toBe(demo.products.length);
+    }
+  });
+});
+
+describe("seedDemoStore cleanup", () => {
+  it("still returns failed when the cleanup delete throws", async () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const fake = {
+      rpc: async () => ({ data: "store-1", error: null }),
+      from: (table: string) => {
+        if (table === "stores") return { delete: () => ({ eq: async () => { throw new Error("network down"); } }) };
+        return { select: () => ({ eq: () => ({ single: async () => ({ data: null, error: { message: "boom" } }) }) }) };
+      },
+    };
+    const demo = buildDemoStore("id");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await expect(seedDemoStore(fake as any, demo, demo.store.name)).resolves.toEqual({ error: "failed" });
+    expect(error).toHaveBeenCalled();
+    error.mockRestore();
   });
 });

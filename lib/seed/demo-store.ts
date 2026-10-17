@@ -137,8 +137,8 @@ export function demoAsStoreData(demo: DemoStore): StoreData {
 
 export type SeedResult = { storeId: string } | { error: "duplicate" | "limit" | "failed" };
 
-// SQLSTATE raised by the stores_enforce_limit trigger.
-const STORE_LIMIT_ERROR_CODE = "UT001";
+// SQLSTATE raised by the stores_enforce_limit trigger (20261016000003_store_limit.sql).
+export const STORE_LIMIT_ERROR_CODE = "UT001";
 
 /**
  * Writes the sample store with the signed-in user's client (RLS applies). If anything fails after the
@@ -230,7 +230,12 @@ export async function seedDemoStore(supabase: SupabaseClient<Database>, demo: De
     );
     return { storeId };
   } catch {
-    await supabase.from("stores").delete().eq("id", storeId);
+    try {
+      const cleanup = await supabase.from("stores").delete().eq("id", storeId);
+      if (cleanup.error) console.error("Sample store cleanup failed:", cleanup.error.message);
+    } catch (error) {
+      console.error("Sample store cleanup failed:", error instanceof Error ? error.message : String(error));
+    }
     return { error: "failed" };
   }
 }

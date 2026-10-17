@@ -6,14 +6,11 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/require-user";
 import { canCreateStore, PLAN_LIMITS, toPlan } from "@/lib/config/plans";
 import { rawValues, type FormState } from "@/lib/forms";
-import { buildDemoStore, seedDemoStore } from "@/lib/seed/demo-store";
+import { buildDemoStore, seedDemoStore, STORE_LIMIT_ERROR_CODE } from "@/lib/seed/demo-store";
 import type { AppLocale } from "@/i18n/routing";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { translateFieldErrors } from "@/lib/i18n/translate";
 import { DUPLICATE_STORE_NAME_KEY, storeInputSchema } from "@/lib/validation/store";
-
-// SQLSTATE raised by the stores_enforce_limit trigger (20261016000003_store_limit.sql).
-const STORE_LIMIT_ERROR_CODE = "UT001";
 
 const STORE_FIELD_NAMES = [
   "name",
