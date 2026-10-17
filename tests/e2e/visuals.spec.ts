@@ -13,6 +13,11 @@ async function webglAvailable(page: Page) {
   });
 }
 
+/** Pretend to be a strong machine so the 3D tests never skip on a 4-core CI runner (the real WebGL check still applies). */
+async function pretendStrongDevice(page: Page) {
+  await page.addInitScript(() => Object.defineProperty(navigator, "hardwareConcurrency", { get: () => 8 }));
+}
+
 test.describe("landing hero", () => {
   test("reduced motion shows the static drawing and never loads Three.js", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -23,9 +28,9 @@ test.describe("landing hero", () => {
   });
 
   test("a capable browser gets the 3D hero", async ({ page }) => {
+    await pretendStrongDevice(page);
     await page.goto("/");
     test.skip(!(await webglAvailable(page)), "no WebGL in this browser");
-    test.skip(await page.evaluate(() => navigator.hardwareConcurrency <= 4), "weak device by the spec's rule");
     await expect(page.locator("main canvas")).toBeVisible();
     expect(await threeLoaded(page)).toBe(true);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -58,10 +63,10 @@ test.describe("dashboard chart", () => {
   });
 
   test("the 3D/2D choice is remembered", async ({ page }) => {
+    await pretendStrongDevice(page);
     await storeWithChart(page);
     await page.goto(storeUrl(page, "dashboard"));
     test.skip(!(await webglAvailable(page)), "no WebGL in this browser");
-    test.skip(await page.evaluate(() => navigator.hardwareConcurrency <= 4), "weak device by the spec's rule");
     await expect(page.getByRole("img", { name: /Grafik 3D/ })).toBeVisible();
     await page.getByRole("button", { name: "2D" }).click();
     await expect(page.getByTestId("chart-2d")).toBeVisible();
@@ -87,6 +92,7 @@ test.describe("dashboard chart", () => {
   });
 
   test("moving back and forth does not exhaust WebGL contexts", async ({ page }) => {
+    await pretendStrongDevice(page);
     await storeWithChart(page);
     await page.goto(storeUrl(page, "dashboard"));
     test.skip(!(await webglAvailable(page)), "no WebGL in this browser");
@@ -94,11 +100,14 @@ test.describe("dashboard chart", () => {
     page.on("console", (message) => {
       if (/WebGL|context/i.test(message.text())) warnings.push(message.text());
     });
+    const chart3d = page.getByRole("img", { name: /Grafik 3D/ });
+    await expect(chart3d).toBeVisible();
     for (let i = 0; i < 20; i++) {
       await page.getByRole("link", { name: "Bahan" }).first().click();
       await expect(page).toHaveURL(/\/bahan$/);
       await page.getByRole("link", { name: "Dashboard", exact: true }).first().click();
       await expect(page).toHaveURL(/\/dashboard$/);
+      await expect(chart3d, `3D chart on visit ${i + 1}`).toBeVisible();
     }
     expect(warnings.filter((text) => /too many|lost/i.test(text))).toEqual([]);
   });
@@ -109,7 +118,8 @@ test.describe("moments", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await signIn(page);
     await createStoreViaOnboarding(page, "Toko Baru");
-    await expect(page.getByRole("status").filter({ hasText: "Toko siap!" })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Toko siap!" })).toHaveCount(1);
+    await expect(page.locator("p", { hasText: "Toko siap!" })).toBeVisible();
     await expect(page).toHaveURL(/\/dashboard$/);
     expect(await threeLoaded(page)).toBe(false);
     await page.reload();
@@ -119,12 +129,15 @@ test.describe("moments", () => {
   test("first profit is celebrated once per store, and the message can be closed", async ({ page }) => {
     await storeWithChart(page);
     await page.goto(storeUrl(page, "dashboard"));
-    const message = page.getByRole("status").filter({ hasText: "Selamat! Usahamu mulai untung." });
+    const text = "Selamat! Usahamu mulai untung.";
+    await expect(page.getByRole("status")).toHaveText(text); // the live region carries the text for screen readers
+    const message = page.locator("p", { hasText: text });
     await expect(message).toBeVisible();
     // The burst never blocks the page.
     await page.getByRole("link", { name: "Coba simulasi" }).click({ trial: true });
-    await message.getByRole("button", { name: "Tutup" }).click();
+    await page.getByRole("button", { name: "Tutup" }).click();
     await expect(message).toHaveCount(0);
+    await expect(page.getByRole("status")).toHaveText("");
     await page.reload();
     await expect(page.getByText("Selamat! Usahamu mulai untung.")).toHaveCount(0);
   });

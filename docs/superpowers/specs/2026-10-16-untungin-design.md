@@ -370,7 +370,7 @@ Referenced IDs are validated against the snapshot; a recommendation with an unkn
   - Dashboard: 3D product chart (profit/contribution bars per product) with **number labels**; 3D/2D toggle; the choice is saved in `localStorage` (try/catch).
   - Moments: animation when onboarding finishes and when net profit first becomes > 0.
   - Empty state: lightweight 3D illustration.
-- Fallback to 2D/static if: `prefers-reduced-motion: reduce`, WebGL is unavailable, or the device is weak (`navigator.hardwareConcurrency ≤ 4` or `deviceMemory ≤ 4` when available).
+- Fallback to 2D/static if: `prefers-reduced-motion: reduce`, WebGL is unavailable, or the device is weak (`navigator.hardwareConcurrency ≤ 2` or `deviceMemory ≤ 2` when available).
 - Renderer: `pixelRatio` capped at ≤ 2; the render loop stops when the canvas is not visible (IntersectionObserver) or the tab is hidden; geometry/materials are disposed on unmount.
 - Form pages (materials, products, costs, inventory, channels) do not load Three.js.
 

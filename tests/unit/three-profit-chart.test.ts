@@ -105,4 +105,18 @@ describe("createProfitChartScene", () => {
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBeLessThan(0.5);
   });
+
+  it("is done only once the bars have grown and the tilt has settled, and wakes on a new pointer target", () => {
+    const chart = createProfitChartScene([bar("A", 400)], PALETTES.light, stubLabel);
+    chart.update(1 / 60, 1 / 60);
+    expect(chart.done?.()).toBe(false); // still growing
+    settle(chart);
+    expect(chart.done?.()).toBe(true);
+    chart.setPointer?.(1, 0);
+    expect(chart.done?.()).toBe(false); // tilt has to follow the pointer
+    for (let i = 181; i <= 600; i++) chart.update(1 / 60, i / 60);
+    expect(chart.done?.()).toBe(true);
+    chart.setPointer?.(0, 0);
+    expect(chart.done?.()).toBe(false);
+  });
 });

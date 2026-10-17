@@ -8,8 +8,8 @@ export type DeviceSignals = {
   deviceMemory?: number;
 };
 
-/** Spec §7: ≤ 4 cores or ≤ 4 GB counts as a weak device. */
-export const WEAK_DEVICE_LIMIT = 4;
+/** Spec §7: ≤ 2 cores or ≤ 2 GB counts as a weak device. */
+export const WEAK_DEVICE_LIMIT = 2;
 
 export function chooseRenderMode(signals: DeviceSignals): RenderMode {
   if (signals.reducedMotion || !signals.webgl) return "static";

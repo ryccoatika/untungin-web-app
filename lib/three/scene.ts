@@ -8,7 +8,7 @@ export type SceneController = {
   /** Pointer position over the canvas, -1…1 on both axes (0,0 = centre or pointer gone). */
   setPointer?(x: number, y: number): void;
   resize?(width: number, height: number): void;
-  /** True when a one-shot animation has finished. */
+  /** True when nothing is moving any more. Interactive hosts sleep and wake on pointer moves; one-shot hosts also call onDone. */
   done?(): boolean;
 };
 

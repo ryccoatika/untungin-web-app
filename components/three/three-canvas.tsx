@@ -23,10 +23,11 @@ type Props = {
 export function ThreeCanvas({ create, className, label, decorative, interactive, onDone, onFail }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<SceneController | null>(null);
-  const callbacks = useRef({ create, onDone, onFail });
+  const wakeRef = useRef<(() => void) | null>(null);
+  const callbacks = useRef({ create, onDone, onFail, interactive });
   // Keep the latest callbacks without re-running the scene effect (declared first, so it runs first).
   useEffect(() => {
-    callbacks.current = { create, onDone, onFail };
+    callbacks.current = { create, onDone, onFail, interactive };
   });
 
   useEffect(() => {
@@ -62,7 +63,8 @@ export function ThreeCanvas({ create, className, label, decorative, interactive,
       renderer.render(scene, controller.camera);
       if (controller.done?.()) {
         loop.stop();
-        callbacks.current.onDone?.();
+        // An interactive scene only sleeps (a pointer move wakes it); onDone is for one-shot scenes.
+        if (!callbacks.current.interactive) callbacks.current.onDone?.();
       }
     });
 
@@ -94,10 +96,12 @@ export function ThreeCanvas({ create, className, label, decorative, interactive,
     canvas.addEventListener("webglcontextlost", onContextLost);
 
     loop.start();
+    wakeRef.current = () => loop.start();
 
     return () => {
       loop.stop();
       controllerRef.current = null;
+      wakeRef.current = null;
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
@@ -116,8 +120,12 @@ export function ThreeCanvas({ create, className, label, decorative, interactive,
     const onPointerMove = (event: PointerEvent) => {
       const rect = host.getBoundingClientRect();
       controllerRef.current?.setPointer?.(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1));
+      wakeRef.current?.();
     };
-    const onPointerLeave = () => controllerRef.current?.setPointer?.(0, 0);
+    const onPointerLeave = () => {
+      controllerRef.current?.setPointer?.(0, 0);
+      wakeRef.current?.();
+    };
     host.addEventListener("pointermove", onPointerMove);
     host.addEventListener("pointerleave", onPointerLeave);
     return () => {

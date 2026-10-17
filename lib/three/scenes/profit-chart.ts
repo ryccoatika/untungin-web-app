@@ -137,6 +137,7 @@ export function createProfitChartScene(bars: ChartSceneBar[], palette: Palette, 
   fit(1.6);
 
   let pointerX = 0;
+  const tiltTarget = () => pointerX * 0.25;
   return {
     root,
     camera,
@@ -151,7 +152,9 @@ export function createProfitChartScene(bars: ChartSceneBar[], palette: Palette, 
       progress = easeOutCubic(MathUtils.clamp(elapsed / GROW_SECONDS, 0, 1));
       placeLabels();
       const damping = 1 - Math.exp(-delta * 3);
-      root.rotation.y += (pointerX * 0.25 - root.rotation.y) * damping;
+      root.rotation.y += (tiltTarget() - root.rotation.y) * damping;
     },
+    /** Grown and tilt settled: the host may stop drawing until the pointer moves again. */
+    done: () => progress >= 1 && Math.abs(tiltTarget() - root.rotation.y) < 0.001,
   };
 }

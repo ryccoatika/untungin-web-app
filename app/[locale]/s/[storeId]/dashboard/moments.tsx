@@ -47,20 +47,33 @@ export function Moments({ storeId, welcome, profitPositive }: { storeId: string;
     if (next !== null) setBurst(true);
   }, [storeId, welcome, profitPositive]);
 
-  if (!moment) return null;
+  // A burst must not fire later, out of context, once the device is known to be static (e.g. reduced motion turned on).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- drop a pending burst the moment 3D is not allowed
+    if (mode === "static" && burst) setBurst(false);
+  }, [mode, burst]);
+
   return (
     <>
-      <div role="status" className="flex items-start gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
-        <p className="flex-1 font-medium">{t(moment)}</p>
-        <button
-          type="button"
-          onClick={() => setMoment(null)}
-          aria-label={t("dismiss")}
-          className="-m-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md hover:bg-emerald-500/15"
-        >
-          <X className="size-4" aria-hidden />
-        </button>
+      {/* Always mounted (empty at first) so screen readers announce the text when it appears; the visible box exists only with a message. */}
+      <div role="status" className="sr-only">
+        {moment ? t(moment) : ""}
       </div>
+      {moment && (
+        <div className="flex items-start gap-3 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
+          <p className="flex-1 font-medium" aria-hidden>
+            {t(moment)}
+          </p>
+          <button
+            type="button"
+            onClick={() => setMoment(null)}
+            aria-label={t("dismiss")}
+            className="-m-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md hover:bg-emerald-500/15"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        </div>
+      )}
       {burst && mode === "3d" && <CelebrationBurst onDone={() => setBurst(false)} />}
     </>
   );

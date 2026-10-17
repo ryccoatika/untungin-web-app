@@ -27,12 +27,14 @@ function subscribe(onChange: () => void) {
 
 function snapshot(): RenderMode {
   const nav = navigator as Navigator & { deviceMemory?: number };
-  return chooseRenderMode({
+  const signals = {
     reducedMotion: window.matchMedia(REDUCED_MOTION).matches,
-    webgl: hasWebGL(),
     hardwareConcurrency: nav.hardwareConcurrency || undefined,
     deviceMemory: nav.deviceMemory,
-  });
+  };
+  // Cheap signals first: only probe WebGL (which creates a context) when they have not already decided "static".
+  if (chooseRenderMode({ ...signals, webgl: true }) === "static") return "static";
+  return chooseRenderMode({ ...signals, webgl: hasWebGL() });
 }
 
 /** "3d" or "static" in the browser (follows reduced-motion changes live); null on the server. */

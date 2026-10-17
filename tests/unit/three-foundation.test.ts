@@ -16,16 +16,20 @@ describe("chooseRenderMode", () => {
   it.each([
     ["reduced motion", { ...strong, reducedMotion: true }],
     ["no WebGL", { ...strong, webgl: false }],
-    ["4 cores", { ...strong, hardwareConcurrency: 4 }],
     ["2 cores", { ...strong, hardwareConcurrency: 2 }],
-    ["4 GB memory", { ...strong, deviceMemory: 4 }],
+    ["1 core", { ...strong, hardwareConcurrency: 1 }],
+    ["2 GB memory", { ...strong, deviceMemory: 2 }],
     ["0.5 GB memory", { ...strong, deviceMemory: 0.5 }],
   ])("falls back to static for %s", (_label, signals) => {
     expect(chooseRenderMode(signals)).toBe("static");
   });
 
-  it("keeps 3D at 5 cores and 8 GB", () => {
-    expect(chooseRenderMode({ ...strong, hardwareConcurrency: 5 })).toBe("3d");
+  it.each([
+    ["3 cores", { ...strong, hardwareConcurrency: 3 }],
+    ["4 cores", { ...strong, hardwareConcurrency: 4 }],
+    ["4 GB memory", { ...strong, deviceMemory: 4 }],
+  ])("keeps 3D at %s (only 2 or fewer is weak)", (_label, signals) => {
+    expect(chooseRenderMode(signals)).toBe("3d");
   });
 });
 
