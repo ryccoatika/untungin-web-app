@@ -165,3 +165,18 @@ describe("lineStatus", () => {
     expect(lineStatus(contribution, margin, target)).toBe(expected);
   });
 });
+
+describe("computeMetrics — float noise at break-even", () => {
+  it("rounds netProfit to whole Rupiah so noise never yields a loss or an absurd payback", () => {
+    const data = fixture();
+    data.assets = [{ id: "a1", name: "Mesin", category: "peralatan", qty: 1, unitPrice: 6000000, usefulLifeMonths: 60 }];
+    data.channels = [{ id: "c", name: "Tunai", commissionPct: 7, fixedFee: 0 }];
+    data.composition = [];
+    // 10 × (35000 × 0.93) = 325499.99999999994; fixed costs are exactly 325500.
+    data.expenses = [{ id: "e1", name: "Sewa", category: "sewa", amount: 325500 - 100000, frequency: "bulanan" }];
+    data.prices = [{ productId: "eskopi", channelId: "c", price: 35000, estMonthlySales: 10, competitorPrice: null }];
+    const m = computeMetrics(data);
+    expect(m.netProfit).toBe(0);
+    expect(m.paybackMonths).toBeNull();
+  });
+});

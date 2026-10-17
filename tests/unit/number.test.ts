@@ -34,13 +34,32 @@ describe("wholeNumber", () => {
   });
 });
 
-describe("localeNumber (unchanged behaviour)", () => {
-  const qty = localeNumber(z.number());
+describe("localeNumber", () => {
+  const qty = localeNumber(z.number({ error: "nan" }));
   it.each([
     ["12,5", 12.5],
     ["12.5", 12.5],
+    ["1.5", 1.5],
     ["1.000,5", 1000.5],
+    ["1.000.000,25", 1000000.25],
+    ["40", 40],
+    ["1000", 1000],
+    ["40%", 40],
+    ["12,5 %", 12.5],
   ])("reads %j as %d", (input, expected) => {
     expect(qty.parse(input)).toBe(expected);
+  });
+
+  it.each(["1.000", "1.500", "1.000.000", "1e308", "0x10", "-5", "Infinity", "1,2,3", "1.2.3", "abc", "1.000,5,1"])(
+    "rejects %j",
+    (input) => {
+      const result = qty.safeParse(input);
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0].message).toBe("nan");
+    },
+  );
+
+  it("treats blank input as missing", () => {
+    expect(qty.safeParse("  ").success).toBe(false);
   });
 });

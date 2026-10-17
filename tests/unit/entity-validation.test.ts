@@ -44,7 +44,7 @@ describe("materialInputSchema", () => {
     [{ purchasePrice: "" }, "purchasePrice", "material.priceNumber"],
     [{ purchasePrice: "3.000.000.000" }, "purchasePrice", "common.amountTooLarge"],
     [{ wastePct: "100" }, "wastePct", "material.wasteMax"],
-    [{ wastePct: "-1" }, "wastePct", "material.wasteMin"],
+    [{ wastePct: "-1" }, "wastePct", "material.wasteNumber"],
   ])("%j → %s: %s", (patch, field, key) => {
     expect(errorsFor(materialInputSchema, { ...material, ...patch })[field]).toBe(key);
   });

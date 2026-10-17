@@ -101,7 +101,8 @@ export function computeMetrics(data: StoreData): StoreMetrics {
   const netRevenue = sum((l) => l.netPrice * l.estMonthlySales);
   const materialCosts = sum((l) => l.materialCost * l.estMonthlySales);
   const grossProfit = netRevenue - materialCosts;
-  const netProfit = grossProfit - fixedTotal;
+  // Whole Rupiah: float noise (±1e-9) must not flip the sign near break-even.
+  const netProfit = Math.round(grossProfit - fixedTotal) || 0;
   const avgContribution = totalUnits > 0 ? sum((l) => l.contribution * l.estMonthlySales) / totalUnits : null;
   const bepUnitsMonthly = avgContribution !== null && avgContribution > 0 ? ceilUnits(fixedTotal / avgContribution) : null;
   const capital = totalCapital(data.assets);

@@ -10,6 +10,9 @@ describe("formatPercent", () => {
     [40, "en", "40%"],
     [12.5, "en", "12.5%"],
     [33.333, "en", "33.3%"],
+    [-0.02, "id", "0%"],
+    [-0.04, "en", "0%"],
+    [-0.06, "id", "-0,1%"],
   ] as const)("%d (%s) → %s", (value, locale, expected) => {
     expect(formatPercent(value, locale)).toBe(expected);
   });
