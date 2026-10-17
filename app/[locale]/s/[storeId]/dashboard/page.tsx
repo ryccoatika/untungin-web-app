@@ -78,11 +78,11 @@ export default async function DashboardPage({ params, searchParams }: Props) {
           <MetricCards analysis={analysis} />
           {analysis.lines.length > 0 && (
             <div className="flex flex-wrap gap-2">
+              <Link href={`/s/${data.store.id}/analisis`} className={buttonVariants()}>
+                {t("tryAnalysis")}
+              </Link>
               <Link href={`/s/${data.store.id}/simulasi`} className={buttonVariants({ variant: "outline" })}>
                 {t("trySimulation")}
-              </Link>
-              <Link href={`/s/${data.store.id}/analisis`} className={buttonVariants({ variant: "outline" })}>
-                {t("tryAnalysis")}
               </Link>
             </div>
           )}

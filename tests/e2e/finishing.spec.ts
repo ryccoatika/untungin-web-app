@@ -63,3 +63,27 @@ test("a user with no store can delete the account from the setup page", async ({
   await expect(page.getByRole("status").filter({ hasText: "Akunmu sudah dihapus" })).toBeVisible();
   await expect(userIdByEmail(email)).rejects.toThrow(/No user/);
 });
+
+test("Rupiah fields show grouped digits and still save", async ({ page }) => {
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Rupiah");
+  await page.goto(storeUrl(page, "bahan"));
+  const price = page.getByLabel("Harga beli");
+  await price.fill("15000");
+  await price.blur();
+  await expect(price).toHaveValue("15.000");
+  await price.fill("15.5");
+  await price.blur();
+  await expect(price).toHaveValue("15.5"); // unreadable input is left for the validation message
+});
+
+test("with priced products, AI analysis is the main dashboard action", async ({ page }) => {
+  await signIn(page, undefined, "/onboarding");
+  await page.getByRole("button", { name: "Coba dengan data contoh" }).click();
+  await expect(page).toHaveURL(/\/dashboard/);
+  const analysis = page.getByRole("link", { name: "Analisis usahaku" });
+  const simulation = page.getByRole("link", { name: "Coba simulasi" });
+  await expect(analysis).toBeVisible();
+  const [a, s] = await Promise.all([analysis.boundingBox(), simulation.boundingBox()]);
+  expect(a!.y * 10000 + a!.x).toBeLessThan(s!.y * 10000 + s!.x); // analysis comes first
+});

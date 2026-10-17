@@ -34,6 +34,15 @@ function parseUnsigned(s: string): number {
 
 const THOUSANDS = [/^\d{1,3}(\.\d{3})+$/, /^\d{1,3}(,\d{3})+$/, /^\d{1,3}( \d{3})+$/];
 
+/** "15000", "15.000", "15,000", "Rp 15.000" → 15000; blank → undefined; anything else → NaN. */
+export function parseWholeNumber(value: string): number | undefined {
+  const s = value.trim().replace(/^rp\.?\s*/i, "");
+  if (s === "") return undefined;
+  if (/^\d+$/.test(s)) return Number(s);
+  if (THOUSANDS.some((pattern) => pattern.test(s))) return Number(s.replace(/[., ]/g, ""));
+  return Number.NaN;
+}
+
 /**
  * Parses whole numbers such as Rupiah amounts and counts: "15000", "15.000", "15,000",
  * "Rp 15.000" → 15000. Separators must group thousands (1–3 digits, then groups of 3), so
@@ -41,12 +50,5 @@ const THOUSANDS = [/^\d{1,3}(\.\d{3})+$/, /^\d{1,3}(,\d{3})+$/, /^\d{1,3}( \d{3}
  * number message. Blank input becomes undefined.
  */
 export function wholeNumber<T extends z.ZodType>(inner: T) {
-  return z.preprocess((value) => {
-    if (typeof value !== "string") return value;
-    const s = value.trim().replace(/^rp\.?\s*/i, "");
-    if (s === "") return undefined;
-    if (/^\d+$/.test(s)) return Number(s);
-    if (THOUSANDS.some((pattern) => pattern.test(s))) return Number(s.replace(/[., ]/g, ""));
-    return Number.NaN;
-  }, inner);
+  return z.preprocess((value) => (typeof value === "string" ? parseWholeNumber(value) : value), inner);
 }

@@ -81,6 +81,10 @@ npm run db:reset && npm run db:types
 5. Upgrading a user to Pro (temporary, manual): run
    `update public.profiles set plan = 'pro' where id = '<user-id>';` in the Supabase SQL editor.
 
+## Deploying
+
+Follow the ordered [production deploy checklist](docs/deploy.md) (Supabase, Google, Gemini, Vercel, smoke test).
+
 ## Translations
 
 The UI is available in Indonesian (`id`, default) and English (`en`); every page lives under `/id/...` or `/en/...`.
