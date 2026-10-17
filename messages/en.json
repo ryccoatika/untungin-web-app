@@ -186,16 +186,40 @@
       "dashboard": "Dashboard",
       "products": "Products",
       "materials": "Materials",
+      "channels": "Channels",
       "expenses": "Costs",
       "assets": "Inventory",
       "settings": "Settings",
       "more": "More"
     },
     "moreDescriptions": {
+      "channels": "GoFood, Shopee, QRIS and other places you sell",
       "expenses": "Rent, electricity, wages and other running costs",
       "assets": "Equipment and furniture, your starting capital",
       "settings": "Edit or delete the store"
     }
+  },
+  "Channels": {
+    "title": "Sales channels",
+    "intro": "Where you sell: offline, food delivery apps or marketplaces. Commission and per-order fees are used to calculate what you actually receive.",
+    "addTitle": "Add your own channel",
+    "editTitle": "Edit channel",
+    "name": "Channel name",
+    "namePlaceholder": "E.g. Consignment at a shop",
+    "commissionPct": "Commission (%)",
+    "fixedFee": "Fee per order (Rp)",
+    "feeHint": "A fixed deduction per order, such as a service fee. Enter 0 if none.",
+    "feeNone": "No fees",
+    "feePct": "Commission {pct}",
+    "feeFixed": "{fee}/order",
+    "feeBoth": "Commission {pct} + {fee}/order",
+    "templatesTitle": "Add from the list",
+    "templatesHint": "Estimates as of October 2026, excluding VAT. Check the exact numbers in your merchant dashboard and edit them if needed.",
+    "created": "Channel added.",
+    "templateExists": "{name} is already one of your channels.",
+    "delete": "Delete channel",
+    "deleteWarning": "Deleting a channel also deletes product prices and packaging used only in this channel.",
+    "lastChannel": "The last channel can't be deleted. Add another channel first."
   },
   "StoreList": {
     "title": "Your stores",

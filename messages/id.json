@@ -186,16 +186,40 @@
       "dashboard": "Dashboard",
       "products": "Produk",
       "materials": "Bahan",
+      "channels": "Kanal",
       "expenses": "Biaya",
       "assets": "Inventaris",
       "settings": "Pengaturan",
       "more": "Lainnya"
     },
     "moreDescriptions": {
+      "channels": "GoFood, Shopee, QRIS, dan tempat jualan lain",
       "expenses": "Sewa, listrik, gaji, dan biaya rutin lain",
       "assets": "Alat dan perlengkapan, modal awal usahamu",
       "settings": "Ubah data toko atau hapus toko"
     }
+  },
+  "Channels": {
+    "title": "Kanal penjualan",
+    "intro": "Tempat kamu berjualan: offline, ojek online, atau marketplace. Komisi dan biaya per pesanan dipakai untuk menghitung uang yang benar-benar kamu terima.",
+    "addTitle": "Tambah kanal sendiri",
+    "editTitle": "Ubah kanal",
+    "name": "Nama kanal",
+    "namePlaceholder": "Contoh: Titip di warung",
+    "commissionPct": "Komisi (%)",
+    "fixedFee": "Biaya per pesanan (Rp)",
+    "feeHint": "Potongan tetap per pesanan, misalnya biaya layanan. Isi 0 jika tidak ada.",
+    "feeNone": "Tanpa potongan",
+    "feePct": "Komisi {pct}",
+    "feeFixed": "{fee}/pesanan",
+    "feeBoth": "Komisi {pct} + {fee}/pesanan",
+    "templatesTitle": "Tambah dari daftar",
+    "templatesHint": "Perkiraan Oktober 2026, belum termasuk PPN. Cek angka pastinya di dashboard merchant kamu, lalu ubah jika perlu.",
+    "created": "Kanal ditambahkan.",
+    "templateExists": "{name} sudah ada di kanalmu.",
+    "delete": "Hapus kanal",
+    "deleteWarning": "Menghapus kanal juga menghapus harga produk dan kemasan khusus di kanal ini.",
+    "lastChannel": "Kanal terakhir tidak bisa dihapus. Tambahkan kanal lain dulu."
   },
   "StoreList": {
     "title": "Toko kamu",

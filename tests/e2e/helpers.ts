@@ -160,3 +160,23 @@ export async function setPrice(page: Page, p: { price: string; est: string }) {
   await form.getByRole("button", { name: "Simpan harga" }).click();
   await expect(page.getByText("Harga tersimpan.")).toBeVisible();
 }
+
+export async function addChannel(page: Page, c: { name: string; commissionPct: string; fixedFee?: string }) {
+  const form = page.locator("#add-channel");
+  await form.getByLabel("Nama kanal").fill(c.name);
+  await form.getByLabel("Komisi (%)").fill(c.commissionPct);
+  if (c.fixedFee) await form.getByLabel("Biaya per pesanan (Rp)").fill(c.fixedFee);
+  await form.getByRole("button", { name: "Tambah" }).click();
+  await expect(page.getByText("Kanal ditambahkan.")).toBeVisible();
+  await expect(form.getByLabel("Nama kanal")).toHaveValue("");
+}
+
+export async function addTemplateChannel(page: Page, name: string) {
+  await page.getByRole("button", { name: new RegExp(`^${name} ·`) }).click();
+  await expect(page.getByRole("link", { name: new RegExp(`^${name}`) })).toBeVisible();
+}
+
+/** The price block of one channel on a product page. */
+export function priceSection(page: Page, channelName: string) {
+  return page.locator("section").filter({ has: page.getByRole("heading", { name: channelName, exact: true }) });
+}
