@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { addChannel, addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, priceSection, setPrice, signIn, storeUrl } from "./helpers";
+import { addChannel, addExpense, addCompositionRow, addMaterial, addProduct, createStoreViaOnboarding, priceSection, setPrice, signIn, storeUrl } from "./helpers";
 
 test.beforeEach(async ({ page }) => {
   await signIn(page);
@@ -61,6 +61,22 @@ test("recommends a price and fills it in", async ({ page }) => {
   await expect(form).toContainText("Sesuai target");
   await form.getByRole("button", { name: "Simpan harga" }).click();
   await expect(form.getByText("Harga tersimpan.")).toBeVisible();
+});
+
+test("the recommendation follows a typed sales estimate before a price is set", async ({ page }) => {
+  const productUrl = page.url();
+  await page.goto(storeUrl(page, "biaya"));
+  await addExpense(page, { name: "Sewa", category: "sewa", amount: "600.000", frequency: "bulanan" });
+  await page.goto(productUrl);
+  await page.waitForLoadState("networkidle");
+  const form = page.locator("form[id^='price-']").first();
+  // No saved sales: material cost only, 300 / (1 − 0,4) = 500, and the hint says so.
+  await expect(form.getByText("Harga rekomendasi: Rp500")).toBeVisible();
+  await expect(form.getByText(/Belum termasuk biaya operasional/)).toBeVisible();
+  await form.getByLabel("Perkiraan terjual / bulan").fill("600");
+  // Material Rp300 + overhead 600.000 / 600 = Rp1.000 → 1.300 / 0,6 = 2.166,67 → Rp2.500.
+  await expect(form.getByText("Harga rekomendasi: Rp2.500")).toBeVisible();
+  await expect(form.getByText(/Belum termasuk biaya operasional/)).toHaveCount(0);
 });
 
 test("commission plus margin of 100% or more has no recommended price", async ({ page }) => {

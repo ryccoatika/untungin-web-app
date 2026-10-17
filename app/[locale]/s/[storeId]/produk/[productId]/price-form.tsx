@@ -67,21 +67,36 @@ type Preview = { line: MetricsLine | null; recommendation: Recommendation | null
  */
 function preview(data: StoreData, productId: string, channelId: string, values: Record<string, unknown>): Preview {
   const parsed = priceInputSchema.safeParse(values);
-  const scenario: StoreData = parsed.success
-    ? {
+  const others = data.prices.filter((row) => !(row.productId === productId && row.channelId === channelId));
+  let scenario: StoreData = data;
+  if (parsed.success) {
+    scenario = {
+      ...data,
+      prices: [
+        ...others,
+        {
+          productId,
+          channelId,
+          price: parsed.data.price,
+          estMonthlySales: parsed.data.estMonthlySales,
+          competitorPrice: parsed.data.competitorPrice,
+        },
+      ],
+    };
+  } else {
+    // No valid price yet: a typed sales estimate still sharpens the recommendation (no line is previewed).
+    const sales = priceInputSchema.shape.estMonthlySales.safeParse(values.estMonthlySales);
+    if (sales.success) {
+      const existing = data.prices.find((row) => row.productId === productId && row.channelId === channelId);
+      scenario = {
         ...data,
         prices: [
-          ...data.prices.filter((row) => !(row.productId === productId && row.channelId === channelId)),
-          {
-            productId,
-            channelId,
-            price: parsed.data.price,
-            estMonthlySales: parsed.data.estMonthlySales,
-            competitorPrice: parsed.data.competitorPrice,
-          },
+          ...others,
+          { productId, channelId, price: 0, estMonthlySales: sales.data, competitorPrice: existing?.competitorPrice ?? null },
         ],
-      }
-    : data;
+      };
+    }
+  }
   const { analysis } = tryAnalyzeStore(scenario);
   if (!analysis) return { line: null, recommendation: null };
   let recommendation: Recommendation | null = null;
