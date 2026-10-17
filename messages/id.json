@@ -636,5 +636,12 @@
     "rightsTitle": "Hak kamu",
     "rightsBody": "Kamu berhak melihat, membetulkan, dan menghapus datamu, sesuai UU Pelindungan Data Pribadi. Sebagian besar bisa langsung kamu lakukan di aplikasi; untuk hal lain, hubungi <mail>{email}</mail>.",
     "link": "Kebijakan privasi"
+  },
+  "Install": {
+    "title": "Pasang Untungin di HP",
+    "body": "Buka seperti aplikasi, langsung dari layar utama.",
+    "button": "Pasang aplikasi",
+    "unsupported": "Buka lewat Chrome untuk memasang",
+    "iosSteps": "Ketuk tombol Bagikan, lalu pilih Tambah ke Layar Utama."
   }
 }

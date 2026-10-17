@@ -37,6 +37,12 @@ Without this, the Google button fails locally with `Unsupported provider: provid
 
 `supabase/config.toml` reads both variables in `[auth.external.google]`.
 
+## Install on a phone
+
+Untungin is an installable app (PWA). On Android and desktop Chrome, open Lainnya and tap "Pasang aplikasi". On iPhone and iPad, tap Share, then Add to Home Screen.
+
+The service worker (`public/sw.js`, production builds only) does one thing: when a page load fails because the device is offline, it shows `public/offline.html`. It caches only that page and the app icon. It never caches app pages, API or Supabase responses, or any user data.
+
 ## Tests
 
 ```bash

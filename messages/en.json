@@ -636,5 +636,12 @@
     "rightsTitle": "Your rights",
     "rightsBody": "You can see, correct and delete your data, as Indonesia's Personal Data Protection Law provides. Most of it you can do in the app; for anything else, contact <mail>{email}</mail>.",
     "link": "Privacy policy"
+  },
+  "Install": {
+    "title": "Install Untungin on your phone",
+    "body": "Open it like an app, straight from your home screen.",
+    "button": "Install app",
+    "unsupported": "Open in Chrome to install",
+    "iosSteps": "Tap the Share button, then choose Add to Home Screen."
   }
 }
