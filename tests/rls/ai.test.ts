@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { admin, createStore, createTestUser, type TestUser } from "./helpers";
+import { admin, anonClient, createStore, createTestUser, type TestUser } from "./helpers";
 
 const farPast = "2000-01-01T00:00:00.000Z";
 const farFuture = "2999-01-01T00:00:00.000Z";
@@ -42,7 +42,7 @@ describe("ai_usage and claim_ai_usage", () => {
 
   it("never exceeds the limit under concurrent claims", async () => {
     const user = await createTestUser("ai-race");
-    const results = await Promise.all(Array.from({ length: 6 }, () => claim(user.id, farPast, 3)));
+    const results = await Promise.all(Array.from({ length: 20 }, () => claim(user.id, farPast, 3)));
     expect(results.filter(Boolean)).toHaveLength(3);
     expect(await usageCount(user.id)).toBe(3);
   });
@@ -53,9 +53,29 @@ describe("ai_usage and claim_ai_usage", () => {
 
   it("cannot be called by a signed-in user", async () => {
     const { error } = await a.client.rpc("claim_ai_usage", { p_user_id: a.id, p_since: farPast, p_limit: 100 });
-    expect(error).not.toBeNull();
+    expect(error?.code === "42501" || /permission denied/i.test(error?.message ?? "")).toBe(true);
     expect(await usageCount(a.id)).toBe(0);
   });
+
+  it("cannot be called anonymously", async () => {
+    const { error } = await anonClient().rpc("claim_ai_usage", { p_user_id: a.id, p_since: farPast, p_limit: 100 });
+    expect(error?.code === "42501" || /permission denied/i.test(error?.message ?? "")).toBe(true);
+  });
+
+  it("returns null for a null limit", async () => {
+    const user = await createTestUser("ai-nolimit");
+    const { data, error } = await admin.rpc("claim_ai_usage", {
+      p_user_id: user.id,
+      p_since: farPast,
+      p_limit: null as unknown as number,
+    });
+    expect(error).toBeNull();
+    expect(data).toBeNull();
+    expect(await usageCount(user.id)).toBe(0);
+  });
+
+  // TRUNCATE is not reachable through PostgREST and information_schema is not exposed to rpc, so the
+  // revoked grants (migration 20261017000003) are covered by the insert/delete denials below.
 
   it("lets users read only their own usage and never write it", async () => {
     await claim(a.id);
