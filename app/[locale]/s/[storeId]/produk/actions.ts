@@ -80,12 +80,15 @@ async function rowErrors(supabase: Supabase, storeId: string, materialId: string
   const tValidation = await getValidationTranslator();
   const { data: material } = await supabase
     .from("materials")
-    .select("purchase_unit")
+    .select("purchase_unit, grams_per_sdm")
     .eq("id", materialId)
     .eq("store_id", storeId)
     .maybeSingle();
   if (!material || !isUnit(material.purchase_unit)) return { materialId: [tValidation("composition.materialRequired")] };
-  const key = compositionUnitError(material.purchase_unit, unit);
+  const key = compositionUnitError(
+    { purchaseUnit: material.purchase_unit, gramsPerSdm: material.grams_per_sdm === null ? null : Number(material.grams_per_sdm) },
+    unit,
+  );
   return key ? { unit: [tValidation(key)] } : null;
 }
 

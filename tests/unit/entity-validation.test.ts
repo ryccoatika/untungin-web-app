@@ -19,7 +19,7 @@ const material = { name: " Gula pasir ", category: "bahan", purchaseQty: "1", pu
 describe("materialInputSchema", () => {
   it("parses a form with a thousand-separated price and blank waste", () => {
     const parsed = materialInputSchema.parse(material);
-    expect(parsed).toEqual({ name: "Gula pasir", category: "bahan", purchaseQty: 1, purchaseUnit: "kg", purchasePrice: 15000, wastePct: 0 });
+    expect(parsed).toEqual({ name: "Gula pasir", category: "bahan", purchaseQty: 1, purchaseUnit: "kg", purchasePrice: 15000, wastePct: 0, gramsPerSdm: null });
     expect(toMaterialColumns(parsed)).toEqual({
       name: "Gula pasir",
       category: "bahan",
@@ -27,11 +27,28 @@ describe("materialInputSchema", () => {
       purchase_unit: "kg",
       purchase_price: 15000,
       waste_pct: 0,
+      grams_per_sdm: null,
     });
   });
 
   it("accepts decimal quantities and waste with a comma", () => {
     expect(materialInputSchema.parse({ ...material, purchaseQty: "2,5", wastePct: "12,5" })).toMatchObject({ purchaseQty: 2.5, wastePct: 12.5 });
+  });
+
+  it("parses an optional spoon weight; blank means null", () => {
+    expect(materialInputSchema.parse(material).gramsPerSdm).toBeNull();
+    expect(materialInputSchema.parse({ ...material, gramsPerSdm: "" }).gramsPerSdm).toBeNull();
+    expect(materialInputSchema.parse({ ...material, gramsPerSdm: "12,5" }).gramsPerSdm).toBe(12.5);
+    expect(toMaterialColumns(materialInputSchema.parse({ ...material, gramsPerSdm: "12,5" })).grams_per_sdm).toBe(12.5);
+  });
+
+  it.each([
+    [{ gramsPerSdm: "0" }, "gramsPerSdm", "material.spoonWeightRange"],
+    [{ gramsPerSdm: "1001" }, "gramsPerSdm", "material.spoonWeightRange"],
+    [{ gramsPerSdm: "-3" }, "gramsPerSdm", "material.spoonWeightRange"],
+    [{ gramsPerSdm: "abc" }, "gramsPerSdm", "material.spoonWeightNumber"],
+  ])("%j → %s: %s", (patch, field, key) => {
+    expect(errorsFor(materialInputSchema, { ...material, ...patch })[field]).toBe(key);
   });
 
   it.each([
@@ -91,7 +108,7 @@ describe("compositionInputSchema", () => {
     [{ materialId: "" }, "materialId", "composition.materialRequired"],
     [{ materialId: "not-a-uuid" }, "materialId", "composition.materialRequired"],
     [{ qty: "0" }, "qty", "composition.qtyPositive"],
-    [{ unit: "gelas" }, "unit", "composition.unitInvalid"],
+    [{ unit: "cangkir" }, "unit", "composition.unitInvalid"],
     [{ basis: "resep" }, "basis", "composition.basisInvalid"],
   ])("%j → %s: %s", (patch, field, key) => {
     expect(errorsFor(compositionInputSchema, { ...row, ...patch })[field]).toBe(key);
@@ -105,9 +122,22 @@ describe("compositionInputSchema", () => {
   });
 
   it("rejects a unit from another dimension than the material", () => {
-    expect(compositionUnitError("kg", "g")).toBeNull();
-    expect(compositionUnitError("kg", "ml")).toBe("composition.unitDimension");
-    expect(compositionUnitError("lusin", "pcs")).toBeNull();
+    expect(compositionUnitError({ purchaseUnit: "kg", gramsPerSdm: null }, "g")).toBeNull();
+    expect(compositionUnitError({ purchaseUnit: "kg", gramsPerSdm: null }, "ml")).toBe("composition.unitDimension");
+    expect(compositionUnitError({ purchaseUnit: "lusin", gramsPerSdm: null }, "pcs")).toBeNull();
+  });
+
+  it("handles household units", () => {
+    expect(compositionUnitError({ purchaseUnit: "l", gramsPerSdm: null }, "sdm")).toBeNull();
+    expect(compositionUnitError({ purchaseUnit: "kg", gramsPerSdm: 12 }, "gelas")).toBeNull();
+    expect(compositionUnitError({ purchaseUnit: "kg", gramsPerSdm: null }, "sdm")).toBe("composition.spoonWeightMissing");
+    expect(compositionUnitError({ purchaseUnit: "kg", gramsPerSdm: null }, "g")).toBeNull();
+    expect(compositionUnitError({ purchaseUnit: "pcs", gramsPerSdm: null }, "sdt")).toBe("composition.unitDimension");
+  });
+
+  it("accepts household units in the schema", () => {
+    expect(compositionInputSchema.parse({ ...row, unit: "sdm" }).unit).toBe("sdm");
+    expect(errorsFor(compositionInputSchema, { ...row, unit: "sendok" }).unit).toBe("composition.unitInvalid");
   });
 });
 

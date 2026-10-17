@@ -1,4 +1,4 @@
-import type { Unit } from "./units";
+import type { RecipeUnit, Unit } from "./units";
 
 export const MATERIAL_CATEGORIES = ["bahan", "kemasan"] as const;
 export type MaterialCategory = (typeof MATERIAL_CATEGORIES)[number];
@@ -41,6 +41,8 @@ export type CalcMaterial = {
   purchaseUnit: Unit;
   purchasePrice: number;
   wastePct: number;
+  /** Grams in one level tablespoon; needed to use sdm/sdt/gelas with a weight material. */
+  gramsPerSdm?: number | null;
 };
 
 export type CalcProduct = {
@@ -59,7 +61,7 @@ export type CalcCompositionRow = {
   productId: string;
   materialId: string;
   qty: number;
-  unit: Unit;
+  unit: RecipeUnit;
   basis: Basis;
   /** null = used in every channel. */
   channelId: string | null;

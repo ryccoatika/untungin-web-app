@@ -118,7 +118,10 @@
       "wasteNumber": "Enter waste as a number",
       "wasteMin": "Waste can't be negative",
       "wasteMax": "Waste must be less than 100%",
-      "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count)."
+      "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count).",
+      "spoonWeightNumber": "Spoon weight must be a number, like 12 or 12.5",
+      "spoonWeightRange": "Spoon weight must be above 0 and at most 1000 grams",
+      "spoonWeightInUse": "This material is used with tbsp/tsp/cup in recipes. Enter the weight of 1 tbsp or change the recipes first."
     },
     "product": {
       "nameRequired": "Product name is required",
@@ -137,6 +140,7 @@
       "unitInvalid": "Choose a unit",
       "basisInvalid": "Choose how it is counted",
       "unitDimension": "This unit doesn't match the material (weight, volume, or count)",
+      "spoonWeightMissing": "Enter the weight of 1 tbsp for this material first (in Materials)",
       "channelInvalid": "Choose an existing channel"
     },
     "price": {
@@ -325,9 +329,12 @@
     "ml": "millilitre (ml)",
     "l": "litre (l)",
     "pcs": "piece (pcs)",
-    "lusin": "dozen (12 pcs)"
+    "lusin": "dozen (12 pcs)",
+    "sdm": "tablespoon (tbsp, 15 ml)",
+    "sdt": "teaspoon (tsp, 5 ml)",
+    "gelas": "cup (250 ml)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen" },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen", "sdm": "tbsp", "sdt": "tsp", "gelas": "cup" },
   "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
   "Materials": {
     "title": "Materials & packaging",

@@ -11,7 +11,7 @@ import { useRemountKey } from "@/components/forms/use-remount-key";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
-import { BASE_UNIT, BASES, dimensionOf, unitsOf, type Basis, type MaterialCategory, type Unit } from "@/lib/calc";
+import { BASE_UNIT, BASES, dimensionOf, unitsOf, type Basis, type MaterialCategory, type RecipeUnit, type Unit } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
 import type { FormAction } from "@/lib/forms";
 
@@ -21,7 +21,7 @@ export type EditorRow = {
   materialId: string;
   materialName: string;
   qty: number;
-  unit: Unit;
+  unit: RecipeUnit;
   basis: Basis;
   channelName: string | null;
   /** Cost of this row per sold unit (batch rows already divided by the yield). */

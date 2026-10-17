@@ -118,7 +118,10 @@
       "wasteNumber": "Isi susut dengan angka",
       "wasteMin": "Susut tidak boleh negatif",
       "wasteMax": "Susut harus kurang dari 100%",
-      "unitInUse": "Satuan ini beda jenis dengan yang dipakai di komposisi produk. Pilih satuan sejenis (berat, volume, atau jumlah)."
+      "unitInUse": "Satuan ini beda jenis dengan yang dipakai di komposisi produk. Pilih satuan sejenis (berat, volume, atau jumlah).",
+      "spoonWeightNumber": "Berat sendok harus berupa angka, misalnya 12 atau 12,5",
+      "spoonWeightRange": "Berat sendok harus lebih dari 0 dan paling banyak 1000 gram",
+      "spoonWeightInUse": "Bahan ini dipakai dengan sdm/sdt/gelas di resep. Isi berat 1 sdm atau ubah resepnya dulu."
     },
     "product": {
       "nameRequired": "Nama produk wajib diisi",
@@ -137,6 +140,7 @@
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
       "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)",
+      "spoonWeightMissing": "Isi dulu berat 1 sdm bahan ini (di menu Bahan)",
       "channelInvalid": "Pilih kanal yang ada"
     },
     "price": {
@@ -325,9 +329,12 @@
     "ml": "mililiter (ml)",
     "l": "liter (l)",
     "pcs": "buah (pcs)",
-    "lusin": "lusin (12 pcs)"
+    "lusin": "lusin (12 pcs)",
+    "sdm": "sendok makan (sdm)",
+    "sdt": "sendok teh (sdt)",
+    "gelas": "gelas (250 ml)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin" },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin", "sdm": "sdm", "sdt": "sdt", "gelas": "gelas" },
   "MaterialCategory": { "bahan": "Bahan baku", "kemasan": "Kemasan" },
   "Materials": {
     "title": "Bahan & kemasan",

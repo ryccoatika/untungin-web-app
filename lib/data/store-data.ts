@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+  isRecipeUnit,
   isUnit,
   type AssetCategory,
   type Basis,
@@ -7,12 +8,18 @@ import {
   type Frequency,
   type MaterialCategory,
   type StoreData,
+  type RecipeUnit,
   type Unit,
 } from "@/lib/calc";
 import type { Database } from "@/lib/supabase/database.types";
 
 function unit(value: string): Unit {
   if (!isUnit(value)) throw new Error(`Unknown unit in the database: ${value}`);
+  return value;
+}
+
+function recipeUnit(value: string): RecipeUnit {
+  if (!isRecipeUnit(value)) throw new Error(`Unknown recipe unit in the database: ${value}`);
   return value;
 }
 
@@ -52,6 +59,7 @@ export async function fetchStoreData(supabase: SupabaseClient<Database>, storeId
       purchaseUnit: unit(row.purchase_unit),
       purchasePrice: row.purchase_price,
       wastePct: Number(row.waste_pct),
+      gramsPerSdm: row.grams_per_sdm === null ? null : Number(row.grams_per_sdm),
     })),
     products: (products.data ?? []).map((row) => ({
       id: row.id,
@@ -66,7 +74,7 @@ export async function fetchStoreData(supabase: SupabaseClient<Database>, storeId
       productId: row.product_id,
       materialId: row.material_id,
       qty: Number(row.qty),
-      unit: unit(row.unit),
+      unit: recipeUnit(row.unit),
       basis: row.basis as Basis,
       channelId: row.channel_id,
     })),

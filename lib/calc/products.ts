@@ -1,18 +1,17 @@
 import { unitCost } from "./materials";
 import type { CalcCompositionRow, CalcMaterial, CalcProduct } from "./types";
-import { sameDimension, toBase } from "./units";
+import { CalcError } from "./errors";
+import { recipeQtyInBase } from "./units";
 
-export type CalcErrorCode = "UNIT_DIMENSION_MISMATCH" | "UNKNOWN_MATERIAL";
+export { CalcError, type CalcErrorCode } from "./errors";
 
-/** Data the app should never have saved; thrown instead of calculating silently (spec §4.2 item 2). */
-export class CalcError extends Error {
-  constructor(
-    readonly code: CalcErrorCode,
-    readonly productId: string,
-    readonly materialId: string,
-  ) {
-    super(`${code}: product ${productId}, material ${materialId}`);
-    this.name = "CalcError";
+/** recipeQtyInBase for one composition row; the error carries the product and material ids. */
+function rowQtyInBase(row: CalcCompositionRow, material: CalcMaterial, productId: string): number {
+  try {
+    return recipeQtyInBase(row.qty, row.unit, material);
+  } catch (error) {
+    if (error instanceof CalcError) throw new CalcError(error.code, productId, row.materialId);
+    throw error;
   }
 }
 
@@ -39,10 +38,7 @@ export function materialCostPerUnit(
   for (const row of rowsFor(composition, product.id, channelId)) {
     const material = materials.get(row.materialId);
     if (!material) throw new CalcError("UNKNOWN_MATERIAL", product.id, row.materialId);
-    if (!sameDimension(row.unit, material.purchaseUnit)) {
-      throw new CalcError("UNIT_DIMENSION_MISMATCH", product.id, row.materialId);
-    }
-    const cost = toBase(row.qty, row.unit) * unitCost(material);
+    const cost = rowQtyInBase(row, material, product.id) * unitCost(material);
     if (row.basis === "batch") batch += cost;
     else perUnit += cost;
   }

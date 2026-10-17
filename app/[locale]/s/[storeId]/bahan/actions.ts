@@ -3,15 +3,15 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/require-user";
-import { isUnit, sameDimension } from "@/lib/calc";
+import { dimensionOf, isHouseholdUnit, isRecipeUnit, sameDimension } from "@/lib/calc";
 import { revalidateStore } from "@/lib/data/revalidate";
 import { type FormState } from "@/lib/forms";
 import { parseForm } from "@/lib/forms-server";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/uuid";
-import { MATERIAL_UNIT_IN_USE_KEY, materialInputSchema, toMaterialColumns } from "@/lib/validation/material";
+import { MATERIAL_SPOON_WEIGHT_IN_USE_KEY, MATERIAL_UNIT_IN_USE_KEY, materialInputSchema, toMaterialColumns } from "@/lib/validation/material";
 
-const FIELDS = ["name", "category", "purchaseQty", "purchaseUnit", "purchasePrice", "wastePct"] as const;
+const FIELDS = ["name", "category", "purchaseQty", "purchaseUnit", "purchasePrice", "wastePct", "gramsPerSdm"] as const;
 
 export async function createMaterialAction(storeId: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const tCommon = await getTranslations("Common");
@@ -47,9 +47,24 @@ export async function updateMaterialAction(
     .eq("store_id", storeId)
     .eq("material_id", materialId);
   if (rowsError) return { message: tCommon("saveFailed"), values: parsed.values };
-  if (rows.some((row) => isUnit(row.unit) && !sameDimension(row.unit, parsed.input.purchaseUnit))) {
+  const units = rows.map((row) => row.unit).filter(isRecipeUnit);
+  const newDimension = dimensionOf(parsed.input.purchaseUnit);
+  // Household units (sdm, sdt, gelas) fit mass and volume only, and mass also needs the spoon weight.
+  const householdRows = units.some(isHouseholdUnit);
+  const dimensionBroken = units.some((unit) =>
+    isHouseholdUnit(unit) ? newDimension === "count" : !sameDimension(unit, parsed.input.purchaseUnit),
+  );
+  if (dimensionBroken) {
     const tValidation = await getValidationTranslator();
-    return { fieldErrors: { purchaseUnit: [tValidation(MATERIAL_UNIT_IN_USE_KEY)] }, values: parsed.values };
+    const householdOnly = !units.some((unit) => !isHouseholdUnit(unit) && !sameDimension(unit, parsed.input.purchaseUnit));
+    return {
+      fieldErrors: { purchaseUnit: [tValidation(householdOnly ? MATERIAL_SPOON_WEIGHT_IN_USE_KEY : MATERIAL_UNIT_IN_USE_KEY)] },
+      values: parsed.values,
+    };
+  }
+  if (householdRows && newDimension === "mass" && parsed.input.gramsPerSdm === null) {
+    const tValidation = await getValidationTranslator();
+    return { fieldErrors: { gramsPerSdm: [tValidation(MATERIAL_SPOON_WEIGHT_IN_USE_KEY)] }, values: parsed.values };
   }
 
   const { data, error } = await supabase
