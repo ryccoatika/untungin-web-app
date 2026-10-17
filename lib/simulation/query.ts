@@ -16,8 +16,12 @@ export type SearchParams = Record<string, string | string[] | undefined>;
 function numberFrom(raw: string | string[] | undefined): number | null {
   const value = Array.isArray(raw) ? raw[0] : raw;
   if (value === undefined || value.trim() === "") return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  const trimmed = value.trim();
+  // Only accept simple decimal/integer format: -?\d+(\.\d+)?
+  if (!/^-?\d+(\.\d+)?$/.test(trimmed)) return null;
+  const parsed = Number(trimmed);
+  // Normalize -0 to 0
+  return Number.isFinite(parsed) ? parsed + 0 : null;
 }
 
 const validPct = (value: number) => value >= SIMULATION_LIMITS.minPct && value <= SIMULATION_LIMITS.maxPct;
@@ -28,9 +32,14 @@ export function parseOverrides(query: SearchParams): Overrides {
   for (const [key, raw] of Object.entries(query)) {
     const value = numberFrom(raw);
     if (value === null) continue;
-    if ((key === "m" || key.startsWith("m.")) && validPct(value)) {
-      const id = key === "m" ? ALL_MATERIALS : key.slice(2);
-      if (id === ALL_MATERIALS || isUuid(id)) overrides.materialPricePct = { ...overrides.materialPricePct, [id]: value };
+    if (key === "m" && validPct(value)) {
+      overrides.materialPricePct = { ...overrides.materialPricePct, [ALL_MATERIALS]: value };
+    } else if (key.startsWith("m.") && validPct(value)) {
+      const id = key.slice(2);
+      // Reject m.all; only plain m means all materials
+      if (id !== ALL_MATERIALS && isUuid(id)) {
+        overrides.materialPricePct = { ...overrides.materialPricePct, [id]: value };
+      }
     } else if (key === "s" && validPct(value)) {
       overrides.salesMultiplier = 1 + value / 100;
     } else if (key.startsWith("p.") && validPrice(value)) {

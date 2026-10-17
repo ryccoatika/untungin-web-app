@@ -29,8 +29,22 @@ export function compareMetrics(now: StoreMetrics, sim: StoreMetrics): MetricComp
     const before = valueOf(now, key);
     const after = valueOf(sim, key);
     const diff = before === null || after === null ? null : after - before;
-    const tone =
-      diff === null || Math.abs(diff) < 1e-9 ? "same" : diff > 0 === HIGHER_IS_BETTER[key] ? "better" : "worse";
+    let tone: "better" | "worse" | "same";
+
+    if (diff === null || Math.abs(diff) < 1e-9) {
+      // For break-even and payback, null has direction meaning
+      if ((key === "bepUnitsDaily" || key === "paybackMonths") && before !== after) {
+        // Appearing (now null → sim value) or disappearing (now value → sim null)
+        if (before === null && after !== null) tone = "better"; // Never breaks even → breaks even
+        else if (before !== null && after === null) tone = "worse"; // Breaks even → never breaks even
+        else tone = "same";
+      } else {
+        tone = "same";
+      }
+    } else {
+      tone = diff > 0 === HIGHER_IS_BETTER[key] ? "better" : "worse";
+    }
+
     return { key, now: before, sim: after, diff, tone };
   });
 }

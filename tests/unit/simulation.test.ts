@@ -39,12 +39,25 @@ describe("parseOverrides", () => {
     [{ [`p.${P}.${C}`]: "3000000000" }],
     [{ [`p.${P}`]: "18000" }],
     [{ other: "1" }],
+    [{ m: "1e3" }],
+    [{ [`p.${P}.${C}`]: "0x10" }],
+    [{ "m.all": "10" }],
   ])("drops the invalid entry %j", (query) => {
     expect(parseOverrides(query)).toEqual({});
   });
 
   it("keeps valid entries next to invalid ones", () => {
     expect(parseOverrides({ m: "abc", s: "50" })).toEqual({ salesMultiplier: 1.5 });
+  });
+
+  it("normalises -0 to 0", () => {
+    const overrides = parseOverrides({ [`p.${P}.${C}`]: "-0" });
+    expect(overrides.prices?.[priceKey(P, C)]).toBe(0);
+    expect(Object.is(overrides.prices?.[priceKey(P, C)], 0)).toBe(true);
+  });
+
+  it("trims whitespace from number values", () => {
+    expect(parseOverrides({ m: " 5 " })).toEqual({ materialPricePct: { [ALL_MATERIALS]: 5 } });
   });
 });
 
@@ -92,6 +105,17 @@ describe("compareMetrics", () => {
     const byKey = Object.fromEntries(compareMetrics(now, sim).map((c) => [c.key, c]));
     expect(byKey.netProfit).toMatchObject({ sim: null, diff: null, tone: "same" });
     expect(byKey.grossRevenue).toMatchObject({ sim: null, diff: null });
-    expect(byKey.bepUnitsDaily).toMatchObject({ sim: null, diff: null });
+    expect(byKey.bepUnitsDaily).toMatchObject({ sim: null, diff: null, tone: "worse" });
+    expect(byKey.paybackMonths).toMatchObject({ sim: null, diff: null, tone: "worse" });
+  });
+
+  it("shows break-even and payback better when metrics appear in simulation", () => {
+    const now = computeMetrics(applyOverrides(fixture(), { salesMultiplier: 0 }));
+    const sim = computeMetrics(fixture());
+    const byKey = Object.fromEntries(compareMetrics(now, sim).map((c) => [c.key, c]));
+    expect(byKey.bepUnitsDaily).toMatchObject({ now: null, sim: 6, diff: null, tone: "better" });
+    expect(byKey.paybackMonths).toMatchObject({ now: null, diff: null, tone: "better" });
+    expect(byKey.paybackMonths.sim).toBeLessThan(2); // Should be ~1.98, not null
+    expect(byKey.netProfit).toMatchObject({ now: null, diff: null, tone: "same" });
   });
 });
