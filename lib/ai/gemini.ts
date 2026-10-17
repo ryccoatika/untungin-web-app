@@ -21,6 +21,8 @@ export function createGeminiGenerate(apiKey: string, model: string): GenerateJso
         systemInstruction: system,
         responseMimeType: "application/json",
         responseJsonSchema: schema,
+        // Exactly one request: no automatic follow-up calls.
+        automaticContinuation: false,
         abortSignal: AbortSignal.timeout(AI_TIMEOUT_MS),
         // One attempt only: retries would run past the 30-second limit.
         httpOptions: { timeout: AI_TIMEOUT_MS, retryOptions: { attempts: 1 } },

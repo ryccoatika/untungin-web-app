@@ -39,7 +39,14 @@ export async function runAnalysis(deps: AnalyzeDeps, snapshot: AnalysisSnapshot)
       prompt: userPrompt(snapshot),
       schema: ANALYSIS_RESPONSE_SCHEMA,
     });
-    const output = sanitizeOutput(JSON.parse(text), refsFromSnapshot(snapshot));
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      // A SyntaxError message quotes the model output, so throw a fixed one instead.
+      throw new Error("The AI answer is not valid JSON");
+    }
+    const output = sanitizeOutput(parsed, refsFromSnapshot(snapshot));
     if (!output) throw new Error("The AI answer does not match the output schema");
     await deps.save({ snapshotHash: hash, snapshot, output });
     return "created";

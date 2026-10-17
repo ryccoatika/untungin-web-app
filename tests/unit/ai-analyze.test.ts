@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { runAnalysis, type AnalyzeDeps } from "@/lib/ai/analyze";
 import { snapshotHash, type AnalysisSnapshot } from "@/lib/ai/snapshot";
 
@@ -37,7 +37,27 @@ function deps(overrides: Partial<AnalyzeDeps> = {}): AnalyzeDeps {
   };
 }
 
+afterEach(() => vi.restoreAllMocks());
+
 describe("runAnalysis", () => {
+  it("does not put any model text in the logs when the answer is not JSON", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const d = deps({ generate: vi.fn(async () => "Maaf, saya tidak bisa") });
+    expect(await runAnalysis(d, snapshot)).toBe("failed");
+    expect(d.refundUsage).toHaveBeenCalledWith("usage-1");
+    expect(spy).toHaveBeenCalled();
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("Maaf");
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("saya tidak");
+  });
+
+  it("fails without claiming or refunding when reading the latest hash fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const d = deps({ latestHash: vi.fn(async () => { throw new Error("db down"); }) });
+    expect(await runAnalysis(d, snapshot)).toBe("failed");
+    expect(d.claimUsage).not.toHaveBeenCalled();
+    expect(d.refundUsage).not.toHaveBeenCalled();
+  });
+
   it("returns the saved result without calling the AI when the data is unchanged", async () => {
     const d = deps({ latestHash: vi.fn(async () => snapshotHash(snapshot)) });
     expect(await runAnalysis(d, snapshot)).toBe("cached");
