@@ -29,6 +29,13 @@ describe("recommendPrice", () => {
     expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 60, targetMarginPct: 40 })).toEqual({ kind: "impossible" });
     expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 70, targetMarginPct: 40 })).toEqual({ kind: "impossible" });
   });
+
+  it("uses integer-percent share to avoid floating-point issues", () => {
+    // 70 + 30 = 100: exactly impossible, not ~5.5e-17 share
+    expect(recommendPrice({ cost: 1000, includesOperatingCosts: true, fixedFee: 0, commissionPct: 70, targetMarginPct: 30 })).toEqual({
+      kind: "impossible",
+    });
+  });
 });
 
 describe("recommendForChannel — the coffee-shop fixture", () => {
@@ -69,5 +76,12 @@ describe("recommendForChannel — the coffee-shop fixture", () => {
   it("returns null for an unknown product or channel", () => {
     expect(recommendForChannel(data, metrics, "nope", "offline")).toBeNull();
     expect(recommendForChannel(data, metrics, "eskopi", "nope")).toBeNull();
+  });
+
+  it("returns impossible when commission + margin ≥ 100%", () => {
+    const impossible = fixture();
+    impossible.channels[1] = { ...impossible.channels[1], commissionPct: 60 };
+    // online channel: 60% commission + 40% store target = 100%
+    expect(recommendForChannel(impossible, computeMetrics(impossible), "eskopi", "online")).toEqual({ kind: "impossible" });
   });
 });

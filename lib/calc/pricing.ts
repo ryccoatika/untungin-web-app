@@ -22,11 +22,11 @@ export function recommendPrice(input: {
   commissionPct: number;
   targetMarginPct: number;
 }): Recommendation {
-  const share = 1 - input.commissionPct / 100 - input.targetMarginPct / 100;
-  if (share <= 0) return { kind: "impossible" };
+  const sharePct = 100 - input.commissionPct - input.targetMarginPct;
+  if (sharePct <= 0) return { kind: "impossible" };
   return {
     kind: "price",
-    price: ceilTo500((input.cost + input.fixedFee) / share),
+    price: ceilTo500((input.cost + input.fixedFee) / (sharePct / 100)),
     includesOperatingCosts: input.includesOperatingCosts,
   };
 }
