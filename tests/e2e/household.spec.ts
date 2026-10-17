@@ -40,6 +40,11 @@ test("a weight material needs its spoon weight before sdm", async ({ page }) => 
   await form.getByLabel("Jumlah").fill("2");
   await form.getByLabel("Satuan").selectOption("sdm");
   await expect(page.getByText(/Isi dulu berat 1 sdm untuk Gula/)).toBeVisible();
+  await expect(form.getByRole("link", { name: "halaman Bahan" })).toBeVisible();
+  await form.getByLabel("Satuan").selectOption("g");
+  await expect(page.getByText(/Isi dulu berat 1 sdm untuk Gula/)).toHaveCount(0);
+  await form.getByLabel("Satuan").selectOption("sdm");
+  await expect(page.getByText(/Isi dulu berat 1 sdm untuk Gula/)).toBeVisible();
 
   await openMaterial(page, "Gula");
   await page.getByLabel("Berat 1 sdm (gram)").fill("12");
@@ -86,4 +91,15 @@ test("the material form with the spoon field does not overflow at 360px", async 
   await expect(page.getByLabel("Berat 1 sdm (gram)")).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("editing a row shows the spoon-weight hint as soon as sdm is picked", async ({ page }) => {
+  await addMaterial(page, { name: "Gula", qty: "1", unit: "kg", price: "15.000" });
+  await newProduct(page, "Teh manis");
+  await addCompositionRow(page, { material: "Gula", qty: "200", unit: "g", basis: "batch" });
+  const item = row(page, "Gula");
+  await item.getByLabel("Satuan").selectOption("sdm");
+  await expect(item.getByRole("link", { name: "halaman Bahan" })).toBeVisible();
+  await item.getByLabel("Satuan").selectOption("g");
+  await expect(item.getByRole("link", { name: "halaman Bahan" })).toHaveCount(0);
 });

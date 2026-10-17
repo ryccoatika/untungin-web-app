@@ -14,7 +14,7 @@ import { Link } from "@/i18n/navigation";
 import { CalcError } from "@/lib/calc/errors";
 import { BASE_UNIT, BASES, dimensionOf, recipeQtyInBase, recipeUnitsFor, type Basis, isRecipeUnit, type MaterialCategory, type RecipeUnit, type Unit } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
-import type { FormAction } from "@/lib/forms";
+import type { FormAction, FormState } from "@/lib/forms";
 
 export type EditorMaterial = { id: string; name: string; category: MaterialCategory; purchaseUnit: Unit; gramsPerSdm: number | null };
 export type EditorRow = {
@@ -128,7 +128,9 @@ function RowEditor({
   const current = state?.values ?? { qty: String(row.qty), unit: row.unit, basis: row.basis };
   const errors = state?.fieldErrors ?? {};
   const units = material ? recipeUnitsFor(material) : [row.unit];
-  const spoonMissing = spoonWeightMissing(row.qty, row.unit, material);
+  const [unit, setUnit] = useState<string>(current.unit);
+  const storedSpoonMissing = spoonWeightMissing(row.qty, row.unit, material);
+  const spoonMissing = isRecipeUnit(unit) && spoonWeightMissing(1, unit, material);
   const id = (name: string) => `row-${row.id}-${name}`;
 
   return (
@@ -141,7 +143,7 @@ function RowEditor({
           {row.channelName && <p className="text-xs text-muted-foreground">{t("onlyChannel", { channel: row.channelName })}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          {!spoonMissing && <p className="text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>}
+          {!storedSpoonMissing && <p className="text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>}
           <form action={deleteFormAction}>
             <SubmitButton
               variant="ghost"
@@ -170,7 +172,7 @@ function RowEditor({
           </div>
           <div className="space-y-1">
             <Label htmlFor={id("unit")}>{t("unit")}</Label>
-            <NativeSelect id={id("unit")} name="unit" defaultValue={current.unit}>
+            <NativeSelect id={id("unit")} name="unit" defaultValue={current.unit} onChange={(event) => setUnit(event.target.value)}>
               {units.map((unit) => (
                 <option key={unit} value={unit}>
                   {tUnits(unit)}
@@ -191,7 +193,7 @@ function RowEditor({
             <FieldError errors={errors.basis} />
           </div>
         </div>
-        {state?.message && (
+        {state?.message && !spoonMissing && (
           <div className="order-last col-span-full">
             <FormMessage state={state} />
           </div>
@@ -227,8 +229,7 @@ function AddRowForm({
 
   return (
     <form id="add-composition" action={formAction} className="space-y-3 rounded-lg border border-dashed p-4">
-      <AddRowFields key={key} materials={materials} channels={channels} materialsHref={materialsHref} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
-      <FormMessage state={state} />
+      <AddRowFields key={key} materials={materials} channels={channels} materialsHref={materialsHref} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} state={state} />
       <SubmitButton className="w-full sm:w-auto" pendingText={tCommon("addPending")}>
         {t("add")}
       </SubmitButton>
@@ -242,12 +243,14 @@ function AddRowFields({
   materialsHref,
   defaults,
   errors,
+  state,
 }: {
   materials: EditorMaterial[];
   channels: EditorChannel[];
   materialsHref: string;
   defaults: Record<string, string>;
   errors: Record<string, string[] | undefined>;
+  state: FormState;
 }) {
   const t = useTranslations("Composition");
   const tUnits = useTranslations("Units");
@@ -336,6 +339,7 @@ function AddRowFields({
           )}
         </div>
       )}
+      {!spoonMissing && <FormMessage state={state} />}
     </fieldset>
   );
 }

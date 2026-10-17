@@ -23,8 +23,8 @@ test("offers only units of the material's kind and a sensible basis", async ({ p
     "gram (g)",
     "ons (100 g)",
     "kilogram (kg)",
-    "sdm (sendok makan, 15 ml)",
-    "sdt (sendok teh, 5 ml)",
+    "sdm (15 ml)",
+    "sdt (5 ml)",
     "gelas (250 ml)",
   ]);
   await expect(form.getByLabel("Satuan")).toHaveValue("g");

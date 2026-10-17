@@ -330,8 +330,8 @@
     "l": "litre (l)",
     "pcs": "piece (pcs)",
     "lusin": "dozen (12 pcs)",
-    "sdm": "tbsp (tablespoon, 15 ml)",
-    "sdt": "tsp (teaspoon, 5 ml)",
+    "sdm": "tbsp (15 ml)",
+    "sdt": "tsp (5 ml)",
     "gelas": "glass (250 ml)"
   },
   "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen", "sdm": "tbsp", "sdt": "tsp", "gelas": "glass" },

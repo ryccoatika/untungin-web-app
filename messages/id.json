@@ -330,8 +330,8 @@
     "l": "liter (l)",
     "pcs": "buah (pcs)",
     "lusin": "lusin (12 pcs)",
-    "sdm": "sdm (sendok makan, 15 ml)",
-    "sdt": "sdt (sendok teh, 5 ml)",
+    "sdm": "sdm (15 ml)",
+    "sdt": "sdt (5 ml)",
     "gelas": "gelas (250 ml)"
   },
   "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin", "sdm": "sdm", "sdt": "sdt", "gelas": "gelas" },
