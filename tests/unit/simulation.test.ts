@@ -118,4 +118,27 @@ describe("compareMetrics", () => {
     expect(byKey.paybackMonths.sim).toBeLessThan(2); // Should be ~1.98, not null
     expect(byKey.netProfit).toMatchObject({ now: null, diff: null, tone: "same" });
   });
+
+  it("has no payback when there are no assets", () => {
+    const noAssets = { ...fixture(), assets: [] };
+    const byKey = Object.fromEntries(compareMetrics(computeMetrics(noAssets), computeMetrics(applyOverrides(noAssets, { salesMultiplier: 1.2 }))).map((c) => [c.key, c]));
+    expect(byKey.paybackMonths).toMatchObject({ now: null, sim: null, diff: null, tone: "same" });
+  });
+
+  it("shows the loss when the seller has estimates but the simulation sells nothing", () => {
+    const sim = computeMetrics(applyOverrides(fixture(), { salesMultiplier: 0 }));
+    const byKey = Object.fromEntries(compareMetrics(now, sim, { simHasEstimates: true }).map((c) => [c.key, c]));
+    expect(byKey.netProfit.sim).toBeLessThan(0);
+    expect(byKey.netProfit).toMatchObject({ tone: "worse" });
+    expect(byKey.grossRevenue).toMatchObject({ sim: 0, tone: "worse" });
+  });
+
+  it("judges the tone by the difference as displayed", () => {
+    const base = computeMetrics(fixture());
+    const nudged = { ...base, netMarginPct: (base.netMarginPct ?? 0) + 0.04 };
+    const byKey = Object.fromEntries(compareMetrics(base, nudged).map((c) => [c.key, c]));
+    expect(byKey.netMarginPct.tone).toBe("same");
+    const half = { ...base, netProfit: base.netProfit + 0.4 };
+    expect(compareMetrics(base, half)[0].tone).toBe("same");
+  });
 });

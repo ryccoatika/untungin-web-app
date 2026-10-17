@@ -18,20 +18,37 @@ const HIGHER_IS_BETTER: Record<ComparedMetric, boolean> = {
   paybackMonths: false,
 };
 
-/** Profit and revenue mean nothing when no sales are expected (the dashboard shows "—" then too). */
-function valueOf(metrics: StoreMetrics, key: ComparedMetric): number | null {
-  if ((key === "netProfit" || key === "grossRevenue") && metrics.totalUnits === 0) return null;
+/** Decimals the panel shows for each metric's difference; tone follows what the user reads. */
+const DIFF_DECIMALS: Record<ComparedMetric, number> = {
+  netProfit: 0,
+  grossRevenue: 0,
+  netMarginPct: 1,
+  bepUnitsDaily: 0,
+  paybackMonths: 1,
+};
+
+/**
+ * Profit and revenue mean nothing when no sales are expected (the dashboard shows "—" then too), and payback
+ * means nothing without assets. `showWithoutSales` keeps profit and revenue (e.g. the loss at −100% sales).
+ */
+function valueOf(metrics: StoreMetrics, key: ComparedMetric, showWithoutSales = false): number | null {
+  if ((key === "netProfit" || key === "grossRevenue") && metrics.totalUnits === 0 && !showWithoutSales) return null;
+  if (key === "paybackMonths" && metrics.totalCapital === 0) return null;
   return metrics[key];
 }
 
-export function compareMetrics(now: StoreMetrics, sim: StoreMetrics): MetricComparison[] {
+export function compareMetrics(
+  now: StoreMetrics,
+  sim: StoreMetrics,
+  options: { simHasEstimates?: boolean } = {},
+): MetricComparison[] {
   return COMPARED_METRICS.map((key) => {
     const before = valueOf(now, key);
-    const after = valueOf(sim, key);
+    const after = valueOf(sim, key, options.simHasEstimates);
     const diff = before === null || after === null ? null : after - before;
     let tone: "better" | "worse" | "same";
 
-    if (diff === null || Math.abs(diff) < 1e-9) {
+    if (diff === null || Math.abs(Number(diff.toFixed(DIFF_DECIMALS[key]))) === 0) {
       // For break-even and payback, null has direction meaning
       if ((key === "bepUnitsDaily" || key === "paybackMonths") && before !== after) {
         // Appearing (now null → sim value) or disappearing (now value → sim null)

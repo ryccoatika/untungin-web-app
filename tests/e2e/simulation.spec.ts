@@ -62,12 +62,16 @@ test("each control changes the simulated profit", async ({ page }) => {
   expect(await page.getByRole("main").innerText()).not.toMatch(/NaN|Infinity/);
 });
 
-test("nothing sold shows dashes, never NaN", async ({ page }) => {
+test("selling nothing shows the loss from fixed costs, never NaN", async ({ page }) => {
   await storeWithOneProduct(page);
   // The slider stops at −50%; a link can ask for −100% and widens it.
   await page.goto(`${storeUrl(page, "simulasi")}?s=-100`);
   await expect(page.getByLabel("Jumlah terjual")).toHaveValue("-100");
-  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("—");
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("-Rp1.000.000");
+  await expect(page.getByTestId("sim-sim-grossRevenue")).toHaveText("Rp0");
+  await expect(page.getByTestId("sim-diff-netProfit")).toHaveText("-Rp2.820.000");
+  await expect(page.getByTestId("sim-diff-netProfit").locator("..")).toHaveClass(/text-destructive/);
+  await expect(page.getByText(/perkiraan penjualan/i)).toHaveCount(0);
   await expect(page.getByTestId("sim-sim-bepUnitsDaily")).toHaveText("—");
   expect(await page.getByRole("main").innerText()).not.toMatch(/NaN|Infinity/);
 });
@@ -99,6 +103,27 @@ test("a link with a per-material change opens the per-material fields", async ({
   await page.reload();
   await expect(page.getByLabel("Perubahan harga Gula (%)")).toBeVisible();
   await expect(page.getByLabel("Perubahan harga Gula (%)")).toHaveValue("-100");
+});
+
+test("Back and the sidebar link keep the address bar and the page in step", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop");
+  await storeWithOneProduct(page);
+  await page.getByLabel("Harga semua bahan").fill("100");
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.640.000");
+  await expect(page).toHaveURL(/[?&]m=100(&|$)/);
+
+  const nav = page.getByRole("navigation", { name: "Menu toko" });
+  await nav.getByRole("link", { name: "Dashboard" }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/[?&]m=100(&|$)/);
+  await expect(page.getByLabel("Harga semua bahan")).toHaveValue("100");
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.640.000");
+
+  await nav.getByRole("link", { name: "Simulasi" }).click();
+  await expect(page.getByLabel("Harga semua bahan")).toHaveValue("0");
+  await expect(page.getByTestId("sim-sim-netProfit")).toHaveText("Rp1.820.000");
+  await expect(page).not.toHaveURL(/m=100/);
 });
 
 test("fits a phone without horizontal scrolling", async ({ page }, testInfo) => {

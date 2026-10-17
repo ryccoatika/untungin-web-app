@@ -5,12 +5,11 @@ import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { tryAnalyzeStore } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
-import { parseOverrides, type SearchParams } from "@/lib/simulation/query";
 import { SimulationPanel } from "./simulation-panel";
 
-type Props = { params: Promise<{ locale: string; storeId: string }>; searchParams: Promise<SearchParams> };
+type Props = { params: Promise<{ locale: string; storeId: string }> };
 
-export default async function SimulationPage({ params, searchParams }: Props) {
+export default async function SimulationPage({ params }: Props) {
   const { storeId } = await params;
   const data = await loadStoreData(storeId);
   if (!data) notFound();
@@ -26,7 +25,7 @@ export default async function SimulationPage({ params, searchParams }: Props) {
         <p className="text-sm text-muted-foreground">{t("intro")}</p>
       </div>
       {hasSomethingToSimulate ? (
-        <SimulationPanel data={data} initial={parseOverrides(await searchParams)} />
+        <SimulationPanel data={data} />
       ) : (
         <EmptyState title={t("emptyTitle")} body={t("emptyBody")}>
           <Link href={`/s/${data.store.id}/produk`} className={buttonVariants({ variant: "outline" })}>

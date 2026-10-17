@@ -484,6 +484,8 @@
     "now": "Now",
     "sim": "Simulation",
     "diff": "Difference",
+    "points": "{value} pts",
+    "salesNeedsEstimates": "Fill in monthly sales estimates on the products page first so the sales simulation has an effect.",
     "metrics": {
       "netProfit": "Net profit / month",
       "grossRevenue": "Revenue / month",

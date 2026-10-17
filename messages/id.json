@@ -484,6 +484,8 @@
     "now": "Sekarang",
     "sim": "Simulasi",
     "diff": "Selisih",
+    "points": "{value} poin",
+    "salesNeedsEstimates": "Isi perkiraan terjual per bulan di halaman produk dulu supaya simulasi penjualan berpengaruh.",
     "metrics": {
       "netProfit": "Laba bersih / bulan",
       "grossRevenue": "Omzet / bulan",

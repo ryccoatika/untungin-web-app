@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { StatusBadge } from "@/components/store/status-badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { ALL_MATERIALS, applyOverrides, priceKey, tryAnalyzeStore, type LineRef, type Overrides, type StoreData } from "@/lib/calc";
 import { formatNumber, formatPercent, formatRupiah } from "@/lib/format";
 import { compareMetrics, type ComparedMetric, type MetricComparison } from "@/lib/simulation/compare";
-import { overridesToSearchParams, SIMULATION_LIMITS } from "@/lib/simulation/query";
+import { overridesToSearchParams, parseOverrides, SIMULATION_LIMITS, type SearchParams } from "@/lib/simulation/query";
 import { cn } from "@/lib/utils";
 import { priceInputSchema } from "@/lib/validation/price";
 
@@ -22,14 +23,22 @@ const TONE: Record<MetricComparison["tone"], string> = {
   same: "text-muted-foreground",
 };
 
-export function SimulationPanel({ data, initial }: { data: StoreData; initial: Overrides }) {
+/** Every value per key, so parseOverrides sees what the address bar holds. */
+function paramsToQuery(params: { forEach: (fn: (value: string, key: string) => void) => void }): SearchParams {
+  const query: Record<string, string[]> = {};
+  params.forEach((value, key) => (query[key] ??= []).push(value));
+  return query;
+}
+
+export function SimulationPanel({ data }: { data: StoreData }) {
   const t = useTranslations("Simulation");
   const tWarnings = useTranslations("Warnings");
   const locale = useLocale();
-  const [overrides, setOverrides] = useState<Overrides>(initial);
+  const searchParams = useSearchParams();
+  const [overrides, setOverrides] = useState<Overrides>(() => parseOverrides(paramsToQuery(searchParams)));
   const [resetKey, setResetKey] = useState(0);
   // Links with per-material changes open the collapsed section so those fields are not hidden.
-  const [hasPerMaterial] = useState(() => Object.keys(initial.materialPricePct ?? {}).some((key) => key !== ALL_MATERIALS));
+  const [hasPerMaterial] = useState(() => Object.keys(overrides.materialPricePct ?? {}).some((key) => key !== ALL_MATERIALS));
 
   const now = useMemo(() => tryAnalyzeStore(data).analysis, [data]);
   const sim = useMemo(() => tryAnalyzeStore(applyOverrides(data, overrides)).analysis, [data, overrides]);
@@ -39,6 +48,16 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
     const query = overridesToSearchParams(overrides).toString();
     window.history.replaceState(window.history.state, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
   }, [overrides]);
+
+  // Back/forward and sidebar links change the address bar without remounting; follow it. Our own replaceState
+  // above has already made the live URL match `overrides`, so this only fires for navigation from outside.
+  useEffect(() => {
+    const live = parseOverrides(paramsToQuery(new URLSearchParams(window.location.search)));
+    if (overridesToSearchParams(live).toString() === overridesToSearchParams(overrides).toString()) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing with the address bar, an external system
+    setOverrides(live);
+    setResetKey((key) => key + 1);
+  }, [searchParams, overrides]);
 
   if (!now || !sim) {
     return (
@@ -85,6 +104,8 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
     setResetKey((key) => key + 1);
   }
 
+  // With estimates in the real data, a simulation that sells nothing is not "missing estimates".
+  const warnings = sim.warnings.filter((warning) => !(warning.code === "NO_SALES_ESTIMATE" && now.totalUnits > 0));
   const materialAll = overrides.materialPricePct?.[ALL_MATERIALS] ?? 0;
   const salesPct = Math.round(((overrides.salesMultiplier ?? 1) - 1) * 100);
 
@@ -98,7 +119,7 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
   const formatDiff = (key: ComparedMetric, diff: number | null) => {
     if (diff === null) return "—";
     if (key === "netProfit" || key === "grossRevenue") return signed(formatRupiah(diff, locale), diff);
-    if (key === "netMarginPct") return signed(formatPercent(diff, locale), diff);
+    if (key === "netMarginPct") return signed(t("points", { value: formatNumber(diff, locale, 1) }), diff);
     return signed(formatNumber(diff, locale, key === "paybackMonths" ? 1 : 0), diff);
   };
 
@@ -111,7 +132,7 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
         </CardHeader>
         <CardContent>
           <ul aria-live="polite" className="divide-y">
-            {compareMetrics(now, sim).map((row) => (
+            {compareMetrics(now, sim, { simHasEstimates: now.totalUnits > 0 }).map((row) => (
               <li key={row.key} className="space-y-1 py-3">
                 <p className="text-sm text-muted-foreground">{t(`metrics.${row.key}`)}</p>
                 <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -121,8 +142,9 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
                   <span className="font-semibold [overflow-wrap:anywhere]">
                     {t("sim")}: <span data-testid={`sim-sim-${row.key}`}>{formatValue(row.key, row.sim)}</span>
                   </span>
-                  <span className={cn("text-sm font-medium", TONE[row.tone])} data-testid={`sim-diff-${row.key}`}>
-                    {formatDiff(row.key, row.diff)}
+                  <span className={cn("text-sm font-medium", TONE[row.tone])}>
+                    <span className="sr-only">{t("diff")}: </span>
+                    <span data-testid={`sim-diff-${row.key}`}>{formatDiff(row.key, row.diff)}</span>
                   </span>
                 </p>
               </li>
@@ -171,6 +193,7 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
                 onChange={(event) => setSalesPct(Number(event.target.value))}
                 className="h-10 w-full accent-primary"
               />
+              {now.totalUnits === 0 && <p className="text-xs text-muted-foreground">{t("salesNeedsEstimates")}</p>}
             </div>
 
             <details open={hasPerMaterial} className="space-y-3">
@@ -256,11 +279,11 @@ export function SimulationPanel({ data, initial }: { data: StoreData; initial: O
         </Card>
       )}
 
-      {sim.warnings.length > 0 && (
+      {warnings.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-lg font-semibold">{t("warningsTitle")}</h2>
           <ul className="space-y-2">
-            {sim.warnings.map((warning) => (
+            {warnings.map((warning) => (
               <li key={warning.code} className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm [overflow-wrap:anywhere]">
                 {tWarnings(warning.code, {
                   products: warning.lines.map(lineLabel).join(", "),
