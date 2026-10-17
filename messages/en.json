@@ -140,7 +140,7 @@
       "unitInvalid": "Choose a unit",
       "basisInvalid": "Choose how it is counted",
       "unitDimension": "This unit doesn't match the material (weight, volume, or count)",
-      "spoonWeightMissing": "Enter the weight of 1 tbsp for this material first (in Materials)",
+      "spoonWeightMissing": "First fill in the weight of 1 tbsp for this material on the Materials page.",
       "channelInvalid": "Choose an existing channel"
     },
     "price": {
@@ -330,11 +330,11 @@
     "l": "litre (l)",
     "pcs": "piece (pcs)",
     "lusin": "dozen (12 pcs)",
-    "sdm": "tablespoon (tbsp, 15 ml)",
-    "sdt": "teaspoon (tsp, 5 ml)",
-    "gelas": "cup (250 ml)"
+    "sdm": "tbsp (tablespoon, 15 ml)",
+    "sdt": "tsp (teaspoon, 5 ml)",
+    "gelas": "glass (250 ml)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen", "sdm": "tbsp", "sdt": "tsp", "gelas": "cup" },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen", "sdm": "tbsp", "sdt": "tsp", "gelas": "glass" },
   "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
   "Materials": {
     "title": "Materials & packaging",
@@ -350,6 +350,9 @@
     "purchasePrice": "Purchase price (Rp)",
     "wastePct": "Waste (%)",
     "wasteHint": "The part you throw away, such as peel or spills. Leave empty if none.",
+    "spoonWeight": "Weight of 1 tbsp (grams)",
+    "spoonWeightHint": "Fill this in if recipes use tbsp, tsp or glasses. For example: sugar ± 12 g, flour ± 8 g, salt ± 18 g.",
+    "spoonWeightShown": "1 tbsp = {grams} g",
     "costPreview": "Cost: {cost} per {unit}",
     "perBaseUnit": "{cost}/{unit}",
     "wasteValue": "waste {pct}",
@@ -444,6 +447,7 @@
     "noMaterials": "No materials to choose from yet.",
     "goToMaterials": "Add materials first",
     "rowCost": "{cost}/unit",
+    "spoonWeightMissing": "First fill in the weight of 1 tbsp for {material} on the <link>Materials page</link>.",
     "deleteRow": "Remove {material} from the composition",
     "channel": "Used in",
     "allChannels": "All channels",

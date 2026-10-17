@@ -11,11 +11,12 @@ import { useRemountKey } from "@/components/forms/use-remount-key";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "@/i18n/navigation";
-import { BASE_UNIT, BASES, dimensionOf, unitsOf, type Basis, type MaterialCategory, type RecipeUnit, type Unit } from "@/lib/calc";
+import { CalcError } from "@/lib/calc/errors";
+import { BASE_UNIT, BASES, dimensionOf, recipeQtyInBase, recipeUnitsFor, type Basis, isRecipeUnit, type MaterialCategory, type RecipeUnit, type Unit } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
 import type { FormAction } from "@/lib/forms";
 
-export type EditorMaterial = { id: string; name: string; category: MaterialCategory; purchaseUnit: Unit };
+export type EditorMaterial = { id: string; name: string; category: MaterialCategory; purchaseUnit: Unit; gramsPerSdm: number | null };
 export type EditorRow = {
   id: string;
   materialId: string;
@@ -27,6 +28,34 @@ export type EditorRow = {
   /** Cost of this row per sold unit (batch rows already divided by the yield). */
   costPerUnit: number;
 };
+/** True when the unit needs the material's spoon weight and it is missing, so no cost can be shown. */
+function spoonWeightMissing(qty: number, unit: RecipeUnit, material: EditorMaterial | undefined): boolean {
+  if (!material) return false;
+  try {
+    recipeQtyInBase(qty, unit, material);
+    return false;
+  } catch (error) {
+    if (error instanceof CalcError && error.code === "SPOON_WEIGHT_MISSING") return true;
+    return false;
+  }
+}
+
+function SpoonWeightMessage({ material, href }: { material: string; href: string }) {
+  const t = useTranslations("Composition");
+  return (
+    <p role="note" className="text-sm text-destructive">
+      {t.rich("spoonWeightMissing", {
+        material,
+        link: (chunks) => (
+          <Link href={href} className="font-medium underline underline-offset-4">
+            {chunks}
+          </Link>
+        ),
+      })}
+    </p>
+  );
+}
+
 export type EditorChannel = { id: string; name: string };
 
 type Props = {
@@ -54,6 +83,7 @@ export function CompositionEditor({ rows, channels, materials, addAction, update
               key={row.id}
               row={row}
               material={materialsById.get(row.materialId)}
+              materialsHref={materialsHref}
               updateAction={updateActions[row.id]}
               deleteAction={deleteActions[row.id]}
             />
@@ -68,7 +98,7 @@ export function CompositionEditor({ rows, channels, materials, addAction, update
           </Link>
         </p>
       ) : (
-        <AddRowForm materials={materials} channels={channels} action={addAction} />
+        <AddRowForm materials={materials} channels={channels} action={addAction} materialsHref={materialsHref} />
       )}
     </div>
   );
@@ -77,11 +107,13 @@ export function CompositionEditor({ rows, channels, materials, addAction, update
 function RowEditor({
   row,
   material,
+  materialsHref,
   updateAction,
   deleteAction,
 }: {
   row: EditorRow;
   material: EditorMaterial | undefined;
+  materialsHref: string;
   updateAction: FormAction;
   deleteAction: FormAction;
 }) {
@@ -95,7 +127,8 @@ function RowEditor({
   const key = useRemountKey(state);
   const current = state?.values ?? { qty: String(row.qty), unit: row.unit, basis: row.basis };
   const errors = state?.fieldErrors ?? {};
-  const units = material ? unitsOf(dimensionOf(material.purchaseUnit)) : [row.unit];
+  const units = material ? recipeUnitsFor(material) : [row.unit];
+  const spoonMissing = spoonWeightMissing(row.qty, row.unit, material);
   const id = (name: string) => `row-${row.id}-${name}`;
 
   return (
@@ -108,7 +141,7 @@ function RowEditor({
           {row.channelName && <p className="text-xs text-muted-foreground">{t("onlyChannel", { channel: row.channelName })}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <p className="text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>
+          {!spoonMissing && <p className="text-sm text-muted-foreground">{t("rowCost", { cost: formatRupiah(row.costPerUnit, locale) })}</p>}
           <form action={deleteFormAction}>
             <SubmitButton
               variant="ghost"
@@ -122,6 +155,11 @@ function RowEditor({
           </form>
         </div>
       </div>
+      {spoonMissing && (
+        <div className="col-span-full">
+          <SpoonWeightMessage material={row.materialName} href={materialsHref} />
+        </div>
+      )}
       <form action={formAction} className="contents">
         <input type="hidden" name="materialId" value={row.materialId} />
         <div key={key} className="contents">
@@ -171,7 +209,17 @@ function RowEditor({
   );
 }
 
-function AddRowForm({ materials, channels, action }: { materials: EditorMaterial[]; channels: EditorChannel[]; action: FormAction }) {
+function AddRowForm({
+  materials,
+  channels,
+  action,
+  materialsHref,
+}: {
+  materials: EditorMaterial[];
+  channels: EditorChannel[];
+  action: FormAction;
+  materialsHref: string;
+}) {
   const tCommon = useTranslations("Common");
   const t = useTranslations("Composition");
   const [state, formAction] = useActionState(action, undefined);
@@ -179,7 +227,7 @@ function AddRowForm({ materials, channels, action }: { materials: EditorMaterial
 
   return (
     <form id="add-composition" action={formAction} className="space-y-3 rounded-lg border border-dashed p-4">
-      <AddRowFields key={key} materials={materials} channels={channels} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
+      <AddRowFields key={key} materials={materials} channels={channels} materialsHref={materialsHref} defaults={state?.values ?? {}} errors={state?.fieldErrors ?? {}} />
       <FormMessage state={state} />
       <SubmitButton className="w-full sm:w-auto" pendingText={tCommon("addPending")}>
         {t("add")}
@@ -191,11 +239,13 @@ function AddRowForm({ materials, channels, action }: { materials: EditorMaterial
 function AddRowFields({
   materials,
   channels,
+  materialsHref,
   defaults,
   errors,
 }: {
   materials: EditorMaterial[];
   channels: EditorChannel[];
+  materialsHref: string;
   defaults: Record<string, string>;
   errors: Record<string, string[] | undefined>;
 }) {
@@ -206,6 +256,8 @@ function AddRowFields({
   const material = materials.find((candidate) => candidate.id === materialId);
   const echoed = defaults.materialId === materialId;
   const defaultUnit = echoed && defaults.unit ? defaults.unit : material ? BASE_UNIT[dimensionOf(material.purchaseUnit)] : "";
+  const [unit, setUnit] = useState<string>(defaultUnit);
+  const spoonMissing = !!material && isRecipeUnit(unit) && spoonWeightMissing(1, unit, material);
   const defaultBasis = echoed && defaults.basis ? defaults.basis : material?.category === "kemasan" ? "unit" : "batch";
 
   return (
@@ -216,7 +268,11 @@ function AddRowFields({
           id="composition-material"
           name="materialId"
           value={materialId}
-          onChange={(event) => setMaterialId(event.target.value)}
+          onChange={(event) => {
+            const next = materials.find((candidate) => candidate.id === event.target.value);
+            setMaterialId(event.target.value);
+            setUnit(next ? BASE_UNIT[dimensionOf(next.purchaseUnit)] : "");
+          }}
         >
           {/* Not disabled: a form reset after the action selects the first enabled option, which must be this one. */}
           <option value="">
@@ -241,14 +297,14 @@ function AddRowFields({
             <div className="space-y-1">
               <Label htmlFor="composition-unit">{t("unit")}</Label>
               {/* Keyed by material so the default follows the chosen material. */}
-              <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit}>
-                {unitsOf(dimensionOf(material.purchaseUnit)).map((unit) => (
-                  <option key={unit} value={unit}>
-                    {tUnits(unit)}
+              <NativeSelect key={`unit-${materialId}`} id="composition-unit" name="unit" defaultValue={defaultUnit} onChange={(event) => setUnit(event.target.value)}>
+                {recipeUnitsFor(material).map((option) => (
+                  <option key={option} value={option}>
+                    {tUnits(option)}
                   </option>
                 ))}
               </NativeSelect>
-              <FieldError errors={errors.unit} />
+              {!spoonMissing && <FieldError errors={errors.unit} />}
             </div>
             <div className="col-span-2 space-y-1 sm:col-span-1">
               <Label htmlFor="composition-basis">{t("basis")}</Label>
@@ -262,6 +318,7 @@ function AddRowFields({
               <FieldError errors={errors.basis} />
             </div>
           </div>
+          {spoonMissing && <SpoonWeightMessage material={material.name} href={materialsHref} />}
           {channels.length > 1 && (
             <div className="space-y-1">
               <Label htmlFor="composition-channel">{t("channel")}</Label>

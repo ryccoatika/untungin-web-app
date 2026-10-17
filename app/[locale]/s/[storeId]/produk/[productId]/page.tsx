@@ -117,7 +117,13 @@ export default async function ProductPage({ params }: { params: Params }) {
           <CompositionEditor
             rows={rows}
             channels={data.channels.map(({ id, name }) => ({ id, name }))}
-            materials={data.materials.map(({ id, name, category, purchaseUnit }) => ({ id, name, category, purchaseUnit }))}
+            materials={data.materials.map(({ id, name, category, purchaseUnit, gramsPerSdm }) => ({
+              id,
+              name,
+              category,
+              purchaseUnit,
+              gramsPerSdm: gramsPerSdm ?? null,
+            }))}
             addAction={addCompositionRowAction.bind(null, data.store.id, product.id)}
             updateActions={Object.fromEntries(
               rows.map((row) => [row.id, updateCompositionRowAction.bind(null, data.store.id, product.id, row.id)]),

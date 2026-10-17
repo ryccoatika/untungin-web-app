@@ -140,7 +140,7 @@
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
       "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)",
-      "spoonWeightMissing": "Isi dulu berat 1 sdm bahan ini (di menu Bahan)",
+      "spoonWeightMissing": "Isi dulu berat 1 sdm untuk bahan ini di halaman Bahan.",
       "channelInvalid": "Pilih kanal yang ada"
     },
     "price": {
@@ -330,8 +330,8 @@
     "l": "liter (l)",
     "pcs": "buah (pcs)",
     "lusin": "lusin (12 pcs)",
-    "sdm": "sendok makan (sdm)",
-    "sdt": "sendok teh (sdt)",
+    "sdm": "sdm (sendok makan, 15 ml)",
+    "sdt": "sdt (sendok teh, 5 ml)",
     "gelas": "gelas (250 ml)"
   },
   "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin", "sdm": "sdm", "sdt": "sdt", "gelas": "gelas" },
@@ -350,6 +350,9 @@
     "purchasePrice": "Harga beli (Rp)",
     "wastePct": "Susut / terbuang (%)",
     "wasteHint": "Bagian yang terbuang, misalnya kulit atau tumpah. Kosongkan jika tidak ada.",
+    "spoonWeight": "Berat 1 sdm (gram)",
+    "spoonWeightHint": "Isi kalau resep memakai sdm, sdt, atau gelas. Contoh: gula pasir ± 12 g, tepung terigu ± 8 g, garam ± 18 g.",
+    "spoonWeightShown": "1 sdm = {grams} g",
     "costPreview": "Biaya: {cost} per {unit}",
     "perBaseUnit": "{cost}/{unit}",
     "wasteValue": "susut {pct}",
@@ -444,6 +447,7 @@
     "noMaterials": "Belum ada bahan untuk dipilih.",
     "goToMaterials": "Tambah bahan dulu",
     "rowCost": "{cost}/porsi",
+    "spoonWeightMissing": "Isi dulu berat 1 sdm untuk {material} di <link>halaman Bahan</link>.",
     "deleteRow": "Hapus {material} dari komposisi",
     "channel": "Dipakai di",
     "allChannels": "Semua kanal",
