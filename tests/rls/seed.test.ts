@@ -30,6 +30,31 @@ describe("seedDemoStore", () => {
     });
   });
 
+  it("creates the sample records under RLS for the seeding user", async () => {
+    const user = await createTestUser("seed-records");
+    const demo = buildDemoStore("id");
+    const result = await seedDemoStore(user.client, demo, demo.store.name);
+    const storeId = (result as { storeId: string }).storeId;
+
+    const { data: days } = await user.client.from("sales_days").select("id, date, closed").eq("store_id", storeId).order("date");
+    expect(days).toHaveLength(demo.records.days.length);
+    expect(days!.filter((d) => d.closed)).toHaveLength(1);
+    expect(days![0].date).toBe(demo.records.from);
+
+    const { data: lines } = await user.client.from("sales_lines").select("day_id, product_id, channel_id, qty, net_unit, hpp_unit").eq("store_id", storeId);
+    const expectedLines = demo.records.days.reduce((n, d) => n + d.counts.length, 0);
+    expect(lines).toHaveLength(expectedLines);
+    expect(lines!.every((l) => l.product_id && l.channel_id && l.qty > 0 && Number(l.hpp_unit) > 0)).toBe(true);
+
+    const { data: purchases } = await user.client.from("purchases").select("material_id, material_name").eq("store_id", storeId);
+    expect(purchases).toHaveLength(2);
+    expect(purchases!.every((p) => p.material_id)).toBe(true);
+
+    // Purchases at today's price leave every material price as seeded.
+    const { data: materials } = await user.client.from("materials").select("name, purchase_price").eq("store_id", storeId);
+    for (const m of demo.materials) expect(materials!.find((row) => row.name === m.name)!.purchase_price).toBe(m.purchasePrice);
+  });
+
   it("reports a duplicate name without creating anything", async () => {
     const user = await createTestUser("seed-dup");
     const demo = buildDemoStore("id");

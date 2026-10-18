@@ -60,3 +60,14 @@ export function formatDay(date: string, locale: AppLocale, withYear = false): st
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00Z`));
 }
+
+/** A month like "Oktober 2026" / "October 2026"; `month` is `YYYY-MM`. */
+export function formatMonth(month: string, locale: AppLocale): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+}
+
+/** A weekday abbreviation for column headers; `index` 0 is Monday. */
+export function formatWeekdayShort(index: number, locale: AppLocale): string {
+  // 2026-10-05 is a Monday.
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 5 + index)));
+}

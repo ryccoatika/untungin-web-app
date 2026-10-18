@@ -9,6 +9,9 @@ async function createSampleStore(page: Page) {
   await page.getByRole("button", { name: "Coba dengan data contoh" }).click();
   await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard(\?welcome=1)?$/);
   await expect(page.getByTestId("metric-netProfit")).not.toHaveText("—");
+  // These tests start from a store with no records; the sample store ships with two weeks of them (see laporan.spec.ts).
+  const { error } = await adminClient().from("sales_days").delete().eq("store_id", storeIdFromUrl(page));
+  if (error) throw error;
 }
 
 /** The Asia/Jakarta calendar day, `offset` days from today. */

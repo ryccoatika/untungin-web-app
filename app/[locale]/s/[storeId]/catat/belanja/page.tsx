@@ -1,19 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/empty-state";
-import { DeleteButton } from "@/components/forms/delete-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
-import type { AppLocale } from "@/i18n/routing";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { loadLatestPurchaseDates, loadPurchases } from "@/lib/data/records";
-import { formatDay, formatNumber, formatRupiah } from "@/lib/format";
 import { earliestRecordable, jakartaToday, monthOf } from "@/lib/records";
 import { isUuid } from "@/lib/uuid";
 import { RecordTabs } from "../record-tabs";
-import { deletePurchaseAction, savePurchaseAction } from "./actions";
+import { savePurchaseAction } from "./actions";
 import { PurchaseForm, type PurchaseDefaults } from "./purchase-form";
+import { PurchaseList } from "./purchase-list";
 
 type Props = {
   params: Promise<{ locale: string; storeId: string }>;
@@ -30,15 +28,15 @@ export default async function RecordPurchasesPage({ params, searchParams }: Prop
   const data = await loadStoreData(storeId);
   if (!data) notFound();
   const t = await getTranslations("Records.purchases");
-  const tCommon = await getTranslations("Common");
-  const tUnit = await getTranslations("UnitShort");
-  const locale = (await getLocale()) as AppLocale;
 
   const today = jakartaToday(new Date());
   const purchases = await loadPurchases(storeId, `${monthOf(today)}-01`, today);
-  // Only a purchase still listed (this month, material not deleted) can be edited.
-  const editing =
-    typeof wanted === "string" && isUuid(wanted) ? purchases.find((p) => p.id === wanted && p.materialId !== null) : undefined;
+  // Any purchase in the recordable window whose material still exists can be edited (Laporan links to older months).
+  let editing: (typeof purchases)[number] | undefined;
+  if (typeof wanted === "string" && isUuid(wanted)) {
+    const candidates = purchases.some((p) => p.id === wanted) ? purchases : await loadPurchases(storeId, earliestRecordable(today), today);
+    editing = candidates.find((p) => p.id === wanted && p.materialId !== null);
+  }
   const latest = await loadLatestPurchaseDates(storeId, editing?.id);
 
   const defaults: PurchaseDefaults = editing
@@ -90,38 +88,7 @@ export default async function RecordPurchasesPage({ params, searchParams }: Prop
         {purchases.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t("empty")}</p>
         ) : (
-          <ul className="divide-y rounded-lg border">
-            {purchases.map((purchase) => (
-              <li key={purchase.id} className="space-y-2 px-3 py-3">
-                <div className="min-w-0">
-                  <p className="font-medium [overflow-wrap:anywhere]">
-                    {purchase.materialName}
-                    {purchase.materialId === null && <span className="text-sm font-normal text-muted-foreground"> ({t("removedMaterial")})</span>}
-                  </p>
-                  <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-                    {formatDay(purchase.date, locale)} ·{" "}
-                    {t("item", {
-                      qty: formatNumber(purchase.qty, locale),
-                      unit: tUnit(purchase.unit),
-                      total: formatRupiah(purchase.totalPaid, locale),
-                    })}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-start gap-2">
-                  {purchase.materialId !== null && (
-                    <Link
-                      href={`/s/${storeId}/catat/belanja?ubah=${purchase.id}`}
-                      aria-label={t("editLabel", { material: purchase.materialName })}
-                      className={buttonVariants({ variant: "outline" })}
-                    >
-                      {t("edit")}
-                    </Link>
-                  )}
-                  <DeleteButton action={deletePurchaseAction.bind(null, storeId, purchase.id)} label={tCommon("delete")} />
-                </div>
-              </li>
-            ))}
-          </ul>
+          <PurchaseList storeId={storeId} purchases={purchases} />
         )}
       </section>
     </div>

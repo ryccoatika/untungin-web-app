@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AppLocale } from "@/i18n/routing";
-import type { AssetCategory, Basis, ExpenseCategory, Frequency, MaterialCategory, StoreData, Unit } from "@/lib/calc";
+import { analyzeStore, type AssetCategory, type Basis, type ExpenseCategory, type Frequency, type MaterialCategory, type StoreData, type Unit } from "@/lib/calc";
 import { findTemplate } from "@/lib/config/channel-templates";
+import { addDays, jakartaToday, newPurchasePrice, snapshotLines, type IsoDate } from "@/lib/records";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Text = Record<AppLocale, string>;
@@ -85,6 +86,46 @@ const ASSETS: AssetSpec[] = [
   { name: L("Meja & kursi", "Tables & chairs"), category: "furnitur", qty: 2, unitPrice: 750_000, months: 36 },
 ];
 
+/** Days the sample records span, ending yesterday. */
+const RECORD_SPAN_DAYS = 14;
+/** Offsets (0 = first day of the span) of the day marked closed and of the day left out on purpose. */
+const CLOSED_OFFSET = 9;
+const MISSING_OFFSET = 5;
+
+type DemoCount = { productId: string; channelId: string; qty: number };
+export type DemoRecords = {
+  from: IsoDate;
+  to: IsoDate;
+  /** Every day of the span except the one deliberately missing day. */
+  days: { date: IsoDate; closed: boolean; counts: DemoCount[] }[];
+  purchases: { materialId: string; date: IsoDate; qty: number; unit: Unit; totalPaid: number }[];
+};
+
+/** Plausible daily counts: the monthly estimate spread over the operating days, with a steady weekly wobble. */
+function demoRecords(today: IsoDate): DemoRecords {
+  const from = addDays(today, -RECORD_SPAN_DAYS);
+  const days: DemoRecords["days"] = [];
+  for (let i = 0; i < RECORD_SPAN_DAYS; i++) {
+    if (i === MISSING_OFFSET) continue;
+    const date = addDays(from, i);
+    if (i === CLOSED_OFFSET) {
+      days.push({ date, closed: true, counts: [] });
+      continue;
+    }
+    const counts = PRICES.map((price, k) => {
+      const factor = 0.7 + 0.1 * ((i * 3 + k * 2) % 6);
+      return { productId: price.product, channelId: price.channel, qty: Math.max(1, Math.round((price.est / STORE.operatingDaysPerMonth) * factor)) };
+    });
+    days.push({ date, closed: false, counts });
+  }
+  // Bought at today's price, so seeding leaves every material price (and the HPP numbers) as they are.
+  const purchases: DemoRecords["purchases"] = [
+    { materialId: "kopi", date: addDays(from, 3), qty: 2, unit: "kg", totalPaid: 360_000 },
+    { materialId: "susu", date: addDays(from, 10), qty: 6, unit: "l", totalPaid: 108_000 },
+  ];
+  return { from, to: addDays(today, -1), days, purchases };
+}
+
 /** The sample store in one language (spec §5.1): plain data with keys instead of database ids. */
 export type DemoStore = {
   store: { name: string; businessType: string; targetMarket: string; operatingDaysPerMonth: number; targetMarginPct: number };
@@ -95,9 +136,11 @@ export type DemoStore = {
   prices: PriceSpec[];
   expenses: { name: string; category: ExpenseCategory; amount: number; frequency: Frequency }[];
   assets: { name: string; category: AssetCategory; qty: number; unitPrice: number; usefulLifeMonths: number }[];
+  records: DemoRecords;
 };
 
-export function buildDemoStore(locale: AppLocale): DemoStore {
+/** `today` is the Asia/Jakarta day the sample records end before (yesterday is their last day). */
+export function buildDemoStore(locale: AppLocale, today: IsoDate = jakartaToday(new Date())): DemoStore {
   const gofood = findTemplate("gofood")!;
   return {
     store: { ...STORE, name: STORE.name[locale] },
@@ -118,6 +161,7 @@ export function buildDemoStore(locale: AppLocale): DemoStore {
     prices: PRICES,
     expenses: EXPENSES.map((e) => ({ name: e.name[locale], category: e.category, amount: e.amount, frequency: e.frequency })),
     assets: ASSETS.map((a) => ({ name: a.name[locale], category: a.category, qty: a.qty, unitPrice: a.unitPrice, usefulLifeMonths: a.months })),
+    records: demoRecords(today),
   };
 }
 
@@ -228,6 +272,43 @@ export async function seedDemoStore(supabase: SupabaseClient<Database>, demo: De
         .insert(demo.assets.map((a) => ({ store_id: storeId, name: a.name, category: a.category, qty: a.qty, unit_price: a.unitPrice, useful_life_months: a.usefulLifeMonths })))
         .select("id"),
     );
+
+    const data = demoAsStoreData(demo);
+    const analysis = analyzeStore(data);
+    for (const day of demo.records.days) {
+      if (day.closed) {
+        const closed = await supabase.rpc("close_sales_day", { p_store_id: storeId, p_date: day.date });
+        if (closed.error) throw closed.error;
+        continue;
+      }
+      const lines = snapshotLines(data, analysis, day.counts).map((line) => ({
+        product_id: productIds.get(line.productId)!,
+        channel_id: channelIds[line.channelId as "cash" | "gofood"],
+        product_name: line.productName,
+        channel_name: line.channelName,
+        qty: line.qty,
+        unit_price: line.unitPrice,
+        net_unit: line.netUnit,
+        hpp_unit: line.hppUnit,
+      }));
+      const saved = await supabase.rpc("save_sales_day", { p_store_id: storeId, p_date: day.date, p_lines: lines });
+      if (saved.error) throw saved.error;
+    }
+    for (const purchase of demo.records.purchases) {
+      const material = data.materials.find((m) => m.id === purchase.materialId)!;
+      const saved = await supabase.rpc("save_purchase", {
+        p_store_id: storeId,
+        // The function takes null to insert; the generated type cannot express a nullable argument.
+        p_purchase_id: null as unknown as string,
+        p_material_id: materialIds.get(purchase.materialId)!,
+        p_date: purchase.date,
+        p_qty: purchase.qty,
+        p_unit: purchase.unit,
+        p_total_paid: purchase.totalPaid,
+        p_new_price: newPurchasePrice(material, purchase.qty, purchase.unit, purchase.totalPaid),
+      });
+      if (saved.error) throw saved.error;
+    }
     return { storeId };
   } catch {
     try {
