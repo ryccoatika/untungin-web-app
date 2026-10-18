@@ -1,13 +1,24 @@
-import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { hasLocale } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HeroVisual } from "@/components/landing/hero-visual";
 import { BrandLogo } from "@/components/brand-logo";
 import { buttonVariants } from "@/components/ui/button";
+import { routing, type AppLocale } from "@/i18n/routing";
+import { publicPageMetadata, SITE_NAME, SITE_URL } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
 const FEATURES = ["hpp", "price", "profit"] as const;
+
+export async function generateMetadata({ params }: PageProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) return {};
+  const t = await getTranslations({ locale, namespace: "Metadata" });
+  return publicPageMetadata(locale, "", t("title"), t("description"));
+}
 
 export default async function LandingPage({
   searchParams,
@@ -16,6 +27,8 @@ export default async function LandingPage({
 }) {
   const t = await getTranslations("Landing");
   const tp = await getTranslations("Privacy");
+  const tm = await getTranslations("Metadata");
+  const locale = (await getLocale()) as AppLocale;
   const { akun } = await searchParams;
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
@@ -23,6 +36,22 @@ export default async function LandingPage({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-5xl flex-col justify-center gap-10 px-4 py-12 lg:py-16">
+      <script
+        type="application/ld+json"
+        // Structured data for search engines; "<" is escaped so the JSON cannot close the script tag.
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: SITE_NAME,
+            url: `${SITE_URL}/${locale}`,
+            description: tm("description"),
+            inLanguage: locale,
+            applicationCategory: "BusinessApplication",
+            operatingSystem: "Web",
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
       {!loggedIn && akun === "dihapus" && (
         <p role="status" className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
           {t("accountDeleted")}
