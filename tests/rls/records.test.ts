@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { anonClient, createStore, createTestUser, type TestUser } from "./helpers";
+import type { Tables } from "@/lib/supabase/database.types";
+import { admin, anonClient, createStore, createTestUser, type TestUser } from "./helpers";
 
 const jakartaDate = (offsetDays = 0) => {
   const d = new Date(Date.now() + offsetDays * 86_400_000);
@@ -37,7 +38,7 @@ describe("sales and purchase records", () => {
       .eq("store_id", storeId)
       .eq("date", date)
       .maybeSingle();
-    if (!day) return { day: null, rows: [] as Record<string, any>[] };
+    if (!day) return { day: null, rows: [] as Tables<"sales_lines">[] };
     const { data } = await owner.client.from("sales_lines").select("*").eq("day_id", day.id);
     return { day, rows: data ?? [] };
   };
@@ -216,7 +217,7 @@ describe("sales and purchase records", () => {
     const { data: l } = await other.client.from("sales_lines").select("id").eq("store_id", storeId);
     expect(l).toHaveLength(0);
     const { error } = await saveDay(date, [line({ qty: 99 })], other);
-    expect(error).not.toBeNull();
+    expect(error?.code).toBe("42501");
     const buy = await other.client.rpc("save_purchase", {
       p_store_id: storeId,
       p_purchase_id: null,
@@ -227,7 +228,7 @@ describe("sales and purchase records", () => {
       p_total_paid: 1,
       p_new_price: 1,
     });
-    expect(buy.error).not.toBeNull();
+    expect(buy.error?.code).toBe("P0002");
     expect((await lines(date)).rows[0].qty).toBe(10);
 
     const anon = anonClient();
@@ -281,5 +282,109 @@ describe("sales and purchase records", () => {
     const again = await savePurchase({ p_purchase_id: rows![0].id, p_new_price: 19000 });
     expect(again.data).toBe(true);
     expect(await price()).toBe(19000);
+  });
+
+  describe("ids from another store", () => {
+    let foreign: {
+      productId: string;
+      channelId: string;
+      materialId: string;
+      lineId: string;
+      purchaseId: string;
+    };
+
+    beforeAll(async () => {
+      const user = await createTestUser("records-foreign");
+      const store = await createStore(user, "Toko Lain");
+      const one = async (q: PromiseLike<{ data: { id: string } | null; error: unknown }>) => {
+        const { data, error } = await q;
+        if (error) throw error;
+        return data!.id;
+      };
+      const channel = await one(
+        user.client.from("sales_channels").select("id").eq("store_id", store).single(),
+      );
+      const product = await one(
+        user.client.from("products").insert({ store_id: store, name: "Lain" }).select("id").single(),
+      );
+      const material = await one(
+        user.client
+          .from("materials")
+          .insert({
+            store_id: store,
+            name: "Gula",
+            category: "bahan",
+            purchase_qty: 1,
+            purchase_unit: "kg",
+            purchase_price: 1000,
+          })
+          .select("id")
+          .single(),
+      );
+      const date = jakartaDate();
+      const { error } = await user.client.rpc("save_sales_day", {
+        p_store_id: store,
+        p_date: date,
+        p_lines: [
+          {
+            product_id: product,
+            channel_id: channel,
+            product_name: "Lain",
+            channel_name: "Offline",
+            qty: 3,
+            unit_price: 1000,
+            net_unit: 1000,
+            hpp_unit: 500,
+          },
+        ],
+      });
+      if (error) throw error;
+      const { data: l } = await user.client.from("sales_lines").select("id").eq("store_id", store).single();
+      await user.client.rpc("save_purchase", {
+        p_store_id: store,
+        p_purchase_id: null,
+        p_material_id: material,
+        p_date: date,
+        p_qty: 1,
+        p_unit: "kg",
+        p_total_paid: 1000,
+        p_new_price: 1000,
+      });
+      const { data: pu } = await user.client.from("purchases").select("id").eq("store_id", store).single();
+      foreign = {
+        productId: product,
+        channelId: channel,
+        materialId: material,
+        lineId: l!.id,
+        purchaseId: pu!.id,
+      };
+    });
+
+    it("save_sales_day refuses a product from another store (23503)", async () => {
+      const { error } = await saveDay(jakartaDate(-10), [line({ product_id: foreign.productId })]);
+      expect(error?.code).toBe("23503");
+    });
+
+    it("save_sales_day refuses a channel from another store (23503)", async () => {
+      const { error } = await saveDay(jakartaDate(-11), [line({ channel_id: foreign.channelId })]);
+      expect(error?.code).toBe("23503");
+    });
+
+    it("save_purchase refuses a material from another store (P0002)", async () => {
+      const { error } = await savePurchase({ p_material_id: foreign.materialId });
+      expect(error?.code).toBe("P0002");
+    });
+
+    it("save_purchase refuses a purchase from another store (P0002)", async () => {
+      const { error } = await savePurchase({ p_purchase_id: foreign.purchaseId });
+      expect(error?.code).toBe("P0002");
+    });
+
+    it("delete_sales_line on another store's line is a no-op", async () => {
+      const { error } = await owner.client.rpc("delete_sales_line", { p_line_id: foreign.lineId });
+      expect(error).toBeNull();
+      const { data } = await admin.from("sales_lines").select("id").eq("id", foreign.lineId);
+      expect(data).toHaveLength(1);
+    });
   });
 });
