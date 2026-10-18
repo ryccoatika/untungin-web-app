@@ -7,6 +7,8 @@ describe("store navigation", () => {
   it("lists every page in the sidebar", () => {
     expect(pairs(storeNavItems("abc"))).toEqual([
       ["dashboard", "/s/abc/dashboard"],
+      ["records", "/s/abc/catat"],
+      ["monthly", "/s/abc/laporan"],
       ["products", "/s/abc/produk"],
       ["materials", "/s/abc/bahan"],
       ["channels", "/s/abc/kanal"],
@@ -19,14 +21,16 @@ describe("store navigation", () => {
     ]);
   });
 
-  it("puts four items in the phone bar, the rest behind Lainnya", () => {
+  it("puts five items in the phone bar, the rest behind Lainnya", () => {
     expect(pairs(bottomNavItems("abc"))).toEqual([
       ["dashboard", "/s/abc/dashboard"],
+      ["records", "/s/abc/catat"],
+      ["monthly", "/s/abc/laporan"],
       ["products", "/s/abc/produk"],
-      ["materials", "/s/abc/bahan"],
       ["more", "/s/abc/lainnya"],
     ]);
     expect(pairs(moreNavItems("abc"))).toEqual([
+      ["materials", "/s/abc/bahan"],
       ["channels", "/s/abc/kanal"],
       ["expenses", "/s/abc/biaya"],
       ["assets", "/s/abc/inventaris"],
@@ -39,6 +43,9 @@ describe("store navigation", () => {
 
   it.each([
     ["/s/abc/lainnya", true],
+    ["/s/abc/bahan", true],
+    ["/s/abc/catat", false],
+    ["/s/abc/laporan", false],
     ["/s/abc/kanal/123", true],
     ["/s/abc/biaya", true],
     ["/s/abc/inventaris/123", true],

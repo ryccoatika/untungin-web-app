@@ -17,7 +17,7 @@ v1 success criteria:
 
 | Topic | Decision |
 |---|---|
-| Profit mode | v1 = **projection** (sales estimate). Actual recording = phase 2 (outside this spec). |
+| Profit mode | v1 = **projection** (sales estimate). Actual recording of sales and purchases is specified separately in `docs/superpowers/specs/2026-10-18-catatan-penjualan-design.md`. |
 | Business type | F&B + processed products. General UI labels: "Produk" ("Product") & "Komposisi" ("Composition"). Services & resellers are outside v1. |
 | User–store | 1 user can have many stores. All data carries a `store_id`. Multiple members are outside v1. |
 | Business model | Freemium is prepared (`plan` column, per-plan limits), payment gateway is outside v1. |
@@ -456,7 +456,6 @@ Every phase can be deployed. One implementation plan per phase.
 
 ## 12. Out of Scope for v1
 
-- Recording actual sales & purchases (phase 2)
 - Multiple store members & roles
 - Payment gateway / Pro subscription
 - Service businesses & resellers as a dedicated product type

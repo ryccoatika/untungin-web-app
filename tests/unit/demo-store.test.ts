@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { analyzeStore } from "@/lib/calc";
+import { addDays, diffDays, newPurchasePrice } from "@/lib/records";
 import { buildDemoStore, demoAsStoreData, seedDemoStore } from "@/lib/seed/demo-store";
 
 describe("buildDemoStore", () => {
@@ -58,6 +59,53 @@ describe("buildDemoStore", () => {
       const demo = buildDemoStore(locale);
       expect(new Set(demo.materials.map((m) => m.name)).size).toBe(demo.materials.length);
       expect(new Set(demo.products.map((p) => p.name)).size).toBe(demo.products.length);
+    }
+  });
+});
+
+describe("sample records", () => {
+  const today = "2026-10-18";
+  const { records } = buildDemoStore("id", today);
+  const data = demoAsStoreData(buildDemoStore("id", today));
+
+  it("covers the 14 days ending yesterday", () => {
+    expect(records.from).toBe("2026-10-04");
+    expect(records.to).toBe("2026-10-17");
+    expect(diffDays(records.from, records.to) + 1).toBe(14);
+    for (const day of records.days) expect(day.date >= records.from && day.date <= records.to).toBe(true);
+    expect(new Set(records.days.map((d) => d.date)).size).toBe(records.days.length);
+  });
+
+  it("has 12 days with sales, one closed day and one missing day that is not the first", () => {
+    expect(records.days.filter((d) => !d.closed && d.counts.length > 0)).toHaveLength(12);
+    expect(records.days.filter((d) => d.closed)).toHaveLength(1);
+    expect(records.days.filter((d) => d.closed)[0].counts).toEqual([]);
+    const recorded = new Set(records.days.map((d) => d.date));
+    const missing: string[] = [];
+    for (let d = records.from; d <= records.to; d = addDays(d, 1)) if (!recorded.has(d)) missing.push(d);
+    expect(missing).toHaveLength(1);
+    expect(missing[0]).not.toBe(records.from);
+    expect(recorded.has(records.from)).toBe(true);
+  });
+
+  it("counts only existing product and channel pairs, each once per day", () => {
+    const pairs = new Set(data.prices.map((p) => `${p.productId}|${p.channelId}`));
+    for (const day of records.days) {
+      const keys = day.counts.map((c) => `${c.productId}|${c.channelId}`);
+      expect(new Set(keys).size).toBe(keys.length);
+      for (const c of day.counts) {
+        expect(pairs.has(`${c.productId}|${c.channelId}`)).toBe(true);
+        expect(c.qty).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("has two purchases at the material's current unit price, inside the span", () => {
+    expect(records.purchases).toHaveLength(2);
+    for (const p of records.purchases) {
+      const material = data.materials.find((m) => m.id === p.materialId)!;
+      expect(p.date >= records.from && p.date <= records.to).toBe(true);
+      expect(newPurchasePrice(material, p.qty, p.unit, p.totalPaid)).toBe(material.purchasePrice);
     }
   });
 });

@@ -7,13 +7,16 @@ import { tryAnalyzeStore, type LineRef } from "@/lib/calc";
 import { productChartData } from "@/lib/dashboard/chart-data";
 import { setupChecklist } from "@/lib/dashboard/checklist";
 import { loadStoreData } from "@/lib/data/load-store-data";
+import { loadFirstRecordDate, loadSalesRange } from "@/lib/data/records";
 import { getStore } from "@/lib/data/stores";
 import { formatPercent, formatRupiah, formatRupiahCompact } from "@/lib/format";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
+import { jakartaToday, monthOf, monthReport } from "@/lib/records";
 import { MetricCards } from "./metric-cards";
 import { Moments } from "./moments";
 import { ProductChart, type ProductChartBar } from "./product-chart";
 import { ProductLines } from "./product-lines";
+import { RecordsCard } from "./records-card";
 import { SetupChecklist } from "./setup-checklist";
 import { WarningsList } from "./warnings-list";
 
@@ -45,6 +48,16 @@ export default async function DashboardPage({ params, searchParams }: Props) {
         statusLabel: tLineStatus(bar.status),
       }))
     : [];
+  // The actual result so far this month; only once the store has a first record.
+  const firstRecord = analysis ? await loadFirstRecordDate(storeId) : null;
+  let records: { netProfit: number; todayRecorded: boolean } | null = null;
+  if (analysis && firstRecord !== null) {
+    const today = jakartaToday(new Date());
+    const month = monthOf(today);
+    const range = await loadSalesRange(storeId, `${month}-01`, today);
+    const report = monthReport({ month, today, firstRecord, days: range.days, lines: range.lines, analysis, data });
+    records = { netProfit: report.netProfit, todayRecorded: range.days.some((day) => day.date === today) };
+  }
   const productName = (id: string) => data.products.find((p) => p.id === id)?.name ?? "?";
   const channelName = (id: string) => data.channels.find((c) => c.id === id)?.name ?? "?";
   const lineLabel = (ref: LineRef) => `${productName(ref.productId)} (${channelName(ref.channelId)})`;
@@ -76,6 +89,14 @@ export default async function DashboardPage({ params, searchParams }: Props) {
       {analysis && (
         <>
           <MetricCards analysis={analysis} />
+          {records && (
+            <RecordsCard
+              storeId={store.id}
+              netProfit={records.netProfit}
+              amount={formatRupiah(Math.abs(records.netProfit), locale)}
+              todayRecorded={records.todayRecorded}
+            />
+          )}
           {analysis.lines.length > 0 && (
             <div className="flex flex-wrap gap-2">
               <Link href={`/s/${data.store.id}/analisis`} className={buttonVariants()}>

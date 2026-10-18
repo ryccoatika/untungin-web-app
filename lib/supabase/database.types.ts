@@ -233,6 +233,32 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"purchases": {
+                  Row: {
+                    "created_at": string,"date": string,"id": string,"material_id": string | null,"material_name": string,"qty": number,"saved_at": string,"store_id": string,"total_paid": number,"unit": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"date": string,"id"?: string,"material_id"?: string | null,"material_name": string,"qty": number,"saved_at"?: string,"store_id": string,"total_paid": number,"unit": string
+                  }
+                  Update: {
+                    "created_at"?: string,"date"?: string,"id"?: string,"material_id"?: string | null,"material_name"?: string,"qty"?: number,"saved_at"?: string,"store_id"?: string,"total_paid"?: number,"unit"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "purchases_material_id_store_id_fkey"
+      columns: ["material_id","store_id"]
+isOneToOne: false
+      referencedRelation: "materials"
+      referencedColumns: ["id","store_id"]
+    },{
+      foreignKeyName: "purchases_store_id_fkey"
+      columns: ["store_id"]
+isOneToOne: false
+      referencedRelation: "stores"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"sales_channels": {
                   Row: {
                     "commission_pct": number,"created_at": string,"fixed_fee": number,"id": string,"name": string,"sort_order": number,"store_id": string
@@ -247,6 +273,64 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "sales_channels_store_id_fkey"
+      columns: ["store_id"]
+isOneToOne: false
+      referencedRelation: "stores"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sales_days": {
+                  Row: {
+                    "closed": boolean,"created_at": string,"date": string,"id": string,"store_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "closed"?: boolean,"created_at"?: string,"date": string,"id"?: string,"store_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "closed"?: boolean,"created_at"?: string,"date"?: string,"id"?: string,"store_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_days_store_id_fkey"
+      columns: ["store_id"]
+isOneToOne: false
+      referencedRelation: "stores"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sales_lines": {
+                  Row: {
+                    "channel_id": string | null,"channel_name": string,"created_at": string,"day_id": string,"hpp_unit": number,"id": string,"net_unit": number,"product_id": string | null,"product_name": string,"qty": number,"store_id": string,"unit_price": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "channel_id"?: string | null,"channel_name": string,"created_at"?: string,"day_id": string,"hpp_unit": number,"id"?: string,"net_unit": number,"product_id"?: string | null,"product_name": string,"qty": number,"store_id": string,"unit_price": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "channel_id"?: string | null,"channel_name"?: string,"created_at"?: string,"day_id"?: string,"hpp_unit"?: number,"id"?: string,"net_unit"?: number,"product_id"?: string | null,"product_name"?: string,"qty"?: number,"store_id"?: string,"unit_price"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sales_lines_channel_id_store_id_fkey"
+      columns: ["channel_id","store_id"]
+isOneToOne: false
+      referencedRelation: "sales_channels"
+      referencedColumns: ["id","store_id"]
+    },{
+      foreignKeyName: "sales_lines_day_id_store_id_fkey"
+      columns: ["day_id","store_id"]
+isOneToOne: false
+      referencedRelation: "sales_days"
+      referencedColumns: ["id","store_id"]
+    },{
+      foreignKeyName: "sales_lines_product_id_store_id_fkey"
+      columns: ["product_id","store_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id","store_id"]
+    },{
+      foreignKeyName: "sales_lines_store_id_fkey"
       columns: ["store_id"]
 isOneToOne: false
       referencedRelation: "stores"
@@ -282,11 +366,26 @@ isOneToOne: false
             "claim_ai_usage":
 { Args: { "p_limit": number,"p_since": string,"p_user_id": string }; Returns: string
                            },
+"close_sales_day":
+{ Args: { "p_date": string,"p_store_id": string }; Returns: undefined
+                           },
 "create_store":
 { Args: { "p_business_type": string,"p_default_channel_name"?: string,"p_name": string,"p_operating_days": number,"p_target_margin": number,"p_target_market"?: string }; Returns: string
                            },
+"delete_sales_day":
+{ Args: { "p_date": string,"p_store_id": string }; Returns: undefined
+                           },
+"delete_sales_line":
+{ Args: { "p_line_id": string }; Returns: undefined
+                           },
 "is_store_owner":
 { Args: { "sid": string }; Returns: boolean
+                           },
+"save_purchase":
+{ Args: { "p_date": string,"p_material_id": string,"p_new_price": number,"p_purchase_id": string,"p_qty": number,"p_store_id": string,"p_total_paid": number,"p_unit": string }; Returns: boolean
+                           },
+"save_sales_day":
+{ Args: { "p_date": string,"p_lines": Json,"p_store_id": string }; Returns: undefined
                            }
           }
           Enums: {

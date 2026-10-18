@@ -48,6 +48,7 @@ export default async function PrivacyPage() {
         <ul className="list-disc space-y-1 pl-5">
           <li>{t("dataAccount")}</li>
           <li>{t("dataStore")}</li>
+          <li>{t("dataRecords")}</li>
           <li>{t("dataAi")}</li>
         </ul>,
       )}

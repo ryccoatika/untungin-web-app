@@ -71,3 +71,32 @@ describe("formatRupiahCompact", () => {
     expect(formatRupiahCompact(-0.2, "en")).toBe("Rp0");
   });
 });
+
+describe("formatDayRange", () => {
+  it("reads naturally in each language", async () => {
+    const { formatDayRange } = await import("@/lib/format");
+    expect(formatDayRange("2026-10-15", "2026-10-18", "id")).toBe("15–18 Okt");
+    expect(formatDayRange("2026-10-15", "2026-10-18", "en")).toBe("Oct 15–18");
+    expect(formatDayRange("2026-10-18", "2026-10-18", "en")).toBe("Oct 18");
+  });
+});
+
+describe("formatDay", () => {
+  it("formats a calendar day in both locales without shifting it", async () => {
+    const { formatDay } = await import("@/lib/format");
+    expect(formatDay("2026-10-08", "id")).toBe("8 Okt");
+    expect(formatDay("2026-10-08", "en")).toBe("Oct 8");
+    expect(formatDay("2026-01-01", "id", true)).toBe("1 Jan 2026");
+  });
+});
+
+describe("formatMonth and formatWeekdayShort", () => {
+  it("names a month and Monday-first weekdays in both locales", async () => {
+    const { formatMonth, formatWeekdayShort } = await import("@/lib/format");
+    expect(formatMonth("2026-10", "id")).toBe("Oktober 2026");
+    expect(formatMonth("2026-10", "en")).toBe("October 2026");
+    expect(formatWeekdayShort(0, "en")).toBe("Mon");
+    expect(formatWeekdayShort(6, "en")).toBe("Sun");
+    expect(formatWeekdayShort(0, "id")).toBe("Sen");
+  });
+});

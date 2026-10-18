@@ -50,3 +50,30 @@ export function formatDateTime(iso: string, locale: AppLocale): string {
 export function splitAfterSeparators(text: string): string[] {
   return text.match(/[^.,]*[.,]|[^.,]+$/g) ?? [];
 }
+
+/** A calendar day like "8 Okt" / "Oct 8"; `date` is `YYYY-MM-DD` and the day never shifts with the viewer's time zone. */
+export function formatDay(date: string, locale: AppLocale, withYear = false): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    day: "numeric",
+    month: "short",
+    ...(withYear ? { year: "numeric" } : {}),
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
+/** Days of one month as "15–18 Okt" / "Oct 15–18"; one day when both ends match. */
+export function formatDayRange(start: string, end: string, locale: AppLocale): string {
+  if (start === end) return formatDay(end, locale);
+  return locale === "en" ? `${formatDay(start, locale)}–${Number(end.slice(8))}` : `${Number(start.slice(8))}–${formatDay(end, locale)}`;
+}
+
+/** A month like "Oktober 2026" / "October 2026"; `month` is `YYYY-MM`. */
+export function formatMonth(month: string, locale: AppLocale): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+}
+
+/** A weekday abbreviation for column headers; `index` 0 is Monday. */
+export function formatWeekdayShort(index: number, locale: AppLocale): string {
+  // 2026-10-05 is a Monday.
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], { weekday: "short", timeZone: "UTC" }).format(new Date(Date.UTC(2026, 9, 5 + index)));
+}

@@ -1,0 +1,233 @@
+import { expect, test, type Page } from "@playwright/test";
+import { adminClient, breakRecipe, createStoreViaOnboarding, jakartaDay as day, signIn, storeIdFromUrl, storeUrl, waitPastJakartaMidnight } from "./helpers";
+
+async function createSampleStore(page: Page) {
+  await signIn(page, undefined, "/onboarding");
+  await page.getByRole("button", { name: "Coba dengan data contoh" }).click();
+  await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/dashboard(\?welcome=1)?$/);
+  await expect(page.getByTestId("metric-netProfit")).not.toHaveText("—");
+}
+
+const shortDay = (date: string) =>
+  new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
+const monthLabel = (month: string) =>
+  new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+
+// Sample records: the 14 days ending yesterday. Day 6 of the span is missing, day 10 is closed.
+const missingDay = () => day(-9);
+const closedDay = () => day(-5);
+const monthOf = (date: string) => date.slice(0, 7);
+
+// "Today" here and on the server must be the same Jakarta day for the whole test.
+test.beforeEach(async () => {
+  await waitPastJakartaMidnight();
+});
+
+async function openLaporan(page: Page, month?: string) {
+  await page.goto(storeUrl(page, month ? `laporan?bulan=${month}` : "laporan"));
+  await expect(page.getByRole("heading", { level: 1, name: "Laporan bulanan" })).toBeVisible();
+}
+
+/** Signed Rupiah of a line: "Rp1.200" -> 1200, "− Rp300" -> -300, "-Rp300" -> -300. */
+async function amount(page: Page, id: string): Promise<number> {
+  const text = await page.getByTestId(id).innerText();
+  const value = Number(text.replace(/[^\d]/g, ""));
+  return /[-−]/.test(text) ? -value : value;
+}
+
+test("sample store: the answer and the five lines add up", async ({ page }) => {
+  await createSampleStore(page);
+  await openLaporan(page, monthOf(day(-1)));
+
+  const answer = page.getByTestId("report-answer");
+  await expect(answer).toContainText(/^(Untung|Rugi) Rp[\d.]+/);
+  await expect(page.getByText("dari penjualan yang kamu catat")).toBeVisible();
+
+  await expect(page.getByTestId("report-fixed-label")).toContainText(/Biaya tetap \(\d+ dari \d+ hari\)/);
+  const omzet = await amount(page, "report-omzet");
+  const fees = await amount(page, "report-fees");
+  const materials = await amount(page, "report-materials");
+  const fixed = await amount(page, "report-fixed");
+  const net = await amount(page, "report-net");
+  expect(omzet).toBeGreaterThan(0);
+  expect(fees).toBeLessThan(0);
+  expect(omzet + fees + materials + fixed).toBe(net);
+
+  const answerValue = Number((await answer.innerText()).replace(/[^\d]/g, ""));
+  expect(answerValue).toBe(Math.abs(net));
+  await expect(answer).toContainText(net > 0 ? "Untung" : "Rugi");
+
+  await expect(page.getByTestId("plan-bar-plan")).toBeVisible();
+  await expect(page.getByTestId("plan-bar-actual")).toBeVisible();
+});
+
+test("the missing day is named, linked to Catat and marked in the calendar", async ({ page }) => {
+  await createSampleStore(page);
+  await openLaporan(page, monthOf(missingDay()));
+
+  const warning = page.getByTestId("missing-days");
+  await expect(warning).toContainText(shortDay(missingDay()));
+  await expect(page.getByTestId(`calendar-${missingDay()}`)).toHaveAttribute("data-state", "missing");
+  await warning.getByRole("link", { name: `Isi sekarang: ${shortDay(missingDay())}` }).click();
+  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${missingDay()}$`));
+  await expect(page.getByRole("heading", { name: "Catat penjualan" })).toBeVisible();
+});
+
+test("the calendar marks the closed day, a recorded day and opens Catat on tap", async ({ page }) => {
+  await createSampleStore(page);
+  await openLaporan(page, monthOf(closedDay()));
+  await expect(page.getByTestId(`calendar-${closedDay()}`)).toHaveAttribute("data-state", "closed");
+  await expect(page.getByTestId(`calendar-${day(-1)}`)).toHaveAttribute("data-state", /recorded|closed|missing/);
+  await page.getByTestId(`calendar-${closedDay()}`).click();
+  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${closedDay()}$`));
+  await expect(page.getByTestId("closed-note")).toBeVisible();
+});
+
+test("month switcher: previous works, next is disabled on the current month, a bad month falls back", async ({ page }) => {
+  await createSampleStore(page);
+  await openLaporan(page);
+  const current = day().slice(0, 7);
+  await expect(page.getByTestId("next-month")).toHaveAttribute("aria-disabled", "true");
+  await expect(page.getByRole("link", { name: "Bulan berikutnya" })).toHaveCount(0);
+  await expect(page.getByTestId("month-label")).toHaveText(monthLabel(current));
+
+  await page.getByRole("link", { name: "Bulan sebelumnya" }).click();
+  const previous = new Date(Date.UTC(+current.slice(0, 4), +current.slice(5, 7) - 2, 1)).toISOString().slice(0, 7);
+  await expect(page).toHaveURL(new RegExp(`bulan=${previous}$`));
+  await expect(page.getByTestId("month-label")).toHaveText(monthLabel(previous));
+  await expect(page.getByRole("link", { name: "Bulan berikutnya" })).toBeVisible();
+
+  for (const bad of ["2999-01", "bukan-bulan", "2026-13"]) {
+    await openLaporan(page, bad);
+    await expect(page.getByTestId("month-label")).toHaveText(monthLabel(current));
+  }
+});
+
+test("a month before the first record shows the empty state", async ({ page }) => {
+  await createSampleStore(page);
+  await openLaporan(page, "2020-01");
+  await expect(page.getByText(/Kamu mulai mencatat pada/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ke bulan pertama" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Catat penjualan pertamamu" })).toHaveCount(0);
+  await expect(page.getByTestId("report-answer")).toHaveCount(0);
+  await page.getByRole("link", { name: "Ke bulan pertama" }).click();
+  await expect(page.getByTestId("report-answer")).toBeVisible();
+});
+
+test("the month's purchases are listed with edit and delete", async ({ page }) => {
+  await createSampleStore(page);
+  // Sample purchases: ground coffee 11 days ago, UHT milk 4 days ago.
+  await openLaporan(page, monthOf(day(-11)));
+  const kopi = page.getByRole("listitem").filter({ hasText: "Kopi bubuk" });
+  await expect(kopi).toContainText(shortDay(day(-11)));
+  await expect(kopi).toContainText("Rp360.000");
+
+  await kopi.getByRole("link", { name: /^Ubah belanja Kopi bubuk$/ }).click();
+  await expect(page).toHaveURL(/\/catat\/belanja\?ubah=[0-9a-f-]{36}$/);
+  await expect(page.getByRole("heading", { name: "Ubah belanja" })).toBeVisible();
+  await expect(page.locator("#purchase-form").getByLabel("Total dibayar (Rp)")).toHaveValue("360.000");
+
+  await openLaporan(page, monthOf(day(-4)));
+  const susu = page.getByRole("listitem").filter({ hasText: "Susu UHT" });
+  await expect(susu).toBeVisible();
+  await susu.getByRole("button", { name: "Hapus" }).click();
+  await expect(susu.getByText("Yakin ingin menghapus?")).toBeVisible();
+  await susu.getByRole("button", { name: "Hapus" }).click();
+  await expect(page.getByRole("listitem").filter({ hasText: "Susu UHT" })).toHaveCount(0);
+});
+
+test("a purchase older than the recordable window has no edit link but can be deleted", async ({ page }) => {
+  await createSampleStore(page);
+  const storeId = storeIdFromUrl(page);
+  const admin = adminClient();
+  const { data: material } = await admin.from("materials").select("id, name").eq("store_id", storeId).limit(1).single();
+  const old = day(-100);
+  const { error } = await admin
+    .from("purchases")
+    .insert({ store_id: storeId, material_id: material!.id, material_name: material!.name, date: old, qty: 1, unit: "kg", total_paid: 5000 });
+  if (error) throw error;
+  await openLaporan(page, monthOf(old));
+  const row = page.getByRole("listitem").filter({ hasText: material!.name });
+  await expect(row).toBeVisible();
+  await expect(row.getByRole("link", { name: /^Ubah/ })).toHaveCount(0);
+  await expect(row.getByRole("button", { name: "Hapus" })).toBeVisible();
+});
+
+test("dashboard shows the actual result card linking to the report, and the nudge", async ({ page }) => {
+  await createSampleStore(page);
+  const card = page.getByTestId("records-card");
+  await expect(card).toContainText(/Bulan ini sebenarnya: (untung|rugi|impas)/);
+  await expect(page.getByRole("link", { name: "Catat penjualan hari ini" })).toBeVisible();
+  await card.click();
+  await expect(page).toHaveURL(/\/laporan$/);
+});
+
+test("an empty store shows the empty state and no dashboard card", async ({ page }) => {
+  await signIn(page);
+  await createStoreViaOnboarding(page, "Toko Laporan Kosong");
+  await expect(page.getByTestId("records-card")).toHaveCount(0);
+  await page.goto(storeUrl(page, "laporan"));
+  await expect(page.getByText("Belum ada penjualan yang dicatat")).toBeVisible();
+  await page.getByRole("link", { name: "Catat penjualan pertamamu" }).click();
+  await expect(page).toHaveURL(/\/catat$/);
+});
+
+test("another user's store is 404 for /laporan", async ({ browser }) => {
+  const ownerContext = await browser.newContext();
+  const owner = await ownerContext.newPage();
+  await signIn(owner);
+  await createStoreViaOnboarding(owner, "Toko Laporan Rahasia");
+  const url = new URL(owner.url()).pathname.replace("/dashboard", "/laporan");
+  await ownerContext.close();
+
+  const otherContext = await browser.newContext();
+  const other = await otherContext.newPage();
+  await signIn(other);
+  await other.goto(url);
+  await expect(other.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();
+  await otherContext.close();
+});
+
+test("no horizontal scroll at 360px and calendar days are at least 40px", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await createSampleStore(page);
+  await openLaporan(page, monthOf(missingDay()));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  const box = (await page.getByTestId(`calendar-${missingDay()}`).boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(40);
+  expect(box.height).toBeGreaterThanOrEqual(40);
+  for (const control of [page.getByRole("link", { name: "Bulan sebelumnya" })]) {
+    const b = (await control.boundingBox())!;
+    expect(b.width).toBeGreaterThanOrEqual(40);
+    expect(b.height).toBeGreaterThanOrEqual(40);
+  }
+});
+
+test("English: singular missing-day title and a natural day range", async ({ page }) => {
+  await createSampleStore(page);
+  const id = storeIdFromUrl(page);
+  await page.goto(`/en/s/${id}/laporan?bulan=${monthOf(missingDay())}`);
+  // The sample store has exactly one missing day in its span.
+  await expect(page.getByTestId("missing-days")).toContainText(/^1 day not recorded yet/);
+  await expect(page.getByText(/[A-Z][a-z]{2} \d{1,2}–\d{1,2}/).first()).toBeVisible();
+});
+
+test("a product whose recipe needs fixing hides only the plan comparison", async ({ page }) => {
+  await createSampleStore(page);
+  const month = monthOf(day(-1));
+  await openLaporan(page, month);
+  await expect(page.getByTestId("plan-bar-plan")).toBeVisible();
+  const omzet = await amount(page, "report-omzet");
+  const net = await amount(page, "report-net");
+
+  await breakRecipe(page, "Es kopi susu gula aren");
+  await openLaporan(page, month);
+  await expect(page.getByRole("alert").filter({ hasText: "perbandingan dengan rencana disembunyikan sampai diperbaiki" })).toContainText(
+    "Es kopi susu gula aren",
+  );
+  await expect(page.getByTestId("plan-bar-plan")).toHaveCount(0);
+  // Recorded sales keep the values they were saved with.
+  expect(await amount(page, "report-omzet")).toBe(omzet);
+  expect(await amount(page, "report-net")).toBe(net);
+  await expect(page.getByTestId(`calendar-${missingDay()}`)).toBeVisible();
+});

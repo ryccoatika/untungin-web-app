@@ -7,6 +7,7 @@ import { expenseInputSchema, toExpenseColumns } from "@/lib/validation/expense";
 import { materialInputSchema, toMaterialColumns } from "@/lib/validation/material";
 import { priceInputSchema, toPriceColumns } from "@/lib/validation/price";
 import { productInputSchema, toProductColumns } from "@/lib/validation/product";
+import { purchaseInputSchema } from "@/lib/validation/purchase";
 
 function errorsFor(schema: z.ZodType, input: Record<string, unknown>) {
   const result = schema.safeParse(input);
@@ -242,5 +243,34 @@ describe("assetInputSchema", () => {
     [{ unitPrice: "abc" }, "unitPrice", "asset.priceNumber"],
   ])("%j → %s: %s", (patch, field, key) => {
     expect(errorsFor(assetInputSchema, { ...asset, ...patch })[field]).toBe(key);
+  });
+});
+
+describe("purchaseInputSchema", () => {
+  const purchase = { materialId: "6f1c3c1e-2d4b-4f7a-9c1a-1b2c3d4e5f60", qty: "2", unit: "kg", totalPaid: "34.000", date: "2026-10-17" };
+
+  it("parses a purchase with a thousand-separated total", () => {
+    expect(purchaseInputSchema.parse(purchase)).toEqual({ ...purchase, qty: 2, totalPaid: 34000 });
+  });
+
+  it("accepts a decimal comma quantity and a free purchase", () => {
+    expect(purchaseInputSchema.parse({ ...purchase, qty: "1,5" }).qty).toBe(1.5);
+    expect(purchaseInputSchema.parse({ ...purchase, totalPaid: "0" }).totalPaid).toBe(0);
+  });
+
+  it.each([
+    [{ materialId: "" }, "materialId", "purchase.materialInvalid"],
+    [{ materialId: "not-a-uuid" }, "materialId", "purchase.materialInvalid"],
+    [{ qty: "0" }, "qty", "purchase.qtyPositive"],
+    [{ qty: "satu" }, "qty", "purchase.qtyNumber"],
+    [{ unit: "cangkir" }, "unit", "purchase.unitInvalid"],
+    [{ unit: "sdm" }, "unit", "purchase.unitInvalid"],
+    [{ totalPaid: "34.5" }, "totalPaid", "purchase.totalNumber"],
+    [{ totalPaid: "" }, "totalPaid", "purchase.totalNumber"],
+    [{ totalPaid: "3.000.000.000" }, "totalPaid", "common.amountTooLarge"],
+    [{ date: "17-10-2026" }, "date", "purchase.dateInvalid"],
+    [{ date: "2026-02-30" }, "date", "purchase.dateInvalid"],
+  ])("%j → %s: %s", (patch, field, key) => {
+    expect(errorsFor(purchaseInputSchema, { ...purchase, ...patch })[field]).toBe(key);
   });
 });

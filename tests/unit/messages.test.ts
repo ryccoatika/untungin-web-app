@@ -42,6 +42,7 @@ describe("app-generated data names", () => {
       import("@/lib/validation/channel").then((m) => m.CHANNEL_VALIDATION_KEYS),
       import("@/lib/validation/expense").then((m) => m.EXPENSE_VALIDATION_KEYS),
       import("@/lib/validation/asset").then((m) => m.ASSET_VALIDATION_KEYS),
+      import("@/lib/validation/purchase").then((m) => m.PURCHASE_VALIDATION_KEYS),
     ]);
     for (const key of lists.flat()) {
       const [group, name] = key.split(".");
