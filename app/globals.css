@@ -133,3 +133,50 @@
     @apply font-sans;
   }
 }
+/* Loan summary (ringkasan): A4 on paper, light colours whatever the theme. */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+/* Unlayered on purpose: these sheet overrides must beat Tailwind's layered utilities. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .report-sheet {
+    --background: #fff;
+    --foreground: #111;
+    --card: #fff;
+    --card-foreground: #111;
+    --muted-foreground: #4b4b4b;
+    --border: #bdbdbd;
+    --destructive: #b00020;
+    color-scheme: light;
+    background: #fff;
+    color: #111;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    max-width: none;
+    font-size: 10pt;
+    line-height: 1.25;
+  }
+  .report-sheet .text-sm,
+  .report-sheet .text-base {
+    font-size: 10pt;
+  }
+  .report-sheet .text-xs {
+    font-size: 8.5pt;
+  }
+  .report-sheet h2 {
+    font-size: 11pt;
+  }
+  .report-sheet .report-section,
+  .report-sheet tr {
+    break-inside: avoid;
+  }
+}

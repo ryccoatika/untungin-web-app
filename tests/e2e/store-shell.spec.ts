@@ -32,14 +32,14 @@ test("store menu navigates to settings", async ({ page }, testInfo) => {
   await expect(page).toHaveURL(/\/pengaturan$/);
 });
 
-test("Lainnya lists costs, inventory and settings on phones", async ({ page }, testInfo) => {
+test("Lainnya lists costs, inventory, the loan summary and settings on phones", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile");
   await signIn(page);
   await createStoreViaOnboarding(page, "Toko Lainnya");
   await page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Lainnya" }).click();
   await expect(page).toHaveURL(/\/s\/[0-9a-f-]{36}\/lainnya$/);
   const main = page.getByRole("main");
-  for (const name of ["Kanal", "Biaya", "Inventaris", "Simulasi", "Analisis AI", "Pengaturan"]) {
+  for (const name of ["Kanal", "Biaya", "Inventaris", "Simulasi", "Analisis AI", "Ringkasan pinjaman", "Pengaturan"]) {
     await expect(main.getByRole("link", { name: new RegExp(name) })).toBeVisible();
   }
   await expect(page.getByRole("navigation", { name: "Menu toko" }).getByRole("link", { name: "Lainnya" })).toHaveAttribute("aria-current", "page");
