@@ -50,3 +50,13 @@ export function formatDateTime(iso: string, locale: AppLocale): string {
 export function splitAfterSeparators(text: string): string[] {
   return text.match(/[^.,]*[.,]|[^.,]+$/g) ?? [];
 }
+
+/** A calendar day like "8 Okt" / "Oct 8"; `date` is `YYYY-MM-DD` and the day never shifts with the viewer's time zone. */
+export function formatDay(date: string, locale: AppLocale, withYear = false): string {
+  return new Intl.DateTimeFormat(INTL_LOCALE[locale], {
+    day: "numeric",
+    month: "short",
+    ...(withYear ? { year: "numeric" } : {}),
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}

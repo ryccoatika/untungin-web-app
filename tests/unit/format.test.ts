@@ -71,3 +71,12 @@ describe("formatRupiahCompact", () => {
     expect(formatRupiahCompact(-0.2, "en")).toBe("Rp0");
   });
 });
+
+describe("formatDay", () => {
+  it("formats a calendar day in both locales without shifting it", async () => {
+    const { formatDay } = await import("@/lib/format");
+    expect(formatDay("2026-10-08", "id")).toBe("8 Okt");
+    expect(formatDay("2026-10-08", "en")).toBe("Oct 8");
+    expect(formatDay("2026-01-01", "id", true)).toBe("1 Jan 2026");
+  });
+});

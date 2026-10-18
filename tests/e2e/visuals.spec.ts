@@ -103,8 +103,8 @@ test.describe("dashboard chart", () => {
     const chart3d = page.getByRole("img", { name: /Grafik 3D/ });
     await expect(chart3d).toBeVisible();
     for (let i = 0; i < 20; i++) {
-      await page.getByRole("link", { name: "Bahan" }).first().click();
-      await expect(page).toHaveURL(/\/bahan$/);
+      await page.getByRole("link", { name: "Produk", exact: true }).first().click();
+      await expect(page).toHaveURL(/\/produk$/);
       await page.getByRole("link", { name: "Dashboard", exact: true }).first().click();
       await expect(page).toHaveURL(/\/dashboard$/);
       await expect(chart3d, `3D chart on visit ${i + 1}`).toBeVisible();
