@@ -1,0 +1,354 @@
+<title>Untungin Seller Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; task cards are the working surface, everything said aloud sits in a tinted "say" block. */
+:root {
+  --bg: #f7f8f6;
+  --surface: #ffffff;
+  --fg: #17211c;
+  --muted: #5b6a62;
+  --line: #dde4df;
+  --accent: #047857;
+  --accent-soft: #e3f3ec;
+  --say-bg: #eef6f2;
+  --warn: #9a5b00;
+  --warn-soft: #fbf0dc;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1613; --surface: #16201b; --fg: #e6eee9; --muted: #9db0a5; --line: #26332c;
+    --accent: #34d399; --accent-soft: #123327; --say-bg: #132a20; --warn: #f5b84a; --warn-soft: #33270f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1613; --surface: #16201b; --fg: #e6eee9; --muted: #9db0a5; --line: #26332c;
+  --accent: #34d399; --accent-soft: #123327; --say-bg: #132a20; --warn: #f5b84a; --warn-soft: #33270f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 48px; }
+h1, h2, h3 { line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.75rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.125rem; font-weight: 700; }
+p { margin: 0; }
+section { display: grid; gap: 16px; }
+.eyebrow { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lede { font-size: 1.125rem; color: var(--muted); max-width: 62ch; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.fact { border-top: 2px solid var(--accent); padding-top: 8px; display: grid; gap: 2px; }
+.fact b { font-size: 1.05rem; }
+.fact span { color: var(--muted); font-size: 0.9rem; }
+ul, ol { margin: 0; padding-left: 1.25rem; display: grid; gap: 6px; }
+.say { background: var(--say-bg); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+.say::before { content: "Katakan"; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.say p { font-style: italic; }
+.note { background: var(--warn-soft); color: var(--fg); border-radius: 10px; padding: 12px 16px; font-size: 0.95rem; }
+.note b { color: var(--warn); }
+.tasks { display: grid; gap: 20px; }
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 14px; min-width: 0; }
+.task-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+.task-head h3 { display: flex; gap: 10px; align-items: baseline; }
+.num { font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent); font-weight: 500; }
+.time { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.ok { color: var(--accent); font-weight: 600; }
+.optional { font-size: 0.78rem; font-weight: 600; color: var(--warn); border: 1px solid currentColor; border-radius: 999px; padding: 1px 8px; }
+.ladder { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.step { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); display: grid; gap: 4px; }
+.step b { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 0.92rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+tr:last-child td { border-bottom: 0; }
+td.blank { color: var(--line); }
+.sev { display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.sev.hi { background: var(--warn-soft); color: var(--warn); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.card { border: 1px dashed var(--accent); border-radius: 12px; padding: 14px; display: grid; gap: 6px; background: var(--surface); }
+.card b { font-size: 1rem; }
+.card span { color: var(--muted); font-size: 0.9rem; }
+.copy-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; font-weight: 600; font-size: 0.92rem; color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+pre { margin: 0; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; overflow-x: auto; white-space: pre; }
+.status { font-size: 0.85rem; color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+footer { color: var(--muted); font-size: 0.9rem; }
+</style>
+
+<main class="wrap">
+  <header style="display:grid;gap:16px">
+    <p class="eyebrow">Usability test · Untungin</p>
+    <h1>Can a first-time seller get from zero to "my real profit"?</h1>
+    <p class="lede">A one-on-one session with a real seller, on their own products. You watch them use Untungin without helping, note where they get stuck, and ask what they would want next. Five sessions are enough to find most of the big problems.</p>
+    <div class="facts">
+      <div class="fact"><b>3–5 sellers</b><span>One at a time</span></div>
+      <div class="fact"><b>35–45 minutes</b><span>Per session</span></div>
+      <div class="fact"><b>Their own products</b><span>Not the sample shop</span></div>
+      <div class="fact"><b>You don't help</b><span>Unless they're stuck 2 min</span></div>
+    </div>
+  </header>
+
+  <section>
+    <p class="eyebrow">What we want to learn</p>
+    <h2>Three questions this test answers</h2>
+    <ol>
+      <li><b>Setup:</b> can a seller enter their materials and one real recipe without help, and do sdm/sdt/gelas make that easier?</li>
+      <li><b>Understanding:</b> do they understand what the dashboard tells them (HPP, untung bersih, titik impas, balik modal), and do they trust the numbers?</li>
+      <li><b>What's next:</b> which matters most to them: recording real daily sales, a summary for a bank loan (KUR), or something we haven't thought of?</li>
+    </ol>
+  </section>
+
+  <section>
+    <p class="eyebrow">Recruiting</p>
+    <h2>Who to invite</h2>
+    <ul>
+      <li>People who sell food or drinks: a warung, kopi keliling, kue rumahan, katering kecil, jualan online.</li>
+      <li>At least two who have <b>never calculated HPP</b>; the app is built for them.</li>
+      <li>A mix of ages and of how comfortable they are with phones.</li>
+      <li>Avoid close friends and family: they will be polite instead of honest. A neighbour's neighbour is better.</li>
+      <li>Offer a small thank-you, such as Rp50.000 in e-wallet credit or a drink, and say so when you invite them.</li>
+    </ul>
+    <p class="note"><b>Ask them to bring</b> the details of one product they sell: its ingredients, roughly how much of each, what they pay for them, and the selling price. A receipt or a photo of their notes is perfect.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">Before each session</p>
+    <h2>Setup checklist</h2>
+    <ul>
+      <li><b>Device:</b> a phone with Untungin open and <b>already signed in</b> to a fresh test account, so sign-in isn't part of the test. Until the app is deployed, use your laptop's browser at phone width, or your own phone on the same Wi-Fi.</li>
+      <li><b>Fresh account:</b> a new Google test account per session, starting at the store setup screen, so nobody sees the previous person's data.</li>
+      <li><b>Notes:</b> this page's note sheet (below), or paper. Write down what they say in their own words.</li>
+      <li><b>Recording:</b> only if they agree. Screen recording plus audio is the most useful; never record their face without asking.</li>
+      <li><b>A second person</b> to take notes helps, so you can watch closely.</li>
+    </ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">Opening · 3 min</p>
+    <h2>Introduction</h2>
+    <div class="say">
+      <p>"Terima kasih sudah mau datang. Saya sedang membuat aplikasi untuk membantu penjual menghitung modal, harga jual, dan untung. Hari ini yang diuji aplikasinya, bukan Bapak/Ibu, jadi tidak ada jawaban yang salah."</p>
+      <p>"Kalau ada yang membingungkan, itu justru yang paling saya cari. Tolong ceritakan apa yang dipikirkan sambil mencoba, misalnya 'saya cari tombol untuk…' atau 'ini maksudnya apa ya'."</p>
+      <p>"Saya akan sebisa mungkin tidak membantu, supaya saya tahu bagian mana yang perlu diperbaiki. Boleh saya rekam layarnya? Rekamannya hanya untuk saya."</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Warm-up · 5 min</p>
+    <h2>About their business</h2>
+    <p>Ask before they touch the app. Their answers tell you what "success" means for them.</p>
+    <div class="say">
+      <p>"Jualan apa saja? Sudah berapa lama?"</p>
+      <p>"Bagaimana cara menentukan harga jual sekarang?"</p>
+      <p>"Kira-kira untungnya berapa sebulan? Bagaimana tahunya?"</p>
+      <p>"Pernah mencatat modal atau pengeluaran? Pakai apa: buku, kalkulator, Excel, aplikasi?"</p>
+      <p>"Kalau menakar bahan, biasanya pakai apa: timbangan, sendok, gelas, atau kira-kira?"</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Tasks · 25 min</p>
+    <h2>The tasks</h2>
+    <p>Read each task aloud, then stay quiet. Only use the hint ladder when they have been stuck for about two minutes or ask directly.</p>
+
+    <div class="ladder" aria-label="Hint ladder">
+      <div class="step"><b>Step 1 · Wait</b><span>"Apa yang sedang dicari?"</span></div>
+      <div class="step"><b>Step 2 · Nudge</b><span>"Menurut Bapak/Ibu, kira-kira ada di bagian mana?"</span></div>
+      <div class="step"><b>Step 3 · Show</b><span>Point to it, note "needed help", and move on.</span></div>
+    </div>
+
+    <div class="tasks">
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T1</span>Set up the store</h3><span class="time">≈ 3 min</span></div>
+        <div class="say"><p>"Bayangkan Bapak/Ibu baru mulai pakai aplikasi ini. Silakan buat toko untuk usaha Bapak/Ibu."</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Do they understand "target margin"? Do they read the explanation?</li><li>Hesitation over "hari buka per bulan".</li><li>Do they notice "Coba dengan data contoh"? Don't point it out.</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">They land on the dashboard of their own store.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T2</span>Enter two real ingredients</h3><span class="time">≈ 5 min</span></div>
+        <div class="say"><p>"Masukkan dua bahan yang dipakai untuk produk yang Bapak/Ibu bawa, dengan harga belinya."</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Which unit they pick (kg, gram, liter, pcs) and whether it matches how they buy.</li><li>How they type prices: "15000", "15.000", "15rb"?</li><li>Do they understand "susut / terbuang (%)"?</li><li>For gula or tepung: do they see and fill "Berat 1 sdm (gram)"? Do they know the number?</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">Both materials are saved with a sensible cost per gram, ml or pcs.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T3</span>Make their product and its recipe</h3><span class="time">≈ 7 min</span></div>
+        <div class="say"><p>"Sekarang buat produknya, lalu isi resepnya: bahan apa saja dan berapa banyak untuk satu kali bikin atau satu porsi."</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Do they understand "hasil per resep" (yield) and "per resep vs per porsi"? This is the biggest risk.</li><li>Do they reach for sdm, sdt or gelas on their own? If sugar has no spoon weight, do they follow the link to Bahan?</li><li>Do they add packaging (cup, plastik, sedotan) as an ingredient without being told?</li><li>Do they say the HPP looks right? Ask: "Masuk akal angkanya?"</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">The product shows an HPP the seller says is roughly right.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T4</span>Price and sales estimate</h3><span class="time">≈ 3 min</span></div>
+        <div class="say"><p>"Isi harga jualnya sekarang dan kira-kira berapa yang terjual dalam sebulan."</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Do they notice the recommended price? Do they trust it or ignore it?</li><li>Can they estimate monthly sales, or do they think in days? Note what they say.</li><li>Do they use "Pakai harga rekomendasi"? Ask why or why not.</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">The product has a price and a monthly estimate.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T5</span>Read the dashboard</h3><span class="time">≈ 4 min</span></div>
+        <div class="say"><p>"Menurut aplikasi ini, berapa untung bersih Bapak/Ibu sebulan? Dan berapa yang harus terjual per hari supaya tidak rugi?"</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Can they find and say both numbers in their own words?</li><li>Do they understand why profit looks lower than they thought? Costs, depreciation, their own salary.</li><li>Do they read the warnings ("Perlu diperhatikan")? Do they understand them?</li><li>Reaction to the 3D chart: helpful, confusing or decoration?</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">They state both numbers and say whether they believe them.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T6</span>Try a "what if"</h3><span class="time">≈ 3 min</span></div>
+        <div class="say"><p>"Misalnya harga bahan naik 20%. Coba lihat, untungnya jadi berapa?"</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Do they find Simulasi? On a phone it's under Lainnya.</li><li>Do they understand "Sekarang" vs "Simulasi" and the difference?</li><li>Do they worry the change is saved? Watch for hesitation.</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">They read the simulated profit and the change.</p></div>
+        </div>
+      </article>
+
+      <article class="task">
+        <div class="task-head"><h3><span class="num">T7</span>Ask the AI <span class="optional">Optional</span></h3><span class="time">≈ 3 min</span></div>
+        <div class="say"><p>"Ada fitur yang bisa memberi saran untuk usaha Bapak/Ibu. Coba minta sarannya, lalu ceritakan pendapatnya."</p></div>
+        <div class="grid2">
+          <div><p class="label">Watch for</p><ul><li>Do they read the privacy note before pressing the button?</li><li>Is the advice useful, obvious, or wrong for their situation?</li><li>Do they try "Coba di simulasi"?</li></ul></div>
+          <div><p class="label">Done when</p><p class="ok">They read one piece of advice and say what they think of it.</p></div>
+        </div>
+        <p class="note"><b>Only if a Gemini key is set up</b> on the device you're using. Each press uses one of the account's 3 daily analyses.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <p class="eyebrow">Wrap-up · 7 min</p>
+    <h2>Closing questions</h2>
+    <div class="say">
+      <p>"Dari angka 1 sampai 5, seberapa mudah aplikasi ini dipakai? Kenapa?"</p>
+      <p>"Bagian mana yang paling membingungkan?"</p>
+      <p>"Ada angka yang Bapak/Ibu tidak percaya atau tidak mengerti?"</p>
+      <p>"Kalau aplikasi ini ada di HP, kapan Bapak/Ibu akan membukanya? Setiap hari, sebulan sekali, atau waktu mau ubah harga?"</p>
+    </div>
+    <p>Then lay these three cards in front of them, on paper or on screen, and ask them to put them in order of usefulness:</p>
+    <div class="cards">
+      <div class="card"><b>Catat penjualan harian</b><span>Record what actually sold each day and see real profit next to the estimate.</span></div>
+      <div class="card"><b>Ringkasan untuk pinjaman bank</b><span>A one-page PDF of costs, prices, profit and payback period for a KUR application.</span></div>
+      <div class="card"><b>Catat belanja bahan</b><span>Record each purchase so material prices update automatically.</span></div>
+    </div>
+    <div class="say">
+      <p>"Kenapa yang ini paling atas? Ada yang belum ada di sini tapi Bapak/Ibu butuhkan?"</p>
+      <p>"Kalau aplikasi ini berbayar, berapa yang wajar menurut Bapak/Ibu per bulan?"</p>
+    </div>
+  </section>
+
+  <hr>
+
+  <section>
+    <p class="eyebrow">Note sheet</p>
+    <h2>One sheet per seller</h2>
+    <p>Mark each task <b>✓</b> (alone), <b>H</b> (with a hint) or <b>✗</b> (gave up or you showed them). Write their words in quotes.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Task</th><th>Result</th><th>Time</th><th>Where they got stuck</th><th>Their words</th></tr></thead>
+        <tbody>
+          <tr><td>T1 Store</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T2 Ingredients</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T3 Recipe</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T4 Price</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T5 Dashboard</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T6 Simulation</td><td class="blank">✓ / H / ✗</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+          <tr><td>T7 AI</td><td class="blank">✓ / H / ✗ / skipped</td><td class="blank">min</td><td class="blank">—</td><td class="blank">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="copy-row">
+      <button type="button" id="copy-notes">Copy note sheet as text</button>
+      <span class="status" id="copy-status" role="status"></span>
+    </div>
+    <pre id="notes-text">SELLER: ____________   DATE: __________   SELLS: ____________________
+Never calculated HPP before?  yes / no      Measures with: scale / spoons / glass / by eye
+
+T1 Store         ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T2 Ingredients   ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T3 Recipe        ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T4 Price         ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T5 Dashboard     ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T6 Simulation    ✓ / H / ✗   __ min   stuck: ______________________   "____________"
+T7 AI            ✓ / H / ✗ / skipped
+
+Ease 1–5: __   Most confusing: ________________________________
+Numbers they didn't trust: _____________________________________
+Card order: 1 ____________  2 ____________  3 ____________
+Missing feature they named: ____________________________________
+Fair monthly price: Rp ________</pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">After all sessions</p>
+    <h2>Turning notes into decisions</h2>
+    <ol>
+      <li>List every problem you saw. Count how many sellers hit each one.</li>
+      <li>Rate each: <span class="sev hi">Blocker</span> they couldn't continue without help; <span class="sev">Friction</span> slowed or confused them; <span class="sev">Polish</span> noticed but didn't matter.</li>
+      <li>Fix every blocker seen by two or more sellers before adding features.</li>
+      <li>Use the card ranking and the "missing feature" answers to pick the next phase.</li>
+    </ol>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>If you see…</th><th>It suggests…</th></tr></thead>
+        <tbody>
+          <tr><td>T3 fails for most sellers (yield, per resep vs per porsi)</td><td>Simplify recipe entry before anything else, for example a guided "untuk berapa porsi?" step.</td></tr>
+          <tr><td>They distrust the profit number or think in daily sales</td><td>Recording real daily sales is the next phase.</td></tr>
+          <tr><td>Several mention a bank, KUR or a loan</td><td>Build the one-page loan summary next.</td></tr>
+          <tr><td>They skip packaging or their own salary</td><td>Make the setup checklist more prominent, or ask about them during setup.</td></tr>
+          <tr><td>Nobody uses the 3D chart, or it confuses them</td><td>Default the chart to 2D.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Bring the notes back here and Claude can turn them into a ranked fix list and the next plan.</p>
+  </section>
+
+  <footer>Untungin · seller usability test · October 2026</footer>
+</main>
+
+<script>
+(function () {
+  var button = document.getElementById("copy-notes");
+  var status = document.getElementById("copy-status");
+  var notes = document.getElementById("notes-text");
+  function selectNotes() {
+    var range = document.createRange();
+    range.selectNodeContents(notes);
+    var selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+  button.addEventListener("click", function () {
+    var text = notes.textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        status.textContent = "Copied. Paste it into a note for each seller.";
+      }, function () {
+        selectNotes();
+        status.textContent = "Selected. Press Copy on your keyboard or menu.";
+      });
+    } else {
+      selectNotes();
+      status.textContent = "Selected. Press Copy on your keyboard or menu.";
+    }
+  });
+})();
+</script>
