@@ -21,6 +21,8 @@ export type EntryRow = {
   netPrice: number;
   materialCost: number;
   qty: number;
+  /** The saved line's snapshot: save_sales_day keeps it while the count stays the same. */
+  saved: { qty: number; unitPrice: number; netUnit: number; hppUnit: number } | null;
 };
 
 export type EntryChannel = { id: string; name: string };
@@ -73,9 +75,17 @@ export function SalesEntry({
   };
 
   const total = rows.reduce((sum, row) => sum + qtyOf(row), 0);
-  const revenue = rows.reduce((sum, row) => sum + qtyOf(row) * row.price, 0) + previous.reduce((sum, l) => sum + l.qty * l.unitPrice, 0);
+  // An unchanged count keeps its saved snapshot; a changed one is saved with today's values.
+  const unitValues = (row: EntryRow) =>
+    row.saved && qtyOf(row) === row.saved.qty
+      ? row.saved
+      : { unitPrice: row.price, netUnit: row.netPrice, hppUnit: row.materialCost };
+  const revenue = rows.reduce((sum, row) => sum + qtyOf(row) * unitValues(row).unitPrice, 0) + previous.reduce((sum, l) => sum + l.qty * l.unitPrice, 0);
   const grossProfit =
-    rows.reduce((sum, row) => sum + qtyOf(row) * (row.netPrice - row.materialCost), 0) +
+    rows.reduce((sum, row) => {
+      const unit = unitValues(row);
+      return sum + qtyOf(row) * (unit.netUnit - unit.hppUnit);
+    }, 0) +
     previous.reduce((sum, l) => sum + l.qty * (l.netUnit - l.hppUnit), 0);
   const hasAnyLine = total > 0 || previous.length > 0 || dayHasLines;
 
@@ -109,22 +119,21 @@ export function SalesEntry({
   // Closing a day that has lines clears them, so it asks first.
   const askClose = () => (hasAnyLine ? setConfirm("clear") : close());
 
-  if (rows.length === 0) {
-    return (
-      <div className="space-y-3 rounded-lg border border-dashed p-6 text-center">
-        <p className="font-medium">{t("noPricesTitle")}</p>
-        <p className="text-sm text-muted-foreground">{t("noPricesBody")}</p>
-        <Link href={`/s/${storeId}/produk`} className={buttonVariants({ variant: "outline" })}>
-          {t("noPricesAction")}
-        </Link>
-      </div>
-    );
-  }
+  const noRows = (
+    <div className="space-y-3 rounded-lg border border-dashed p-6 text-center">
+      <p className="font-medium">{t("noPricesTitle")}</p>
+      <p className="text-sm text-muted-foreground">{t("noPricesBody")}</p>
+      <Link href={`/s/${storeId}/produk`} className={buttonVariants({ variant: "outline" })}>
+        {t("noPricesAction")}
+      </Link>
+    </div>
+  );
 
   const soldIn = (channelId: string) => rows.filter((row) => row.channelId === channelId).reduce((sum, row) => sum + qtyOf(row), 0);
 
   return (
     <div className="space-y-4">
+      {rows.length === 0 && noRows}
       <div role="tablist" aria-label={t("channels")} className="flex flex-wrap gap-2">
         {channels.map((channel) => (
           <button
@@ -280,9 +289,11 @@ export function SalesEntry({
       )}
 
       <div className="flex flex-wrap gap-2">
-        <Button type="button" className="min-w-32 flex-1 sm:flex-none" disabled={pending} onClick={save}>
-          {pending ? t("saving") : t("save")}
-        </Button>
+        {rows.length > 0 && (
+          <Button type="button" className="min-w-32 flex-1 sm:flex-none" disabled={pending} onClick={save}>
+            {pending ? t("saving") : t("save")}
+          </Button>
+        )}
         <Button type="button" variant="outline" disabled={pending} onClick={askClose}>
           {t("closeToday")}
         </Button>

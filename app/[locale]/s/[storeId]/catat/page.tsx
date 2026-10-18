@@ -55,8 +55,10 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
 
   const productOrder = new Map(data.products.map((p, index) => [p.id, index]));
   const channelOrder = new Map(data.channels.map((c, index) => [c.id, index]));
-  const savedQty = new Map<string, number>();
-  for (const line of day?.lines ?? []) savedQty.set(`${line.productId}|${line.channelId}`, line.qty);
+  const savedLines = new Map<string, EntryRow["saved"]>();
+  for (const line of day?.lines ?? []) {
+    savedLines.set(`${line.productId}|${line.channelId}`, { qty: line.qty, unitPrice: line.unitPrice, netUnit: line.netUnit, hppUnit: line.hppUnit });
+  }
 
   const rows: EntryRow[] = analysis
     ? analysis.lines
@@ -67,7 +69,8 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
           price: line.price,
           netPrice: line.netPrice,
           materialCost: line.materialCost,
-          qty: savedQty.get(`${line.productId}|${line.channelId}`) ?? 0,
+          qty: savedLines.get(`${line.productId}|${line.channelId}`)?.qty ?? 0,
+          saved: savedLines.get(`${line.productId}|${line.channelId}`) ?? null,
         }))
         .sort(
           (a, b) =>

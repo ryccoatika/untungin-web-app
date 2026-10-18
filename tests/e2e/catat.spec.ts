@@ -281,3 +281,54 @@ test("no horizontal scroll at 360px and steppers are at least 40px", async ({ pa
   await expect(page.getByRole("alertdialog")).toBeVisible();
   expect(await overflow()).toBeLessThanOrEqual(0);
 });
+
+test("a saved day keeps its snapshot until the count changes", async ({ page }) => {
+  await createSampleStore(page);
+  const storeId = storeIdFromUrl(page);
+  await recordKopi(page, day(), 10);
+  await expect(page.getByTestId("day-revenue")).toHaveText("Rp220.000");
+  const saved = await rupiah(page, "day-gross-profit");
+
+  // Ground coffee gets twice as expensive: the recipe cost of every coffee goes up.
+  const admin = adminClient();
+  const { data: material } = await admin.from("materials").select("id, purchase_price").eq("store_id", storeId).eq("name", "Kopi bubuk").single();
+  const { error } = await admin.from("materials").update({ purchase_price: material!.purchase_price * 2 }).eq("id", material!.id);
+  expect(error).toBeNull();
+
+  await page.reload();
+  await expect(qtyField(page, KOPI)).toHaveValue("10");
+  expect(await rupiah(page, "day-gross-profit")).toBe(saved);
+
+  // A changed count is saved with today's cost: one more coffee earns less than the saved average.
+  await qtyField(page, KOPI).fill("11");
+  const at11 = await rupiah(page, "day-gross-profit");
+  await qtyField(page, KOPI).fill("12");
+  const at12 = await rupiah(page, "day-gross-profit");
+  const newMargin = at12 - at11;
+  expect(newMargin).toBeLessThan(saved / 10);
+  expect(at11).toBe(11 * newMargin);
+  // Back to the saved count: the saved snapshot again.
+  await qtyField(page, KOPI).fill("10");
+  expect(await rupiah(page, "day-gross-profit")).toBe(saved);
+});
+
+test("earlier lines and closing stay available when no product is left to fill in", async ({ page }) => {
+  await createSampleStore(page);
+  const storeId = storeIdFromUrl(page);
+  await recordKopi(page, day(), 3);
+  const { error } = await adminClient().from("products").delete().eq("store_id", storeId);
+  expect(error).toBeNull();
+
+  await page.goto(storeUrl(page, "catat"));
+  await expect(page.getByText("Belum ada produk dengan harga jual")).toBeVisible();
+  const previous = page.getByRole("region", { name: "Tercatat sebelumnya" });
+  await expect(previous.getByText(KOPI)).toBeVisible();
+  await expect(page.getByTestId("day-revenue")).toHaveText("Rp66.000");
+  await expect(page.getByRole("button", { name: "Simpan", exact: true })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Toko tutup hari ini", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Ya, toko tutup" }).click();
+  await expect(page.getByTestId("closed-note")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("region", { name: "Tercatat sebelumnya" })).toHaveCount(0);
+});
