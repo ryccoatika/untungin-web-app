@@ -61,6 +61,12 @@ export function formatDay(date: string, locale: AppLocale, withYear = false): st
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
+/** Days of one month as "15–18 Okt" / "Oct 15–18"; one day when both ends match. */
+export function formatDayRange(start: string, end: string, locale: AppLocale): string {
+  if (start === end) return formatDay(end, locale);
+  return locale === "en" ? `${formatDay(start, locale)}–${Number(end.slice(8))}` : `${Number(start.slice(8))}–${formatDay(end, locale)}`;
+}
+
 /** A month like "Oktober 2026" / "October 2026"; `month` is `YYYY-MM`. */
 export function formatMonth(month: string, locale: AppLocale): string {
   return new Intl.DateTimeFormat(INTL_LOCALE[locale], { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));

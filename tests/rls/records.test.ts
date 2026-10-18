@@ -238,6 +238,47 @@ describe("sales and purchase records", () => {
     }
   });
 
+  describe("delete_sales_day", () => {
+    const del = (date: string, user = owner, store = storeId) =>
+      user.client.rpc("delete_sales_day", { p_store_id: store, p_date: date });
+
+    it("deletes a day with its lines", async () => {
+      const date = jakartaDate(-20);
+      await saveDay(date, [line()]);
+      expect((await lines(date)).rows).toHaveLength(1);
+      const { error } = await del(date);
+      expect(error).toBeNull();
+      expect(await lines(date)).toEqual({ day: null, rows: [] });
+    });
+
+    it("deletes a closed day", async () => {
+      const date = jakartaDate(-21);
+      await owner.client.rpc("close_sales_day", { p_store_id: storeId, p_date: date });
+      expect((await lines(date)).day?.closed).toBe(true);
+      const { error } = await del(date);
+      expect(error).toBeNull();
+      expect((await lines(date)).day).toBeNull();
+    });
+
+    it("another user's call changes nothing", async () => {
+      const date = jakartaDate(-22);
+      await saveDay(date, [line()]);
+      const { error } = await del(date, other);
+      expect(error).toBeNull();
+      expect((await lines(date)).rows).toHaveLength(1);
+    });
+
+    it("refuses a future date and one older than 92 days (UT002)", async () => {
+      expect((await del(jakartaDate(1))).error?.code).toBe("UT002");
+      expect((await del(jakartaDate(-93))).error?.code).toBe("UT002");
+    });
+
+    it("is not callable by anon", async () => {
+      const { error } = await anonClient().rpc("delete_sales_day", { p_store_id: storeId, p_date: jakartaDate() });
+      expect(error).not.toBeNull();
+    });
+  });
+
   it("purchase updates the material price", async () => {
     const { data, error } = await savePurchase({ p_new_price: 17000 });
     expect(error).toBeNull();

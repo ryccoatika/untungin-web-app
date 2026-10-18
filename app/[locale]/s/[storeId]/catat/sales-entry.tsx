@@ -10,7 +10,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { formatNumber, formatRupiah } from "@/lib/format";
 import { MAX_DAY_QTY } from "@/lib/records";
 import { cn } from "@/lib/utils";
-import { closeSalesDayAction, deleteSalesLineAction, saveSalesDayAction, type SalesSaveResult } from "./actions";
+import { closeSalesDayAction, deleteSalesDayAction, deleteSalesLineAction, saveSalesDayAction, type SalesSaveResult } from "./actions";
 
 export type EntryRow = {
   productId: string;
@@ -38,7 +38,7 @@ export type PreviousLine = {
   hppUnit: number;
 };
 
-type Confirm = "empty" | "clear" | null;
+type Confirm = "empty" | "clear" | "delete" | null;
 
 const keyOf = (row: Pick<EntryRow, "productId" | "channelId">) => `${row.productId}|${row.channelId}`;
 
@@ -49,6 +49,8 @@ export function SalesEntry({
   rows,
   previous,
   dayHasLines,
+  dayClosed,
+  isToday,
 }: {
   storeId: string;
   date: string;
@@ -57,6 +59,10 @@ export function SalesEntry({
   previous: PreviousLine[];
   /** The day has saved lines (shown or not): "Toko tutup hari ini" then needs a confirm. */
   dayHasLines: boolean;
+  /** The day is marked "toko tutup". */
+  dayClosed: boolean;
+  /** Copy says "hari ini" only for today; another date reads "tanggal ini". */
+  isToday: boolean;
 }) {
   const t = useTranslations("Records.sales");
   const locale = useLocale() as AppLocale;
@@ -115,6 +121,10 @@ export function SalesEntry({
   const close = () => {
     setConfirm(null);
     run(() => closeSalesDayAction(storeId, date), resetCounts);
+  };
+  const remove = () => {
+    setConfirm(null);
+    run(() => deleteSalesDayAction(storeId, date), resetCounts);
   };
   // Closing a day that has lines clears them, so it asks first.
   const askClose = () => (hasAnyLine ? setConfirm("clear") : close());
@@ -179,7 +189,7 @@ export function SalesEntry({
                       size="icon-lg"
                       className="size-11"
                       aria-label={t("decrease", { product: row.productName })}
-                      disabled={qtyOf(row) <= 0}
+                      disabled={pending || qtyOf(row) <= 0}
                       onClick={() => setQty(row, qtyOf(row) - 1)}
                     >
                       <Minus aria-hidden />
@@ -188,6 +198,7 @@ export function SalesEntry({
                       inputMode="numeric"
                       autoComplete="off"
                       maxLength={4}
+                      disabled={pending}
                       aria-label={t("qty", { product: row.productName })}
                       className="h-11 w-16 text-center tabular-nums"
                       value={counts[keyOf(row)] ?? "0"}
@@ -206,7 +217,7 @@ export function SalesEntry({
                       size="icon-lg"
                       className="size-11"
                       aria-label={t("increase", { product: row.productName })}
-                      disabled={qtyOf(row) >= MAX_DAY_QTY}
+                      disabled={pending || qtyOf(row) >= MAX_DAY_QTY}
                       onClick={() => setQty(row, qtyOf(row) + 1)}
                     >
                       <Plus aria-hidden />
@@ -258,7 +269,7 @@ export function SalesEntry({
 
       <dl className="grid grid-cols-2 gap-3 rounded-lg border bg-muted/40 p-3 text-sm" data-testid="day-summary">
         <div>
-          <dt className="text-muted-foreground">{t("revenue")}</dt>
+          <dt className="text-muted-foreground">{t(isToday ? "revenue" : "revenueOther")}</dt>
           <dd className="text-lg font-semibold tabular-nums" data-testid="day-revenue">
             {formatRupiah(revenue, locale)}
           </dd>
@@ -274,13 +285,36 @@ export function SalesEntry({
       {confirm && (
         <div role="alertdialog" aria-labelledby="close-title" className="space-y-3 rounded-lg border border-primary/40 bg-primary/5 p-4">
           <p id="close-title" className="font-medium">
-            {t("confirmEmptyTitle")}
+            {confirm === "delete" ? t("confirmDeleteTitle") : t(isToday ? "confirmEmptyTitle" : "confirmEmptyTitleOther")}
           </p>
-          <p className="text-sm">{confirm === "empty" ? t("confirmEmptyBody") : t("confirmCloseBody")}</p>
+          <p className="text-sm">
+            {confirm === "empty"
+              ? dayHasLines
+                ? t("confirmEmptyBodySaved")
+                : t("confirmEmptyBody")
+              : confirm === "clear"
+                ? t("confirmCloseBody")
+                : dayClosed
+                  ? t("confirmDeleteClosedBody")
+                  : t("confirmDeleteBody")}
+          </p>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" autoFocus disabled={pending} onClick={close}>
-              {pending ? t("closing") : t("confirmYes")}
-            </Button>
+            {confirm === "delete" ? (
+              <Button type="button" variant="destructive" autoFocus disabled={pending} onClick={remove}>
+                {pending ? t("deleting") : t("confirmDeleteYes")}
+              </Button>
+            ) : (
+              <>
+                <Button type="button" autoFocus disabled={pending} onClick={close}>
+                  {pending ? t("closing") : t("confirmYes")}
+                </Button>
+                {confirm === "empty" && dayHasLines && (
+                  <Button type="button" variant="outline" disabled={pending} onClick={remove}>
+                    {t("deleteDay")}
+                  </Button>
+                )}
+              </>
+            )}
             <Button type="button" variant="ghost" disabled={pending} onClick={() => setConfirm(null)}>
               {t("confirmNo")}
             </Button>
@@ -295,8 +329,13 @@ export function SalesEntry({
           </Button>
         )}
         <Button type="button" variant="outline" disabled={pending} onClick={askClose}>
-          {t("closeToday")}
+          {t(isToday ? "closeToday" : "closeOther")}
         </Button>
+        {(dayClosed || dayHasLines) && (
+          <Button type="button" variant="outline" disabled={pending} onClick={() => setConfirm("delete")}>
+            {dayClosed ? t("removeClosed") : t("deleteDay")}
+          </Button>
+        )}
       </div>
 
       {result && (

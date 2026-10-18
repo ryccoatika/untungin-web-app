@@ -101,7 +101,7 @@ test("all zeros asks whether the shop was closed", async ({ page }) => {
   await page.goto(storeUrl(page, `catat?tanggal=${day(-1)}`));
   await page.getByRole("button", { name: "Simpan", exact: true }).click();
   const dialog = page.getByRole("alertdialog");
-  await expect(dialog.getByText("Toko tutup hari ini?")).toBeVisible();
+  await expect(dialog.getByText("Toko tutup?")).toBeVisible();
   await expect(page.getByTestId("closed-note")).toHaveCount(0);
   await dialog.getByRole("button", { name: "Ya, toko tutup" }).click();
   await expect(page.getByTestId("closed-note")).toBeVisible();
@@ -121,14 +121,14 @@ test("closing a day that has sales asks first and clears them", async ({ page })
   await createSampleStore(page);
   await recordKopi(page, day(-1), 4);
   await page.reload();
-  await page.getByRole("button", { name: "Toko tutup hari ini", exact: true }).click();
+  await page.getByRole("button", { name: "Toko tutup", exact: true }).click();
   const dialog = page.getByRole("alertdialog");
   await expect(dialog.getByText(/menghapus semua catatan penjualan/)).toBeVisible();
   await dialog.getByRole("button", { name: "Batal" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(qtyField(page, KOPI)).toHaveValue("4");
 
-  await page.getByRole("button", { name: "Toko tutup hari ini", exact: true }).click();
+  await page.getByRole("button", { name: "Toko tutup", exact: true }).click();
   await dialog.getByRole("button", { name: "Ya, toko tutup" }).click();
   await expect(page.getByTestId("closed-note")).toBeVisible();
   await expect(qtyField(page, KOPI)).toHaveValue("0");
@@ -150,11 +150,14 @@ test("missing-days banner links to the day", async ({ page }) => {
   await link.click();
   await expect(page).toHaveURL(new RegExp(`catat\\?tanggal=${day(-2)}$`));
   await expect(page.getByLabel("Tanggal")).toHaveValue(day(-2));
-  await expect(page.getByText(/Kamu mengubah hari yang sudah lewat/)).toBeVisible();
+  // Nothing is recorded on that day yet, so there is no "you are editing" note.
+  await expect(page.getByText(/Kamu mengubah hari yang sudah lewat/)).toHaveCount(0);
   // Filling the gap clears the banner.
   await qtyField(page, KOPI).fill("1");
   await page.getByRole("button", { name: "Simpan", exact: true }).click();
   await expect(page.getByText("Penjualan tersimpan.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByText(/Kamu mengubah hari yang sudah lewat/)).toBeVisible();
   await page.goto(storeUrl(page, "catat"));
   await expect(page.getByTestId("missing-days")).toHaveCount(0);
 });
@@ -334,4 +337,84 @@ test("earlier lines and closing stay available when no product is left to fill i
   await expect(page.getByTestId("closed-note")).toBeVisible();
   await page.reload();
   await expect(page.getByRole("region", { name: "Tercatat sebelumnya" })).toHaveCount(0);
+});
+
+test("date-neutral copy off today, 'hari ini' on today", async ({ page }) => {
+  await createSampleStore(page);
+  await page.goto(storeUrl(page, "catat"));
+  await expect(page.getByRole("button", { name: "Toko tutup hari ini", exact: true })).toBeVisible();
+  await expect(page.getByText("Omzet hari ini")).toBeVisible();
+  await page.goto(storeUrl(page, `catat?tanggal=${day(-1)}`));
+  await expect(page.getByRole("button", { name: "Toko tutup", exact: true })).toBeVisible();
+  await expect(page.getByText("Omzet tanggal ini")).toBeVisible();
+  // A past day with no record has no "you are editing" note.
+  await expect(page.getByText(/Kamu mengubah hari yang sudah lewat/)).toHaveCount(0);
+});
+
+test("a mistaken day can be deleted: all zeros offers it, and the day is no longer recorded or missing", async ({ page }) => {
+  await createSampleStore(page);
+  await recordKopi(page, day(-5), 3); // the mistaken, earliest day
+  await recordKopi(page, day(-1), 2);
+  await page.goto(storeUrl(page, "catat"));
+  await expect(page.getByTestId("missing-days")).toContainText("3 hari belum dicatat");
+
+  await page.goto(storeUrl(page, `catat?tanggal=${day(-5)}`));
+  await qtyField(page, KOPI).fill("0");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByText("Toko tutup?")).toBeVisible();
+  await dialog.getByRole("button", { name: "Hapus catatan tanggal ini" }).click();
+  await expect(page.getByText("Catatan tanggal ini dihapus.")).toBeVisible();
+  await expect(qtyField(page, KOPI)).toHaveValue("0");
+
+  // The earliest record is now day(-1): nothing before it nags.
+  await page.goto(storeUrl(page, "catat"));
+  await expect(page.getByTestId("missing-days")).toHaveCount(0);
+  await page.goto(storeUrl(page, `catat?tanggal=${day(-5)}`));
+  await expect(page.getByTestId("closed-note")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Hapus catatan tanggal ini" })).toHaveCount(0);
+});
+
+test("a closed day can be un-closed with a confirm", async ({ page }) => {
+  await createSampleStore(page);
+  await recordKopi(page, day(-4), 1);
+  await page.goto(storeUrl(page, `catat?tanggal=${day(-6)}`));
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Ya, toko tutup" }).click();
+  await expect(page.getByTestId("closed-note")).toBeVisible();
+
+  await page.goto(storeUrl(page, "catat"));
+  // day(-6) is closed, so it is filled; the days after day(-4) are not.
+  await expect(page.getByTestId("missing-days")).toContainText("4 hari belum dicatat");
+  await expect(page.getByTestId("missing-days")).not.toContainText(shortDay(day(-6)));
+  await page.goto(storeUrl(page, `catat?tanggal=${day(-6)}`));
+  await page.getByRole("button", { name: "Hapus tanda tutup" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog.getByText("Hapus catatan tanggal ini?")).toBeVisible();
+  await dialog.getByRole("button", { name: "Batal" }).click();
+  await expect(page.getByTestId("closed-note")).toBeVisible();
+
+  await page.getByRole("button", { name: "Hapus tanda tutup" }).click();
+  await dialog.getByRole("button", { name: "Ya, hapus" }).click();
+  await expect(page.getByText("Catatan tanggal ini dihapus.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByTestId("closed-note")).toHaveCount(0);
+  // day(-6) was the first record; now day(-4) is, so the days before it are not missing.
+  await page.goto(storeUrl(page, "catat"));
+  await expect(page.getByTestId("missing-days")).toContainText("3 hari belum dicatat");
+});
+
+test("counts are locked while a save is in flight", async ({ page }) => {
+  await createSampleStore(page);
+  await page.goto(storeUrl(page, "catat"));
+  await qtyField(page, KOPI).fill("3");
+  await page.route(/\/catat(\?|$)/, async (route) => {
+    if (route.request().method() === "POST") await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.continue();
+  });
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(qtyField(page, KOPI)).toBeDisabled();
+  await expect(plus(page, KOPI)).toBeDisabled();
+  await expect(page.getByText("Penjualan tersimpan.")).toBeVisible();
+  await expect(qtyField(page, KOPI)).toBeEnabled();
 });

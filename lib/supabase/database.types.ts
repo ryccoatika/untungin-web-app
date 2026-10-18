@@ -372,6 +372,9 @@ isOneToOne: false
 "create_store":
 { Args: { "p_business_type": string,"p_default_channel_name"?: string,"p_name": string,"p_operating_days": number,"p_target_margin": number,"p_target_market"?: string }; Returns: string
                            },
+"delete_sales_day":
+{ Args: { "p_date": string,"p_store_id": string }; Returns: undefined
+                           },
 "delete_sales_line":
 { Args: { "p_line_id": string }; Returns: undefined
                            },

@@ -72,6 +72,15 @@ describe("formatRupiahCompact", () => {
   });
 });
 
+describe("formatDayRange", () => {
+  it("reads naturally in each language", async () => {
+    const { formatDayRange } = await import("@/lib/format");
+    expect(formatDayRange("2026-10-15", "2026-10-18", "id")).toBe("15–18 Okt");
+    expect(formatDayRange("2026-10-15", "2026-10-18", "en")).toBe("Oct 15–18");
+    expect(formatDayRange("2026-10-18", "2026-10-18", "en")).toBe("Oct 18");
+  });
+});
+
 describe("formatDay", () => {
   it("formats a calendar day in both locales without shifting it", async () => {
     const { formatDay } = await import("@/lib/format");

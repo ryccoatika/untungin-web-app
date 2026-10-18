@@ -84,6 +84,21 @@ export async function closeSalesDayAction(storeId: string, date: string): Promis
   return { ok: true, message: t("closedSaved") };
 }
 
+export async function deleteSalesDayAction(storeId: string, date: string): Promise<SalesSaveResult> {
+  const { supabase } = await requireUser();
+  const problem = await checkStoreAndDate(storeId, date);
+  if (problem) return fail(problem);
+
+  const { error } = await supabase.rpc("delete_sales_day", { p_store_id: storeId, p_date: date });
+  if (error) {
+    if (error.code === "UT002") return fail(await dateOutOfRange());
+    return fail((await getTranslations("Common"))("deleteFailed"));
+  }
+
+  revalidateStore();
+  return { ok: true, message: (await getTranslations("Records.sales"))("dayDeleted") };
+}
+
 export async function deleteSalesLineAction(storeId: string, lineId: string): Promise<SalesSaveResult> {
   const { supabase } = await requireUser();
   const tCommon = await getTranslations("Common");

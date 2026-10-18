@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { tryAnalyzeStore } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
-import { loadFirstRecordDate, loadSalesDay, loadSalesRange } from "@/lib/data/records";
+import { loadFirstRecordDate, loadSalesDay, loadSalesDays } from "@/lib/data/records";
 import { formatDay } from "@/lib/format";
 import { addDays, earliestRecordable, isIsoDate, jakartaToday, MISSING_BANNER_DAYS, missingDates } from "@/lib/records";
 import { DatePicker } from "./date-picker";
@@ -42,13 +42,13 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
   const [day, firstRecord, recent] = await Promise.all([
     loadSalesDay(storeId, date),
     loadFirstRecordDate(storeId),
-    loadSalesRange(storeId, addDays(today, -MISSING_BANNER_DAYS), today),
+    loadSalesDays(storeId, addDays(today, -MISSING_BANNER_DAYS), today),
   ]);
 
   const missing = missingDates(
     firstRecord,
     today,
-    new Set(recent.days.map((d) => d.date)),
+    new Set(recent.map((d) => d.date)),
     addDays(today, -MISSING_BANNER_DAYS),
     addDays(today, -1),
   );
@@ -145,7 +145,7 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
           {t("closedNote")}
         </p>
       )}
-      {date < today && <p className="text-sm text-muted-foreground">{t("pastNote")}</p>}
+      {date < today && day && <p className="text-sm text-muted-foreground">{t("pastNote")}</p>}
 
       {analysis && (
         <SalesEntry
@@ -156,6 +156,8 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
           rows={rows}
           previous={previous}
           dayHasLines={(day?.lines.length ?? 0) > 0}
+          dayClosed={day?.closed ?? false}
+          isToday={date === today}
         />
       )}
     </div>
