@@ -2,24 +2,9 @@ import "server-only";
 import { cache } from "react";
 import type { Unit } from "@/lib/calc";
 import { earliestRecordable, jakartaToday, type IsoDate, type SalesDayRecord, type SalesLineRecord } from "@/lib/records";
+import { fetchSalesDays, fetchSalesRange, toSalesLine } from "@/lib/data/sales-range";
 import { createClient } from "@/lib/supabase/server";
-import type { Tables } from "@/lib/supabase/database.types";
 import { isUuid } from "@/lib/uuid";
-
-function toLine(row: Tables<"sales_lines">, date: IsoDate): SalesLineRecord {
-  return {
-    id: row.id,
-    date,
-    productId: row.product_id,
-    channelId: row.channel_id,
-    productName: row.product_name,
-    channelName: row.channel_name,
-    qty: row.qty,
-    unitPrice: row.unit_price,
-    netUnit: Number(row.net_unit),
-    hppUnit: Number(row.hpp_unit),
-  };
-}
 
 /** One day's record with its lines; null when nothing was recorded for that date (or the store is not the user's). */
 export const loadSalesDay = cache(
@@ -42,37 +27,24 @@ export const loadSalesDay = cache(
       .order("channel_name")
       .order("id");
     if (linesError) throw linesError;
-    return { closed: day.closed, lines: (rows ?? []).map((row) => toLine(row, date)) };
+    return { closed: day.closed, lines: (rows ?? []).map((row) => toSalesLine(row, date)) };
   },
 );
 
-/** Days and lines with `from <= date <= to` (inclusive). */
+/** Days and every line with `from <= date <= to` (inclusive). */
 export const loadSalesRange = cache(
   async (storeId: string, from: IsoDate, to: IsoDate): Promise<{ days: SalesDayRecord[]; lines: SalesLineRecord[] }> => {
     if (!isUuid(storeId)) return { days: [], lines: [] };
-    const supabase = await createClient();
-    const { data: days, error } = await supabase
-      .from("sales_days")
-      .select("id, date, closed")
-      .eq("store_id", storeId)
-      .gte("date", from)
-      .lte("date", to)
-      .order("date");
-    if (error) throw error;
-    if (!days?.length) return { days: [], lines: [] };
-    const dateOf = new Map(days.map((day) => [day.id, day.date]));
-    const { data: rows, error: linesError } = await supabase
-      .from("sales_lines")
-      .select("*")
-      .in("day_id", [...dateOf.keys()])
-      .order("id");
-    if (linesError) throw linesError;
-    return {
-      days: days.map((day) => ({ date: day.date, closed: day.closed })),
-      lines: (rows ?? []).map((row) => toLine(row, dateOf.get(row.day_id)!)),
-    };
+    return fetchSalesRange(await createClient(), storeId, from, to);
   },
 );
+
+/** Only the days (no lines) with `from <= date <= to`: enough to tell which dates are recorded. */
+export const loadSalesDays = cache(async (storeId: string, from: IsoDate, to: IsoDate): Promise<SalesDayRecord[]> => {
+  if (!isUuid(storeId)) return [];
+  const days = await fetchSalesDays(await createClient(), storeId, from, to);
+  return days.map((day) => ({ date: day.date, closed: day.closed }));
+});
 
 /** The store's first recorded day (a day with sales or marked closed), or null before any record. */
 export const loadFirstRecordDate = cache(async (storeId: string): Promise<IsoDate | null> => {

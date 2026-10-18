@@ -100,7 +100,9 @@ export function monthReport(input: {
 
   const withLines = new Set(lines.map((l) => l.date));
   const closed = new Set(days.filter((d) => d.closed).map((d) => d.date));
-  const filled = new Set([...withLines, ...closed]);
+  // A day row that is not closed counts as recorded even when no line is in view (defensive).
+  const recorded = new Set([...withLines, ...days.filter((d) => !d.closed).map((d) => d.date)]);
+  const filled = new Set([...recorded, ...closed]);
   const missing = missingDates(firstRecord, today, filled, monthStart, monthEnd);
   const missingSet = new Set(missing);
 
@@ -108,7 +110,7 @@ export function monthReport(input: {
   for (let i = 1; i <= total; i++) {
     const date = `${month}-${String(i).padStart(2, "0")}`;
     let state: DayState;
-    if (withLines.has(date)) state = "recorded";
+    if (recorded.has(date)) state = "recorded";
     else if (closed.has(date)) state = "closed";
     else if (firstRecord === null || date < firstRecord) state = "before";
     else if (missingSet.has(date)) state = "missing";

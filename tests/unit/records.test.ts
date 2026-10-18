@@ -11,6 +11,7 @@ import {
   monthOf,
   monthReport,
   newPurchasePrice,
+  purchaseOutcome,
   snapshotLines,
   type SalesLineRecord,
 } from "@/lib/records";
@@ -237,5 +238,47 @@ describe("newPurchasePrice", () => {
   });
   it("throws on a different dimension", () => {
     expect(() => newPurchasePrice({ purchaseQty: 1, purchaseUnit: "l" }, 2, "kg", 1)).toThrow();
+  });
+});
+
+describe("purchaseOutcome", () => {
+  const material = { purchaseQty: 1, purchaseUnit: "kg" as const, purchasePrice: 15000 };
+  const input = { qty: 2, unit: "kg" as const, totalPaid: 40000, date: "2026-10-10" };
+
+  it("changes the price when no newer purchase exists", () => {
+    expect(purchaseOutcome(material, input, undefined)).toEqual({ kind: "change", from: 15000, to: 20000 });
+    expect(purchaseOutcome(material, input, "2026-10-09")).toEqual({ kind: "change", from: 15000, to: 20000 });
+  });
+
+  it("keeps the price when a newer purchase exists", () => {
+    expect(purchaseOutcome(material, input, "2026-10-12")).toEqual({ kind: "kept", price: 15000, newerDate: "2026-10-12" });
+  });
+
+  it("counts a purchase on the same date as the newest", () => {
+    expect(purchaseOutcome(material, input, "2026-10-10").kind).toBe("change");
+  });
+
+  it("reads the unit: 2 g costs a thousand times more per kg than 2 kg", () => {
+    expect(purchaseOutcome(material, { ...input, unit: "g" }, undefined)).toEqual({ kind: "change", from: 15000, to: 20_000_000 });
+  });
+});
+
+describe("monthReport days without lines", () => {
+  it("counts an open day row with no lines as recorded, not missing", () => {
+    const data = store();
+    const r = monthReport({
+      month: "2026-10",
+      today: "2026-10-05",
+      firstRecord: "2026-10-01",
+      days: [
+        { date: "2026-10-01", closed: false },
+        { date: "2026-10-02", closed: false },
+      ],
+      lines: [line("2026-10-01", "offline", 3)],
+      analysis: analyzeStore(data),
+      data,
+    });
+    expect(r.calendar.find((d) => d.date === "2026-10-02")?.state).toBe("recorded");
+    expect(r.missing).toEqual(["2026-10-03", "2026-10-04"]);
   });
 });
