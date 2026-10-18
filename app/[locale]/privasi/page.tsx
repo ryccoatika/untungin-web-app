@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import type { AppLocale } from "@/i18n/routing";
+import { publicPageMetadata, SITE_NAME } from "@/lib/seo";
 
 const OPERATOR = { name: "Rycco Atika", email: "me@ryccoatika.com" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Privacy");
-  return { title: t("title") };
+  const locale = (await getLocale()) as AppLocale;
+  return { title: t("title"), ...publicPageMetadata(locale, "/privasi", `${t("title")} · ${SITE_NAME}`, t("intro")) };
 }
 
 export default async function PrivacyPage() {

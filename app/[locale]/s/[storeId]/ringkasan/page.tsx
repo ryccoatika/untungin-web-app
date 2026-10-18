@@ -24,7 +24,8 @@ export async function generateMetadata({ params }: Pick<Props, "params">): Promi
   const { storeId } = await params;
   const store = await getStore(storeId);
   const t = await getTranslations("Report");
-  return { title: store ? t("metaTitle", { store: store.name }) : t("title") };
+  // Absolute: the title is the saved PDF's default file name, so it skips the " · Untungin" suffix.
+  return { title: { absolute: store ? t("metaTitle", { store: store.name }) : t("title") } };
 }
 
 /** A table that scrolls inside its own box on a phone and prints at full width. */
