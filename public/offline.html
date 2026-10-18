@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#047857">
+<title>Untungin</title>
+<style>
+  :root { color-scheme: light dark; --bg: #ffffff; --fg: #0f172a; --muted: #475569; --accent: #047857; --accent-fg: #ffffff; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b1210; --fg: #f1f5f9; --muted: #94a3b8; --accent: #34d399; --accent-fg: #052e22; } }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body { background: var(--bg); color: var(--fg); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 16px; overflow-x: hidden; }
+  main { max-width: 22rem; text-align: center; }
+  svg { width: 72px; height: 72px; }
+  h1 { font-size: 1.5rem; margin: 20px 0 8px; }
+  p { color: var(--muted); line-height: 1.5; margin: 0 0 24px; }
+  button { min-height: 44px; min-width: 44px; padding: 0 24px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-fg); font: inherit; font-weight: 600; cursor: pointer; }
+  [hidden] { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <linearGradient id="untungin-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#047857"/></linearGradient>
+      <linearGradient id="untungin-shine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".28"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    </defs>
+    <rect width="64" height="64" rx="15" fill="url(#untungin-bg)"/>
+    <rect width="64" height="64" rx="15" fill="url(#untungin-shine)"/>
+    <g fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 19v14a11.5 11.5 0 0 0 23 0V17"/><path d="M31.5 25.5 40 17l8.5 8.5"/></g>
+    <circle cx="17" cy="19" r="3.5" fill="#fde68a"/>
+  </svg>
+  <div id="id">
+    <h1>Kamu sedang offline</h1>
+    <p>Untungin butuh internet untuk menghitung dan menyimpan datamu. Sambungkan lagi lalu coba muat ulang.</p>
+    <button type="button" onclick="location.reload()">Muat ulang</button>
+  </div>
+  <div id="en" hidden>
+    <h1>You're offline</h1>
+    <p>Untungin needs the internet to calculate and save your data. Reconnect, then try again.</p>
+    <button type="button" onclick="location.reload()">Try again</button>
+  </div>
+</main>
+<script>
+  var en = (navigator.language || "").toLowerCase().indexOf("en") === 0;
+  document.documentElement.lang = en ? "en" : "id";
+  document.getElementById("en").hidden = !en;
+  document.getElementById("id").hidden = en;
+</script>
+</body>
+</html>

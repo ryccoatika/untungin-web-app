@@ -118,7 +118,10 @@
       "wasteNumber": "Enter waste as a number",
       "wasteMin": "Waste can't be negative",
       "wasteMax": "Waste must be less than 100%",
-      "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count)."
+      "unitInUse": "This unit is a different kind from the one used in product compositions. Choose the same kind (weight, volume, or count).",
+      "spoonWeightNumber": "Spoon weight must be a number, like 12 or 12.5",
+      "spoonWeightRange": "Spoon weight must be above 0 and at most 1000 grams",
+      "spoonWeightInUse": "This material is used with tbsp/tsp/glass in recipes. Enter the weight of 1 tbsp or change the recipes first."
     },
     "product": {
       "nameRequired": "Product name is required",
@@ -137,6 +140,7 @@
       "unitInvalid": "Choose a unit",
       "basisInvalid": "Choose how it is counted",
       "unitDimension": "This unit doesn't match the material (weight, volume, or count)",
+      "spoonWeightMissing": "First fill in the weight of 1 tbsp for this material on the Materials page.",
       "channelInvalid": "Choose an existing channel"
     },
     "price": {
@@ -325,9 +329,12 @@
     "ml": "millilitre (ml)",
     "l": "litre (l)",
     "pcs": "piece (pcs)",
-    "lusin": "dozen (12 pcs)"
+    "lusin": "dozen (12 pcs)",
+    "sdm": "tbsp (15 ml)",
+    "sdt": "tsp (5 ml)",
+    "gelas": "glass (250 ml)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen" },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "dozen", "sdm": "tbsp", "sdt": "tsp", "gelas": "glass" },
   "MaterialCategory": { "bahan": "Ingredient", "kemasan": "Packaging" },
   "Materials": {
     "title": "Materials & packaging",
@@ -343,6 +350,9 @@
     "purchasePrice": "Purchase price (Rp)",
     "wastePct": "Waste (%)",
     "wasteHint": "The part you throw away, such as peel or spills. Leave empty if none.",
+    "spoonWeight": "Weight of 1 tbsp (grams)",
+    "spoonWeightHint": "Fill this in if recipes use tbsp, tsp or glasses. For example: sugar ± 12 g, flour ± 8 g, salt ± 18 g.",
+    "spoonWeightShown": "1 tbsp = {grams} g",
     "costPreview": "Cost: {cost} per {unit}",
     "perBaseUnit": "{cost}/{unit}",
     "wasteValue": "waste {pct}",
@@ -437,6 +447,7 @@
     "noMaterials": "No materials to choose from yet.",
     "goToMaterials": "Add materials first",
     "rowCost": "{cost}/unit",
+    "spoonWeightMissing": "First fill in the weight of 1 tbsp for {material} on the <link>Materials page</link>.",
     "deleteRow": "Remove {material} from the composition",
     "channel": "Used in",
     "allChannels": "All channels",
@@ -625,5 +636,12 @@
     "rightsTitle": "Your rights",
     "rightsBody": "You can see, correct and delete your data, as Indonesia's Personal Data Protection Law provides. Most of it you can do in the app; for anything else, contact <mail>{email}</mail>.",
     "link": "Privacy policy"
+  },
+  "Install": {
+    "title": "Install Untungin on your phone",
+    "body": "Open it like an app, straight from your home screen.",
+    "button": "Install app",
+    "unsupported": "Open in Chrome to install",
+    "iosSteps": "Tap the Share button, then choose Add to Home Screen."
   }
 }

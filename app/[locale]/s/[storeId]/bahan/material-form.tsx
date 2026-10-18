@@ -10,13 +10,13 @@ import { useRemountKey } from "@/components/forms/use-remount-key";
 import { MoneyInput } from "@/components/forms/money-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BASE_UNIT, dimensionOf, MATERIAL_CATEGORIES, UNITS, unitCost } from "@/lib/calc";
+import { BASE_UNIT, dimensionOf, isUnit, MATERIAL_CATEGORIES, UNITS, unitCost } from "@/lib/calc";
 import { formatRupiah } from "@/lib/format";
 import type { FormAction } from "@/lib/forms";
 import { materialInputSchema } from "@/lib/validation/material";
 
 export type MaterialFormDefaults = Partial<
-  Record<"name" | "category" | "purchaseQty" | "purchaseUnit" | "purchasePrice" | "wastePct", string>
+  Record<"name" | "category" | "purchaseQty" | "purchaseUnit" | "purchasePrice" | "wastePct" | "gramsPerSdm", string>
 >;
 
 type Props = { action: FormAction; defaults?: MaterialFormDefaults; submitLabel: string; pendingLabel: string; id?: string };
@@ -49,6 +49,10 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
     return t("costPreview", { cost: formatRupiah(unitCost(parsed.data), locale, 2), unit });
   }
 
+  const [unit, setUnit] = useState(defaults.purchaseUnit ?? "kg");
+  // The spoon weight is kept while the unit is not a weight unit, so switching units back and forth never wipes it.
+  const [spoon, setSpoon] = useState(defaults.gramsPerSdm ?? "");
+  const weightUnit = isUnit(unit) && dimensionOf(unit) === "mass";
   const [cost, setCost] = useState(() => preview(defaults));
   function onChange(event: FormEvent<HTMLFieldSetElement>) {
     const form = event.currentTarget.form;
@@ -80,10 +84,10 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
         </div>
         <div className="space-y-1">
           <Label htmlFor="material-unit">{t("purchaseUnit")}</Label>
-          <NativeSelect id="material-unit" name="purchaseUnit" defaultValue={defaults.purchaseUnit ?? "kg"}>
-            {UNITS.map((unit) => (
-              <option key={unit} value={unit}>
-                {tUnits(unit)}
+          <NativeSelect id="material-unit" name="purchaseUnit" defaultValue={defaults.purchaseUnit ?? "kg"} onChange={(event) => setUnit(event.target.value)}>
+            {UNITS.map((option) => (
+              <option key={option} value={option}>
+                {tUnits(option)}
               </option>
             ))}
           </NativeSelect>
@@ -94,6 +98,23 @@ function MaterialFields({ defaults, errors }: { defaults: MaterialFormDefaults; 
           <FieldError errors={errors.purchaseUnit} />
         </div>
       </div>
+      {weightUnit ? (
+        <div className="space-y-1">
+          <Label htmlFor="material-spoon-weight">{t("spoonWeight")}</Label>
+          <Input
+            id="material-spoon-weight"
+            name="gramsPerSdm"
+            inputMode="decimal"
+            defaultValue={spoon}
+            onChange={(event) => setSpoon(event.target.value)}
+            placeholder="12"
+          />
+          <p className="text-xs text-muted-foreground">{t("spoonWeightHint")}</p>
+          <FieldError errors={errors.gramsPerSdm} />
+        </div>
+      ) : (
+        <input type="hidden" name="gramsPerSdm" value={spoon} />
+      )}
       <div className="space-y-1">
         <Label htmlFor="material-price">{t("purchasePrice")}</Label>
         <MoneyInput id="material-price" name="purchasePrice" defaultValue={defaults.purchasePrice} placeholder={t("pricePlaceholder")} />

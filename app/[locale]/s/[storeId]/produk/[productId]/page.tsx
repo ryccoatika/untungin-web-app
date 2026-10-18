@@ -5,7 +5,7 @@ import { DeleteButton } from "@/components/forms/delete-button";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
-import { mapById, sameDimension, toBase, tryAnalyzeStore, unitCost } from "@/lib/calc";
+import { CalcError, mapById, recipeQtyInBase, tryAnalyzeStore, unitCost } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { formatNumber, formatPercent } from "@/lib/format";
 import {
@@ -37,8 +37,15 @@ export default async function ProductPage({ params }: { params: Params }) {
     .filter((row) => row.productId === product.id)
     .map((row) => {
       const material = materials.get(row.materialId);
-      const usable = material && sameDimension(row.unit, material.purchaseUnit);
-      const perBatch = usable ? toBase(row.qty, row.unit) * unitCost(material) : 0;
+      // A row that cannot convert (the page also shows the calc error) costs 0 here.
+      let perBatch = 0;
+      if (material) {
+        try {
+          perBatch = recipeQtyInBase(row.qty, row.unit, material) * unitCost(material);
+        } catch (error) {
+          if (!(error instanceof CalcError)) throw error;
+        }
+      }
       return {
         id: row.id,
         materialId: row.materialId,
@@ -110,7 +117,13 @@ export default async function ProductPage({ params }: { params: Params }) {
           <CompositionEditor
             rows={rows}
             channels={data.channels.map(({ id, name }) => ({ id, name }))}
-            materials={data.materials.map(({ id, name, category, purchaseUnit }) => ({ id, name, category, purchaseUnit }))}
+            materials={data.materials.map(({ id, name, category, purchaseUnit, gramsPerSdm }) => ({
+              id,
+              name,
+              category,
+              purchaseUnit,
+              gramsPerSdm: gramsPerSdm ?? null,
+            }))}
             addAction={addCompositionRowAction.bind(null, data.store.id, product.id)}
             updateActions={Object.fromEntries(
               rows.map((row) => [row.id, updateCompositionRowAction.bind(null, data.store.id, product.id, row.id)]),

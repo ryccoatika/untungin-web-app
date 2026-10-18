@@ -118,7 +118,10 @@
       "wasteNumber": "Isi susut dengan angka",
       "wasteMin": "Susut tidak boleh negatif",
       "wasteMax": "Susut harus kurang dari 100%",
-      "unitInUse": "Satuan ini beda jenis dengan yang dipakai di komposisi produk. Pilih satuan sejenis (berat, volume, atau jumlah)."
+      "unitInUse": "Satuan ini beda jenis dengan yang dipakai di komposisi produk. Pilih satuan sejenis (berat, volume, atau jumlah).",
+      "spoonWeightNumber": "Berat sendok harus berupa angka, misalnya 12 atau 12,5",
+      "spoonWeightRange": "Berat sendok harus lebih dari 0 dan paling banyak 1000 gram",
+      "spoonWeightInUse": "Bahan ini dipakai dengan sdm/sdt/gelas di resep. Isi berat 1 sdm atau ubah resepnya dulu."
     },
     "product": {
       "nameRequired": "Nama produk wajib diisi",
@@ -137,6 +140,7 @@
       "unitInvalid": "Pilih satuan",
       "basisInvalid": "Pilih cara hitung",
       "unitDimension": "Satuan tidak cocok dengan bahan ini (berat, volume, atau jumlah)",
+      "spoonWeightMissing": "Isi dulu berat 1 sdm untuk bahan ini di halaman Bahan.",
       "channelInvalid": "Pilih kanal yang ada"
     },
     "price": {
@@ -325,9 +329,12 @@
     "ml": "mililiter (ml)",
     "l": "liter (l)",
     "pcs": "buah (pcs)",
-    "lusin": "lusin (12 pcs)"
+    "lusin": "lusin (12 pcs)",
+    "sdm": "sdm (15 ml)",
+    "sdt": "sdt (5 ml)",
+    "gelas": "gelas (250 ml)"
   },
-  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin" },
+  "UnitShort": { "g": "g", "ons": "ons", "kg": "kg", "ml": "ml", "l": "l", "pcs": "pcs", "lusin": "lusin", "sdm": "sdm", "sdt": "sdt", "gelas": "gelas" },
   "MaterialCategory": { "bahan": "Bahan baku", "kemasan": "Kemasan" },
   "Materials": {
     "title": "Bahan & kemasan",
@@ -343,6 +350,9 @@
     "purchasePrice": "Harga beli (Rp)",
     "wastePct": "Susut / terbuang (%)",
     "wasteHint": "Bagian yang terbuang, misalnya kulit atau tumpah. Kosongkan jika tidak ada.",
+    "spoonWeight": "Berat 1 sdm (gram)",
+    "spoonWeightHint": "Isi kalau resep memakai sdm, sdt, atau gelas. Contoh: gula pasir ± 12 g, tepung terigu ± 8 g, garam ± 18 g.",
+    "spoonWeightShown": "1 sdm = {grams} g",
     "costPreview": "Biaya: {cost} per {unit}",
     "perBaseUnit": "{cost}/{unit}",
     "wasteValue": "susut {pct}",
@@ -437,6 +447,7 @@
     "noMaterials": "Belum ada bahan untuk dipilih.",
     "goToMaterials": "Tambah bahan dulu",
     "rowCost": "{cost}/porsi",
+    "spoonWeightMissing": "Isi dulu berat 1 sdm untuk {material} di <link>halaman Bahan</link>.",
     "deleteRow": "Hapus {material} dari komposisi",
     "channel": "Dipakai di",
     "allChannels": "Semua kanal",
@@ -625,5 +636,12 @@
     "rightsTitle": "Hak kamu",
     "rightsBody": "Kamu berhak melihat, membetulkan, dan menghapus datamu, sesuai UU Pelindungan Data Pribadi. Sebagian besar bisa langsung kamu lakukan di aplikasi; untuk hal lain, hubungi <mail>{email}</mail>.",
     "link": "Kebijakan privasi"
+  },
+  "Install": {
+    "title": "Pasang Untungin di HP",
+    "body": "Buka seperti aplikasi, langsung dari layar utama.",
+    "button": "Pasang aplikasi",
+    "unsupported": "Buka lewat Chrome untuk memasang",
+    "iosSteps": "Ketuk tombol Bagikan, lalu pilih Tambah ke Layar Utama."
   }
 }

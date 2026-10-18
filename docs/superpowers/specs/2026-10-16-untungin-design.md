@@ -180,7 +180,9 @@ Pure functions, no database/network access. Input = a complete store data object
 | volume | ml | ml, l (=1000 ml) |
 | count | pcs | pcs, lusin (=12 pcs) |
 
-`toBase(qty, unit)` and `sameDimension(unitA, unitB)`. Household units (sdm, sdt, gelas) are not supported in v1.
+`toBase(qty, unit)` and `sameDimension(unitA, unitB)`.
+
+Recipe-only household units: a composition row may also use `sdm` (level tablespoon, 15 ml), `sdt` (teaspoon, 5 ml) and `gelas` (glass, 250 ml) for volume and weight materials; materials themselves are still bought in the units above. For a volume material the row converts straight to ml. For a weight material it needs `materials.grams_per_sdm` (the weight of 1 sdm, more than 0 up to 1000 g, set on the material form): grams = ml / 15 × `grams_per_sdm`. Count materials do not take household units. A material cannot lose its spoon weight, or switch to a count unit, while recipes use household units; a row without the spoon weight is refused. `recipeQtyInBase(qty, unit, material)` does the conversion.
 
 ### 4.2 Formulas
 
@@ -440,6 +442,7 @@ Every phase can be deployed. One implementation plan per phase.
    Phase 6 notes: the chart shows each product's monthly contribution (Σ (net price − material cost) × estimated sales; products without an estimate are left out; at most 8 bars, the largest by size); 3D labels are canvas sprites, the 2D view and the product table are the accessible form; "store created" is flagged with `?welcome=1` on the redirect, "first profit" is remembered per store in localStorage; 3D empty states only on `simulasi` and `analisis`; Three.js loads only through `next/dynamic` in 3D mode.
 7. **Finishing**: sample data, privacy page, polish, production deploy.
    Phase 7 notes: the sample store is "Kedai Kopi Contoh" / "Sample Coffee Shop" (a numbered name if it already exists), seeded with the user's client and removed again if any insert fails; account deletion lives in Store settings, is confirmed by typing the account email, deletes the auth user (everything cascades) and signs out; anon has no table access and authenticated has no TRUNCATE/TRIGGER/REFERENCES; Rupiah inputs show grouped digits after leaving the field; the privacy page names Rycco Atika (me@ryccoatika.com) as operator.
+8. **Post-v1 notes**: household recipe units (sdm, sdt, gelas) with a per-material spoon weight (§4.1).
 
 ## 11. Manual Setup (done by the project owner)
 
@@ -456,6 +459,5 @@ Every phase can be deployed. One implementation plan per phase.
 - Multiple store members & roles
 - Payment gateway / Pro subscription
 - Service businesses & resellers as a dedicated product type
-- Household units (sdm, sdt, gelas)
 - PDF/Excel export
 - Native mobile app

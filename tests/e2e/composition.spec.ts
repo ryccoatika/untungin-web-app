@@ -19,7 +19,14 @@ const row = (page: Page, material: string) => page.getByRole("listitem").filter(
 test("offers only units of the material's kind and a sensible basis", async ({ page }) => {
   const form = page.locator("#add-composition");
   await form.getByLabel("Bahan", { exact: true }).selectOption({ label: "Gula" });
-  await expect(form.getByLabel("Satuan").locator("option")).toHaveText(["gram (g)", "ons (100 g)", "kilogram (kg)"]);
+  await expect(form.getByLabel("Satuan").locator("option")).toHaveText([
+    "gram (g)",
+    "ons (100 g)",
+    "kilogram (kg)",
+    "sdm (15 ml)",
+    "sdt (5 ml)",
+    "gelas (250 ml)",
+  ]);
   await expect(form.getByLabel("Satuan")).toHaveValue("g");
   await expect(form.getByLabel("Dihitung")).toHaveValue("batch");
 

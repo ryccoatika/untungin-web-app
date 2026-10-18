@@ -40,6 +40,7 @@ export default async function EditMaterialPage({ params }: { params: Params }) {
               purchaseUnit: material.purchaseUnit,
               purchasePrice: String(material.purchasePrice),
               wastePct: String(material.wastePct),
+              gramsPerSdm: material.gramsPerSdm == null ? "" : String(material.gramsPerSdm),
             }}
             submitLabel={tCommon("save")}
             pendingLabel={tCommon("savePending")}

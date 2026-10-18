@@ -22,6 +22,21 @@ describe("materialCostPerUnit", () => {
     expect(costFor("offline", data)).toBeCloseTo(5500, 6);
   });
 
+  it("costs 2 sdm of a weight material like its gram equivalent", () => {
+    const data = fixture();
+    data.materials[0] = { ...data.materials[0], gramsPerSdm: 12 };
+    data.composition[0] = { ...data.composition[0], qty: 2, unit: "sdm" };
+    const spoons = costFor("offline", data);
+    data.composition[0] = { ...data.composition[0], qty: 24, unit: "g" };
+    expect(spoons).toBeCloseTo(costFor("offline", data), 9);
+  });
+
+  it("throws SPOON_WEIGHT_MISSING with the product and material ids", () => {
+    const data = fixture();
+    data.composition[0] = { ...data.composition[0], qty: 2, unit: "sdm" };
+    expect(() => costFor("offline", data)).toThrow(expect.objectContaining({ code: "SPOON_WEIGHT_MISSING", productId: "eskopi", materialId: "kopi" }));
+  });
+
   it("is 0 for a product without composition", () => {
     const data = fixture();
     data.composition = [];

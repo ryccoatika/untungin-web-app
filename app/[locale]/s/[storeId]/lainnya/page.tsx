@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { InstallCard } from "@/components/pwa/install-card";
 import { Link } from "@/i18n/navigation";
 import { getStore } from "@/lib/data/stores";
 import { moreNavItems } from "@/lib/nav";
@@ -13,6 +14,7 @@ export default async function MorePage({ params }: { params: Promise<{ locale: s
   return (
     <div className="max-w-xl space-y-4">
       <h1 className="text-2xl font-semibold">{t("nav.more")}</h1>
+      <InstallCard />
       <ul className="space-y-2">
         {moreNavItems(store.id).map((entry) => (
           <li key={entry.href}>

@@ -47,6 +47,8 @@ export default async function MaterialsPage({ params }: { params: Promise<{ loca
                     {tCategory(material.category)} · {formatNumber(material.purchaseQty, locale)} {tUnit(material.purchaseUnit)} ·{" "}
                     {formatRupiah(material.purchasePrice, locale)}
                     {material.wastePct > 0 && ` · ${t("wasteValue", { pct: formatPercent(material.wastePct, locale) })}`}
+                    {material.gramsPerSdm != null && dimensionOf(material.purchaseUnit) === "mass" &&
+                      ` · ${t("spoonWeightShown", { grams: formatNumber(material.gramsPerSdm, locale) })}`}
                   </span>
                 </span>
                 <span className="shrink-0 text-right text-sm font-medium">

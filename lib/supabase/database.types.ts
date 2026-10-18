@@ -91,14 +91,14 @@ isOneToOne: false
                   ]
                 },"materials": {
                   Row: {
-                    "category": string,"created_at": string,"id": string,"name": string,"purchase_price": number,"purchase_qty": number,"purchase_unit": string,"store_id": string,"waste_pct": number
+                    "category": string,"created_at": string,"grams_per_sdm": number | null,"id": string,"name": string,"purchase_price": number,"purchase_qty": number,"purchase_unit": string,"store_id": string,"waste_pct": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "category": string,"created_at"?: string,"id"?: string,"name": string,"purchase_price": number,"purchase_qty": number,"purchase_unit": string,"store_id": string,"waste_pct"?: number
+                    "category": string,"created_at"?: string,"grams_per_sdm"?: number | null,"id"?: string,"name": string,"purchase_price": number,"purchase_qty": number,"purchase_unit": string,"store_id": string,"waste_pct"?: number
                   }
                   Update: {
-                    "category"?: string,"created_at"?: string,"id"?: string,"name"?: string,"purchase_price"?: number,"purchase_qty"?: number,"purchase_unit"?: string,"store_id"?: string,"waste_pct"?: number
+                    "category"?: string,"created_at"?: string,"grams_per_sdm"?: number | null,"id"?: string,"name"?: string,"purchase_price"?: number,"purchase_qty"?: number,"purchase_unit"?: string,"store_id"?: string,"waste_pct"?: number
                   }
                   Relationships: [
                     {

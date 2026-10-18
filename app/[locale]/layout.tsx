@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
 import { ThemeProvider, THEME_COLORS } from "@/components/theme-provider";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
@@ -25,7 +26,11 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "Metadata" });
-  return { title: t("title"), description: t("description") };
+  return {
+    title: t("title"),
+    description: t("description"),
+    appleWebApp: { capable: true, title: "Untungin", statusBarStyle: "default" },
+  };
 }
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
@@ -43,6 +48,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>
           <ThemeProvider>{children}</ThemeProvider>
+          <RegisterServiceWorker />
         </NextIntlClientProvider>
       </body>
     </html>
