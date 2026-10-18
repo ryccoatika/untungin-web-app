@@ -89,6 +89,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"consents": {
+                  Row: {
+                    "accepted_at": string,"id": string,"kind": string,"user_id": string,"version": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string,"id"?: string,"kind": string,"user_id": string,"version": string
+                  }
+                  Update: {
+                    "accepted_at"?: string,"id"?: string,"kind"?: string,"user_id"?: string,"version"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"materials": {
                   Row: {
                     "category": string,"created_at": string,"grams_per_sdm": number | null,"id": string,"name": string,"purchase_price": number,"purchase_qty": number,"purchase_unit": string,"store_id": string,"waste_pct": number

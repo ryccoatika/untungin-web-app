@@ -19,7 +19,7 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
 
 ## 2. Supabase (production project)
 1. Create the project (region: Singapore, closest to Indonesia). Save the database password in your password manager.
-2. Link and push the migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`. It applies them in filename order. Confirm all 12 files in `supabase/migrations/` (`20261016000001_core.sql` through `20261018000005_delete_sales_day.sql`) are listed as applied: `npx supabase migration list`.
+2. Link and push the migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`. It applies them in filename order. Confirm all 13 files in `supabase/migrations/` (`20261016000001_core.sql` through `20261018000006_consents.sql`) are listed as applied: `npx supabase migration list`.
    - Never run `db reset` against this project: it wipes all data.
 3. Auth → Providers: enable **Google** (client id + *secret* from section 1); **disable Email**. The e2e sign-in helper relies on Email locally; production must not offer it.
 4. Auth → URL configuration: Site URL `https://untungin.ryccoatika.com`; Redirect URLs `https://untungin.ryccoatika.com/**` (add `https://<project>-*.vercel.app/**` only if you use preview deployments).
@@ -36,6 +36,12 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
      and grantee in ('anon', 'authenticated') and privilege_type = 'UPDATE'
    order by 1;
 
+   select column_name
+   from information_schema.column_privileges
+   where table_schema = 'public' and table_name = 'consents'
+     and grantee in ('anon', 'authenticated') and privilege_type = 'INSERT'
+   order by 1;
+
    select routine_name, grantee
    from information_schema.role_routine_grants
    where routine_schema = 'public' and grantee in ('anon', 'authenticated', 'PUBLIC')
@@ -43,8 +49,9 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
    ```
    Expect exactly:
    - Tables, `anon`: no rows.
-   - Tables, `authenticated`: `DELETE,INSERT,SELECT,UPDATE` on `assets`, `materials`, `operating_expenses`, `product_channel_prices`, `product_materials`, `products`, `purchases`, `sales_channels`, `sales_days`, `sales_lines`, `stores`; `SELECT` only on `ai_analyses`, `ai_usage`, `profiles`.
+   - Tables, `authenticated`: `DELETE,INSERT,SELECT,UPDATE` on `assets`, `materials`, `operating_expenses`, `product_channel_prices`, `product_materials`, `products`, `purchases`, `sales_channels`, `sales_days`, `sales_lines`, `stores`; `SELECT` only on `ai_analyses`, `ai_usage`, `consents`, `profiles`.
    - `profiles` column `UPDATE`: `full_name` and `locale`.
+- `consents` column `INSERT`: `kind`, `user_id` and `version` only (not `accepted_at`: the database sets it). The table query lists `SELECT` only, because the insert is a column grant.
    - Functions, `authenticated` only: `close_sales_day`, `create_store`, `delete_sales_day`, `delete_sales_line`, `is_store_owner`, `save_purchase`, `save_sales_day`. `handle_new_user` also lists `PUBLIC` and `anon`; that is expected, since a trigger function cannot be called directly.
 6. Advisors → Security Advisor: no errors. (Warnings about the Email provider being off or leaked-password protection don't apply to Google-only sign-in.)
 7. Note the project URL, the publishable key and the *secret* key (Settings → API Keys).
