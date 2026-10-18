@@ -804,9 +804,9 @@
       "dayDeleted": "This date's record was deleted.",
       "errorInvalid": "Invalid data. Reload the page and try again.",
       "errorDate": "That date is out of range. You can record from {min} up to today.",
-      "calcError": "A recipe in {product} has a unit that does not fit, so sales can't be saved yet. Fix it on the product page first.",
-      "calcErrorShort": "A recipe in {product} has a unit that does not fit, so the numbers can't be calculated yet.",
-      "calcErrorAction": "Fix it"
+      "calcSkipped": "A recipe in {product} has a unit that does not fit, so {product} can't be recorded yet. Other products can.",
+      "calcErrorAction": "Fix it",
+      "leaveConfirm": "Your changed counts aren't saved yet. Leave without saving?"
     },
     "purchases": {
       "heading": "Record purchases",
@@ -888,7 +888,7 @@
       "beforeTitle": "You started recording on {date}",
       "beforeBody": "Nothing is recorded in this month. The report starts from the first month you recorded.",
       "beforeAction": "Go to the first month",
-      "calcError": "A composition row in {product} uses a unit that doesn't match its material, so the report can't be calculated yet.",
+      "calcSkipped": "A recipe in {product} has a unit that does not fit, so the plan comparison is hidden until it's fixed. Its recorded sales still count.",
       "calcErrorAction": "Fix it"
     }
   }

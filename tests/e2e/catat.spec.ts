@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, createStoreViaOnboarding, signIn, storeIdFromUrl, storeUrl } from "./helpers";
+import { adminClient, breakRecipe, createStoreViaOnboarding, jakartaDay as day, signIn, storeIdFromUrl, storeUrl, waitPastJakartaMidnight } from "./helpers";
 
 const KOPI = "Es kopi susu gula aren";
 const OFFLINE = "Offline – Tunai";
@@ -14,17 +14,15 @@ async function createSampleStore(page: Page) {
   if (error) throw error;
 }
 
-/** The Asia/Jakarta calendar day, `offset` days from today. */
-function day(offset = 0): string {
-  const jakarta = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
-  const ms = Date.UTC(+jakarta.slice(0, 4), +jakarta.slice(5, 7) - 1, +jakarta.slice(8, 10)) + offset * 86_400_000;
-  return new Date(ms).toISOString().slice(0, 10);
-}
-
 /** "8 Okt": the banner's date format. */
 function shortDay(date: string): string {
   return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
+
+// "Today" here and on the server must be the same Jakarta day for the whole test.
+test.beforeEach(async () => {
+  await waitPastJakartaMidnight();
+});
 
 const qtyField = (page: Page, product: string) => page.getByRole("textbox", { name: `Jumlah ${product}` });
 const plus = (page: Page, product: string) => page.getByRole("button", { name: `Tambah ${product}` });
@@ -216,7 +214,7 @@ test("deleted product's line stays read-only", async ({ page }) => {
   await expect(page.getByTestId("day-revenue")).toHaveText("Rp0");
 });
 
-test("calc error blocks saving", async ({ page }) => {
+test("a recipe broken while the screen is open: saving names the product", async ({ page }) => {
   await createSampleStore(page);
   const storeId = storeIdFromUrl(page);
   await page.goto(storeUrl(page, "catat"));
@@ -235,13 +233,14 @@ test("calc error blocks saving", async ({ page }) => {
   expect(error).toBeNull();
 
   await page.getByRole("button", { name: "Simpan", exact: true }).click();
-  await expect(page.getByRole("alert").filter({ hasText: /penjualan belum bisa disimpan/ })).toContainText("Es americano");
-  // Nothing was saved, and a fresh page says what to fix instead of offering the form.
-  await page.reload();
-  await expect(page.getByRole("alert").filter({ hasText: /belum bisa dihitung/ })).toContainText("Es americano");
-  await expect(page.getByRole("button", { name: "Simpan", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("alert").filter({ hasText: /belum bisa dicatat/ })).toContainText("Es americano");
   const { count } = await admin.from("sales_days").select("id", { count: "exact", head: true }).eq("store_id", storeId);
   expect(count).toBe(0);
+  // A fresh page leaves the product out and still offers the others.
+  await page.reload();
+  await expect(page.getByRole("alert").filter({ hasText: /belum bisa dicatat/ })).toContainText("Es americano");
+  await expect(qtyField(page, "Es americano")).toHaveCount(0);
+  await expect(qtyField(page, KOPI)).toBeVisible();
 });
 
 test("another user's store is 404 for /catat", async ({ browser }) => {
@@ -418,3 +417,67 @@ test("counts are locked while a save is in flight", async ({ page }) => {
   await expect(page.getByText("Penjualan tersimpan.")).toBeVisible();
   await expect(qtyField(page, KOPI)).toBeEnabled();
 });
+
+test("asks before leaving with unsaved counts", async ({ page }) => {
+  await createSampleStore(page);
+  await page.goto(storeUrl(page, "catat"));
+  const dialogs: string[] = [];
+  let answer: "dismiss" | "accept" = "dismiss";
+  page.on("dialog", (dialog) => {
+    dialogs.push(dialog.message());
+    void (answer === "accept" ? dialog.accept() : dialog.dismiss());
+  });
+
+  // Nothing changed yet: links leave without asking.
+  await page.getByRole("link", { name: "Belanja", exact: true }).click();
+  await expect(page).toHaveURL(/\/catat\/belanja$/);
+  await page.getByRole("link", { name: "Penjualan", exact: true }).click();
+  await expect(page).toHaveURL(/\/catat$/);
+  expect(dialogs).toEqual([]);
+
+  await plus(page, KOPI).click();
+  await page.getByRole("link", { name: "Belanja", exact: true }).click();
+  expect(dialogs).toEqual(["Jumlah yang kamu ubah belum disimpan. Tinggalkan tanpa menyimpan?"]);
+  await expect(page).toHaveURL(/\/catat$/);
+  await expect(qtyField(page, KOPI)).toHaveValue("1");
+
+  // The date picker asks too, and a declined change keeps the day.
+  await page.getByLabel("Tanggal").fill(day(-1));
+  expect(dialogs).toHaveLength(2);
+  await expect(page).toHaveURL(/\/catat$/);
+  await expect(page.getByLabel("Tanggal")).toHaveValue(day());
+
+  // Saved counts leave freely.
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Penjualan tersimpan.")).toBeVisible();
+  await page.getByRole("link", { name: "Belanja", exact: true }).click();
+  await expect(page).toHaveURL(/\/catat\/belanja$/);
+  expect(dialogs).toHaveLength(2);
+
+  // Agreeing to leave drops the change.
+  await page.getByRole("link", { name: "Penjualan", exact: true }).click();
+  await plus(page, KOPI).click();
+  answer = "accept";
+  await page.getByRole("link", { name: "Belanja", exact: true }).click();
+  await expect(page).toHaveURL(/\/catat\/belanja$/);
+  expect(dialogs).toHaveLength(3);
+  await page.goto(storeUrl(page, "catat"));
+  await expect(qtyField(page, KOPI)).toHaveValue("1");
+});
+
+test("a product whose recipe needs fixing is left out; the others can still be recorded", async ({ page }) => {
+  await createSampleStore(page);
+  await breakRecipe(page, KOPI);
+  await page.goto(storeUrl(page, "catat"));
+
+  const alert = page.getByRole("alert").filter({ hasText: /belum bisa dicatat/ });
+  await expect(alert).toContainText(`jadi ${KOPI} belum bisa dicatat`);
+  await expect(alert.getByRole("link", { name: "Perbaiki" })).toHaveAttribute("href", /\/produk\/[0-9a-f-]{36}$/);
+  await expect(qtyField(page, KOPI)).toHaveCount(0);
+  await qtyField(page, "Es teh manis").fill("4");
+  await page.getByRole("button", { name: "Simpan", exact: true }).click();
+  await expect(page.getByText("Penjualan tersimpan.")).toBeVisible();
+  await page.reload();
+  await expect(qtyField(page, "Es teh manis")).toHaveValue("4");
+});
+

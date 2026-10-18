@@ -8,7 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { tryAnalyzeStore } from "@/lib/calc";
+import { analyzeStoreSkipping } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { loadFirstRecordDate, loadPurchases, loadSalesRange } from "@/lib/data/records";
 import { formatDay, formatDayRange, formatMonth, formatNumber, formatRupiah } from "@/lib/format";
@@ -54,9 +54,10 @@ export default async function ReportPage({ params, searchParams }: Props) {
     loadSalesRange(storeId, monthStart, monthEnd),
     loadPurchases(storeId, monthStart, monthEnd),
   ]);
-  const { analysis, error } = tryAnalyzeStore(data);
+  // Actual figures come from the saved snapshots, so a product whose recipe needs fixing only drops out of the plan.
+  const { analysis, skipped } = analyzeStoreSkipping(data);
   const report =
-    analysis && firstRecord !== null && monthEnd >= firstRecord
+    firstRecord !== null && monthEnd >= firstRecord
       ? monthReport({ month, today, firstRecord, days: range.days, lines: range.lines, analysis, data })
       : null;
 
@@ -100,16 +101,16 @@ export default async function ReportPage({ params, searchParams }: Props) {
       <h1 className="text-2xl font-semibold">{t("heading")}</h1>
       {switcher}
 
-      {error && (
-        <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm [overflow-wrap:anywhere]">
-          {t("calcError", { product: data.products.find((p) => p.id === error.productId)?.name ?? "?" })}{" "}
+      {skipped.map((error) => (
+        <p key={error.productId} role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm [overflow-wrap:anywhere]">
+          {t("calcSkipped", { product: data.products.find((p) => p.id === error.productId)?.name ?? "?" })}{" "}
           <Link href={`/s/${storeId}/produk/${error.productId}`} className="font-medium underline underline-offset-4">
             {t("calcErrorAction")}
           </Link>
         </p>
-      )}
+      ))}
 
-      {!report && !error && firstRecord !== null && (
+      {!report && firstRecord !== null && (
         <EmptyState title={t("beforeTitle", { date: formatDay(firstRecord, locale, true) })} body={t("beforeBody")} illustration={<EmptyIllustration />}>
           <Link href={`/s/${storeId}/laporan?bulan=${monthOf(firstRecord)}`} className={buttonVariants()}>
             {t("beforeAction")}
@@ -117,7 +118,7 @@ export default async function ReportPage({ params, searchParams }: Props) {
         </EmptyState>
       )}
 
-      {!report && !error && firstRecord === null && (
+      {!report && firstRecord === null && (
         <EmptyState title={t("emptyTitle")} body={t("emptyBody")} illustration={<EmptyIllustration />}>
           <Link href={`/s/${storeId}/catat`} className={buttonVariants()}>
             {t("emptyAction")}
@@ -194,7 +195,8 @@ export default async function ReportPage({ params, searchParams }: Props) {
             </CardContent>
           </Card>
 
-          {report.plannedNetProfit !== null && (
+          {/* Without every product the plan would read low, so the comparison waits for the fix. */}
+          {report.plannedNetProfit !== null && skipped.length === 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>{t("planTitle")}</CardTitle>

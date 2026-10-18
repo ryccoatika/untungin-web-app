@@ -804,9 +804,9 @@
       "dayDeleted": "Catatan tanggal ini dihapus.",
       "errorInvalid": "Data tidak valid. Muat ulang halaman lalu coba lagi.",
       "errorDate": "Tanggal itu di luar batas. Kamu bisa mencatat dari {min} sampai hari ini.",
-      "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi penjualan belum bisa disimpan. Perbaiki dulu di halaman produk.",
-      "calcErrorShort": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi angkanya belum bisa dihitung.",
-      "calcErrorAction": "Perbaiki"
+      "calcSkipped": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi {product} belum bisa dicatat. Produk lain tetap bisa.",
+      "calcErrorAction": "Perbaiki",
+      "leaveConfirm": "Jumlah yang kamu ubah belum disimpan. Tinggalkan tanpa menyimpan?"
     },
     "purchases": {
       "heading": "Catat belanja",
@@ -888,7 +888,7 @@
       "beforeTitle": "Kamu mulai mencatat pada {date}",
       "beforeBody": "Belum ada catatan di bulan ini. Laporan dimulai dari bulan pertama kamu mencatat.",
       "beforeAction": "Ke bulan pertama",
-      "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi laporannya belum bisa dihitung.",
+      "calcSkipped": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi perbandingan dengan rencana disembunyikan sampai diperbaiki. Penjualannya yang sudah tercatat tetap dihitung.",
       "calcErrorAction": "Perbaiki"
     }
   }

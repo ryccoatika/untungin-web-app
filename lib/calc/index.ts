@@ -43,3 +43,23 @@ export function tryAnalyzeStore(data: StoreData): AnalysisResult {
     throw error;
   }
 }
+
+export type PartialAnalysis = { analysis: StoreAnalysis; skipped: CalcError[] };
+
+/**
+ * analyzeStore that sets aside each product whose recipe cannot be costed (treated as inactive), so recorded sales
+ * still add up. The plan figures then leave those products out; pages say which products were skipped.
+ */
+export function analyzeStoreSkipping(data: StoreData): PartialAnalysis {
+  const skipped: CalcError[] = [];
+  let current = data;
+  for (;;) {
+    try {
+      return { analysis: analyzeStore(current), skipped };
+    } catch (error) {
+      if (!(error instanceof CalcError) || skipped.some((e) => e.productId === error.productId)) throw error;
+      skipped.push(error);
+      current = { ...current, products: current.products.map((p) => (p.id === error.productId ? { ...p, isActive: false } : p)) };
+    }
+  }
+}

@@ -1,18 +1,16 @@
 import { expect, test, type Page } from "@playwright/test";
-import { addMaterial, createStoreViaOnboarding, signIn, storeUrl } from "./helpers";
-
-/** The Asia/Jakarta calendar day, `offset` days from today. */
-function day(offset = 0): string {
-  const jakarta = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
-  const ms = Date.UTC(+jakarta.slice(0, 4), +jakarta.slice(5, 7) - 1, +jakarta.slice(8, 10)) + offset * 86_400_000;
-  return new Date(ms).toISOString().slice(0, 10);
-}
+import { addMaterial, createStoreViaOnboarding, jakartaDay as day, signIn, storeUrl, waitPastJakartaMidnight } from "./helpers";
 
 function shortDay(date: string): string {
   return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
 
 const form = (page: Page) => page.locator("#purchase-form");
+
+// "Today" here and on the server must be the same Jakarta day for the whole test.
+test.beforeEach(async () => {
+  await waitPastJakartaMidnight();
+});
 
 async function openBelanja(page: Page) {
   await page.goto(storeUrl(page, "catat/belanja"));

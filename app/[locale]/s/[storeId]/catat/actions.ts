@@ -2,7 +2,7 @@
 
 import { getLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/auth/require-user";
-import { tryAnalyzeStore } from "@/lib/calc";
+import { analyzeStoreSkipping } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { revalidateStore } from "@/lib/data/revalidate";
 import { formatDay } from "@/lib/format";
@@ -38,13 +38,12 @@ export async function saveSalesDayAction(storeId: string, date: string, counts: 
 
   const data = await loadStoreData(storeId);
   if (!data) return fail(tCommon("notFound"));
-  const { analysis, error } = tryAnalyzeStore(data);
-  if (error) {
-    const product = data.products.find((p) => p.id === error.productId)?.name ?? "?";
-    return fail(t("calcError", { product }));
-  }
+  const { analysis, skipped } = analyzeStoreSkipping(data);
+  // A recipe broken since the screen loaded: say which product, rather than "invalid data".
+  const stale = skipped.find((error) => Array.isArray(counts) && counts.some((count) => count?.productId === error.productId));
+  if (stale) return fail(t("calcSkipped", { product: data.products.find((p) => p.id === stale.productId)?.name ?? "?" }));
 
-  // analysis.lines holds only active products with a price: exactly the pairs the screen offers.
+  // analysis.lines holds only active, costable products with a price: exactly the pairs the screen offers.
   const parsed = parseSalesCounts(counts, analysis.lines);
   if (!parsed) return fail(t("errorInvalid"));
 

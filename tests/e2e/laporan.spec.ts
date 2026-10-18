@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { adminClient, createStoreViaOnboarding, signIn, storeIdFromUrl, storeUrl } from "./helpers";
+import { adminClient, breakRecipe, createStoreViaOnboarding, jakartaDay as day, signIn, storeIdFromUrl, storeUrl, waitPastJakartaMidnight } from "./helpers";
 
 async function createSampleStore(page: Page) {
   await signIn(page, undefined, "/onboarding");
@@ -8,22 +8,20 @@ async function createSampleStore(page: Page) {
   await expect(page.getByTestId("metric-netProfit")).not.toHaveText("—");
 }
 
-/** The Asia/Jakarta calendar day, `offset` days from today. */
-function day(offset = 0): string {
-  const jakarta = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
-  const ms = Date.UTC(+jakarta.slice(0, 4), +jakarta.slice(5, 7) - 1, +jakarta.slice(8, 10)) + offset * 86_400_000;
-  return new Date(ms).toISOString().slice(0, 10);
-}
-
 const shortDay = (date: string) =>
   new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 const monthLabel = (month: string) =>
   new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
 
 // Sample records: the 14 days ending yesterday. Day 6 of the span is missing, day 10 is closed.
-const MISSING = day(-9);
-const CLOSED = day(-5);
+const missingDay = () => day(-9);
+const closedDay = () => day(-5);
 const monthOf = (date: string) => date.slice(0, 7);
+
+// "Today" here and on the server must be the same Jakarta day for the whole test.
+test.beforeEach(async () => {
+  await waitPastJakartaMidnight();
+});
 
 async function openLaporan(page: Page, month?: string) {
   await page.goto(storeUrl(page, month ? `laporan?bulan=${month}` : "laporan"));
@@ -65,23 +63,23 @@ test("sample store: the answer and the five lines add up", async ({ page }) => {
 
 test("the missing day is named, linked to Catat and marked in the calendar", async ({ page }) => {
   await createSampleStore(page);
-  await openLaporan(page, monthOf(MISSING));
+  await openLaporan(page, monthOf(missingDay()));
 
   const warning = page.getByTestId("missing-days");
-  await expect(warning).toContainText(shortDay(MISSING));
-  await expect(page.getByTestId(`calendar-${MISSING}`)).toHaveAttribute("data-state", "missing");
-  await warning.getByRole("link", { name: `Isi sekarang: ${shortDay(MISSING)}` }).click();
-  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${MISSING}$`));
+  await expect(warning).toContainText(shortDay(missingDay()));
+  await expect(page.getByTestId(`calendar-${missingDay()}`)).toHaveAttribute("data-state", "missing");
+  await warning.getByRole("link", { name: `Isi sekarang: ${shortDay(missingDay())}` }).click();
+  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${missingDay()}$`));
   await expect(page.getByRole("heading", { name: "Catat penjualan" })).toBeVisible();
 });
 
 test("the calendar marks the closed day, a recorded day and opens Catat on tap", async ({ page }) => {
   await createSampleStore(page);
-  await openLaporan(page, monthOf(CLOSED));
-  await expect(page.getByTestId(`calendar-${CLOSED}`)).toHaveAttribute("data-state", "closed");
+  await openLaporan(page, monthOf(closedDay()));
+  await expect(page.getByTestId(`calendar-${closedDay()}`)).toHaveAttribute("data-state", "closed");
   await expect(page.getByTestId(`calendar-${day(-1)}`)).toHaveAttribute("data-state", /recorded|closed|missing/);
-  await page.getByTestId(`calendar-${CLOSED}`).click();
-  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${CLOSED}$`));
+  await page.getByTestId(`calendar-${closedDay()}`).click();
+  await expect(page).toHaveURL(new RegExp(`/catat\\?tanggal=${closedDay()}$`));
   await expect(page.getByTestId("closed-note")).toBeVisible();
 });
 
@@ -193,9 +191,9 @@ test("another user's store is 404 for /laporan", async ({ browser }) => {
 test("no horizontal scroll at 360px and calendar days are at least 40px", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await createSampleStore(page);
-  await openLaporan(page, monthOf(MISSING));
+  await openLaporan(page, monthOf(missingDay()));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
-  const box = (await page.getByTestId(`calendar-${MISSING}`).boundingBox())!;
+  const box = (await page.getByTestId(`calendar-${missingDay()}`).boundingBox())!;
   expect(box.width).toBeGreaterThanOrEqual(40);
   expect(box.height).toBeGreaterThanOrEqual(40);
   for (const control of [page.getByRole("link", { name: "Bulan sebelumnya" })]) {
@@ -208,8 +206,28 @@ test("no horizontal scroll at 360px and calendar days are at least 40px", async 
 test("English: singular missing-day title and a natural day range", async ({ page }) => {
   await createSampleStore(page);
   const id = storeIdFromUrl(page);
-  await page.goto(`/en/s/${id}/laporan?bulan=${monthOf(MISSING)}`);
+  await page.goto(`/en/s/${id}/laporan?bulan=${monthOf(missingDay())}`);
   // The sample store has exactly one missing day in its span.
   await expect(page.getByTestId("missing-days")).toContainText(/^1 day not recorded yet/);
   await expect(page.getByText(/[A-Z][a-z]{2} \d{1,2}–\d{1,2}/).first()).toBeVisible();
+});
+
+test("a product whose recipe needs fixing hides only the plan comparison", async ({ page }) => {
+  await createSampleStore(page);
+  const month = monthOf(day(-1));
+  await openLaporan(page, month);
+  await expect(page.getByTestId("plan-bar-plan")).toBeVisible();
+  const omzet = await amount(page, "report-omzet");
+  const net = await amount(page, "report-net");
+
+  await breakRecipe(page, "Es kopi susu gula aren");
+  await openLaporan(page, month);
+  await expect(page.getByRole("alert").filter({ hasText: "perbandingan dengan rencana disembunyikan sampai diperbaiki" })).toContainText(
+    "Es kopi susu gula aren",
+  );
+  await expect(page.getByTestId("plan-bar-plan")).toHaveCount(0);
+  // Recorded sales keep the values they were saved with.
+  expect(await amount(page, "report-omzet")).toBe(omzet);
+  expect(await amount(page, "report-net")).toBe(net);
+  await expect(page.getByTestId(`calendar-${missingDay()}`)).toBeVisible();
 });

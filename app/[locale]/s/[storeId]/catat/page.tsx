@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
-import { tryAnalyzeStore } from "@/lib/calc";
+import { analyzeStoreSkipping } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { loadFirstRecordDate, loadSalesDay, loadSalesDays } from "@/lib/data/records";
 import { formatDay } from "@/lib/format";
@@ -38,7 +38,8 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
   const date = requestedOk ? requested : today;
   const rejectedDate = requested !== undefined && !requestedOk;
 
-  const { analysis, error } = tryAnalyzeStore(data);
+  // A product whose recipe needs fixing is left off the screen; its saved lines show under "Tercatat sebelumnya".
+  const { analysis, skipped } = analyzeStoreSkipping(data);
   const [day, firstRecord, recent] = await Promise.all([
     loadSalesDay(storeId, date),
     loadFirstRecordDate(storeId),
@@ -60,24 +61,22 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
     savedLines.set(`${line.productId}|${line.channelId}`, { qty: line.qty, unitPrice: line.unitPrice, netUnit: line.netUnit, hppUnit: line.hppUnit });
   }
 
-  const rows: EntryRow[] = analysis
-    ? analysis.lines
-        .map((line) => ({
-          productId: line.productId,
-          channelId: line.channelId,
-          productName: data.products.find((p) => p.id === line.productId)?.name ?? "?",
-          price: line.price,
-          netPrice: line.netPrice,
-          materialCost: line.materialCost,
-          qty: savedLines.get(`${line.productId}|${line.channelId}`)?.qty ?? 0,
-          saved: savedLines.get(`${line.productId}|${line.channelId}`) ?? null,
-        }))
-        .sort(
-          (a, b) =>
-            (productOrder.get(a.productId) ?? 0) - (productOrder.get(b.productId) ?? 0) ||
-            (channelOrder.get(a.channelId) ?? 0) - (channelOrder.get(b.channelId) ?? 0),
-        )
-    : [];
+  const rows: EntryRow[] = analysis.lines
+    .map((line) => ({
+      productId: line.productId,
+      channelId: line.channelId,
+      productName: data.products.find((p) => p.id === line.productId)?.name ?? "?",
+      price: line.price,
+      netPrice: line.netPrice,
+      materialCost: line.materialCost,
+      qty: savedLines.get(`${line.productId}|${line.channelId}`)?.qty ?? 0,
+      saved: savedLines.get(`${line.productId}|${line.channelId}`) ?? null,
+    }))
+    .sort(
+      (a, b) =>
+        (productOrder.get(a.productId) ?? 0) - (productOrder.get(b.productId) ?? 0) ||
+        (channelOrder.get(a.channelId) ?? 0) - (channelOrder.get(b.channelId) ?? 0),
+    );
   const shown = new Set(rows.map((row) => `${row.productId}|${row.channelId}`));
   const channels: EntryChannel[] = data.channels
     .filter((channel) => rows.some((row) => row.channelId === channel.id))
@@ -131,14 +130,14 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      {error && (
-        <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm [overflow-wrap:anywhere]">
-          {t("calcErrorShort", { product: data.products.find((p) => p.id === error.productId)?.name ?? "?" })}{" "}
+      {skipped.map((error) => (
+        <p key={error.productId} role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm [overflow-wrap:anywhere]">
+          {t("calcSkipped", { product: data.products.find((p) => p.id === error.productId)?.name ?? "?" })}{" "}
           <Link href={`/s/${storeId}/produk/${error.productId}`} className="font-medium underline underline-offset-4">
             {t("calcErrorAction")}
           </Link>
         </p>
-      )}
+      ))}
 
       {day?.closed && (
         <p data-testid="closed-note" className="rounded-lg border bg-muted p-3 text-sm">
@@ -147,19 +146,17 @@ export default async function RecordSalesPage({ params, searchParams }: Props) {
       )}
       {date < today && day && <p className="text-sm text-muted-foreground">{t("pastNote")}</p>}
 
-      {analysis && (
-        <SalesEntry
-          key={date}
-          storeId={storeId}
-          date={date}
-          channels={channels}
-          rows={rows}
-          previous={previous}
-          dayHasLines={(day?.lines.length ?? 0) > 0}
-          dayClosed={day?.closed ?? false}
-          isToday={date === today}
-        />
-      )}
+      <SalesEntry
+        key={date}
+        storeId={storeId}
+        date={date}
+        channels={channels}
+        rows={rows}
+        previous={previous}
+        dayHasLines={(day?.lines.length ?? 0) > 0}
+        dayClosed={day?.closed ?? false}
+        isToday={date === today}
+      />
     </div>
   );
 }

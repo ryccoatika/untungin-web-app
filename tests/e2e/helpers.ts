@@ -206,3 +206,36 @@ export async function openHeaderMenu(page: Page) {
   const trigger = page.getByRole("button", { name: /^(Menu lainnya|More options)$/ });
   if (await trigger.isVisible()) await trigger.click();
 }
+
+const JAKARTA_OFFSET_MS = 7 * 3_600_000; // UTC+7 all year, no daylight saving
+const DAY_MS = 86_400_000;
+
+/** The Asia/Jakarta calendar day, `offset` days from today. */
+export function jakartaDay(offset = 0): string {
+  const jakartaMidnight = Math.floor((Date.now() + JAKARTA_OFFSET_MS) / DAY_MS) * DAY_MS;
+  return new Date(jakartaMidnight + offset * DAY_MS).toISOString().slice(0, 10);
+}
+
+/**
+ * Specs that compute "today" themselves disagree with the server when a test runs across Jakarta midnight. Within
+ * `margin` of midnight, waits for the new day to start; the test's timeout grows by the wait.
+ */
+export async function waitPastJakartaMidnight(margin = 120_000) {
+  const left = DAY_MS - ((Date.now() + JAKARTA_OFFSET_MS) % DAY_MS);
+  if (left > margin) return;
+  const wait = left + 5_000;
+  test.setTimeout(test.info().timeout + wait);
+  await new Promise((resolve) => setTimeout(resolve, wait));
+}
+
+/** Gives one of `product`'s per-piece recipe rows a mass unit: the kind of data the calculation refuses. */
+export async function breakRecipe(page: Page, product: string) {
+  const admin = adminClient();
+  const storeId = storeIdFromUrl(page);
+  const { data: found, error } = await admin.from("products").select("id").eq("store_id", storeId).eq("name", product).single();
+  if (error) throw error;
+  const { data: rows, error: rowsError } = await admin.from("product_materials").select("id").eq("product_id", found.id).eq("unit", "pcs").limit(1);
+  if (rowsError) throw rowsError;
+  const { error: updateError } = await admin.from("product_materials").update({ unit: "g" }).eq("id", rows[0].id);
+  if (updateError) throw updateError;
+}

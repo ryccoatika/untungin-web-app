@@ -11,6 +11,7 @@ import { formatNumber, formatRupiah } from "@/lib/format";
 import { MAX_DAY_QTY } from "@/lib/records";
 import { cn } from "@/lib/utils";
 import { closeSalesDayAction, deleteSalesDayAction, deleteSalesLineAction, saveSalesDayAction, type SalesSaveResult } from "./actions";
+import { useLeaveGuard } from "./leave-guard";
 
 export type EntryRow = {
   productId: string;
@@ -94,6 +95,9 @@ export function SalesEntry({
     }, 0) +
     previous.reduce((sum, l) => sum + l.qty * (l.netUnit - l.hppUnit), 0);
   const hasAnyLine = total > 0 || previous.length > 0 || dayHasLines;
+  // rows[].qty is the saved count, refreshed after each save, close or delete.
+  const unsaved = rows.some((row) => qtyOf(row) !== row.qty);
+  useLeaveGuard(unsaved, t("leaveConfirm"));
 
   const run = (action: () => Promise<SalesSaveResult>, onOk?: () => void) =>
     startTransition(async () => {
