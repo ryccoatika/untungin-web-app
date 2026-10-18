@@ -797,7 +797,15 @@
     "lawTitle": "Hukum yang berlaku",
     "lawBody": "Syarat ini tunduk pada hukum Indonesia. Jika ada perbedaan dengan terjemahan bahasa Inggris, teks bahasa Indonesia yang berlaku.",
     "contactTitle": "Kontak",
-    "contactBody": "Pertanyaan soal syarat ini: <mail>{email}</mail>."
+    "contactBody": "Pertanyaan soal syarat ini: <mail>{email}</mail>.",
+    "agree": {
+      "title": "Setujui syarat untuk lanjut",
+      "body": "Sebelum lanjut, setujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan Privasi</privacy> Untungin.",
+      "note": "Syaratnya baru atau sudah berubah sejak kamu terakhir setuju. Kalau tidak setuju, kamu bisa keluar atau menghapus akunmu.",
+      "submit": "Setuju & lanjut",
+      "pending": "Menyimpan…",
+      "failed": "Persetujuan gagal disimpan. Coba lagi."
+    }
   },
   "Install": {
     "title": "Pasang Untungin di HP",

@@ -1,8 +1,10 @@
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
+import { requireCurrentTerms } from "@/lib/legal/gate";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function MulaiPage() {
+  await requireCurrentTerms("/mulai");
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("stores")

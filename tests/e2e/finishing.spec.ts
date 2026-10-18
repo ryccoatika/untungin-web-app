@@ -29,7 +29,7 @@ test("the privacy page is public, in both languages, and linked from the landing
   await expect(page.getByRole("link", { name: "me@ryccoatika.com" }).first()).toHaveAttribute("href", "mailto:me@ryccoatika.com");
   await expect(page.getByText(/Google Gemini/)).toBeVisible();
   await page.goto("/login");
-  await expect(page.getByRole("link", { name: "Kebijakan privasi" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Kebijakan privasi", exact: true })).toBeVisible();
   await page.goto("/en/privasi");
   await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
 });

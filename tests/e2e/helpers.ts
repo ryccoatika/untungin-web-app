@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import type { Unit } from "../../lib/calc";
+import { TERMS_VERSION } from "../../lib/legal/versions";
 
 export function uniqueEmail(label: string) {
   return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`;
@@ -13,11 +14,18 @@ const password = "password-123456";
  * Signs `page` in as `email` without going through Google: creates the user (confirmed) with the admin API if
  * needed, signs in with email/password in Node, and copies the session cookies @supabase/ssr would set into the
  * browser. Needs the Email provider on local Supabase (production keeps it disabled). Then opens `next`.
+ * The password sign-in skips the OAuth callback that records the terms agreement, so a current `terms` row is
+ * inserted here too, unless `agreed: false` (tests of the agreement screen).
  */
-export async function signIn(page: Page, email = uniqueEmail("e2e"), next = "/mulai") {
+export async function signIn(page: Page, email = uniqueEmail("e2e"), next = "/mulai", { agreed = true } = {}) {
   const admin = adminClient();
-  const { error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+  const { data: created, error: createError } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
   if (createError && createError.code !== "email_exists") throw createError;
+  if (agreed) {
+    const userId = created.user?.id ?? (await userIdByEmail(email));
+    const { error: consentError } = await admin.from("consents").insert({ user_id: userId, kind: "terms", version: TERMS_VERSION });
+    if (consentError) throw consentError;
+  }
 
   const cookies: { name: string; value: string }[] = [];
   const supabase = createServerClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"), {

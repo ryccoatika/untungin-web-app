@@ -797,7 +797,15 @@
     "lawTitle": "Law",
     "lawBody": "These terms are governed by Indonesian law. If they differ from this English translation, the Indonesian text prevails.",
     "contactTitle": "Contact",
-    "contactBody": "Questions about these terms: <mail>{email}</mail>."
+    "contactBody": "Questions about these terms: <mail>{email}</mail>.",
+    "agree": {
+      "title": "Agree to the terms to continue",
+      "body": "Before you continue, please agree to Untungin's <terms>Terms & Conditions</terms> and <privacy>Privacy Policy</privacy>.",
+      "note": "The terms are new or have changed since you last agreed. If you don't agree, you can sign out or delete your account.",
+      "submit": "Agree & continue",
+      "pending": "Saving…",
+      "failed": "Couldn't save your agreement. Please try again."
+    }
   },
   "Install": {
     "title": "Install Untungin on your phone",

@@ -7,8 +7,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { listStores } from "@/lib/data/stores";
 import { getBusinessTypeLabel } from "@/lib/i18n/server";
+import { requireCurrentTerms } from "@/lib/legal/gate";
 
 export default async function StoresPage() {
+  await requireCurrentTerms("/toko");
   const stores = await listStores();
   const t = await getTranslations("StoreList");
   const tAuth = await getTranslations("Auth");
