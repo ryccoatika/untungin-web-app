@@ -32,6 +32,7 @@
     "googlePending": "Opening Google…",
     "googleError": "Could not open Google sign-in. Try again.",
     "signOut": "Sign out",
+    "agreement": "By signing in, you agree to Untungin's <terms>Terms & Conditions</terms> and <privacy>Privacy Policy</privacy>.",
     "signOutPending": "Signing out…"
   },
   "NotFound": {
@@ -724,6 +725,7 @@
     "dataStore": "Business data you enter: stores, materials, products, recipes, prices, sales channels, costs and equipment.",
     "dataRecords": "Daily sales and purchases you record, stored per store and deleted with your store or account.",
     "dataAi": "AI analyses you ask for, with the summary of your store's numbers sent for each one, and a record of your daily quota use.",
+    "dataConsent": "Agreement records: which document you agreed to (the terms or AI analysis), its version, and the time.",
     "useTitle": "What it's for",
     "useBody": "Only to run Untungin for you: calculating, saving and showing your data. We don't sell data or use it for ads.",
     "thirdTitle": "Third-party services",
@@ -740,6 +742,62 @@
     "rightsTitle": "Your rights",
     "rightsBody": "You can see, correct and delete your data, as Indonesia's Personal Data Protection Law provides. Most of it you can do in the app; for anything else, contact <mail>{email}</mail>.",
     "link": "Privacy policy"
+  },
+  "Terms": {
+    "title": "Terms & Conditions",
+    "updated": "Last updated: 18 October 2026",
+    "summary": "Untungin helps you work out your cost of goods, prices and profit. Every figure is an estimate from the data you enter, not financial advice. You check the numbers and make your own decisions. This page is a careful draft we wrote ourselves, and a lawyer has not reviewed it.",
+    "link": "Terms & Conditions",
+    "aboutTitle": "About Untungin and who runs it",
+    "aboutBody": "Untungin is run by {name} ({email}), the same person named in the <privacy>Privacy Policy</privacy>. By using Untungin, you agree to the terms on this page.",
+    "whoTitle": "Who may use it",
+    "whoBody": "Untungin is for people who run or plan a business. You must be able to enter into an agreement under Indonesian law: you are an adult, or you use Untungin with your guardian's consent.",
+    "accountTitle": "Your account",
+    "accountItems": [
+      "You sign in with a Google account.",
+      "You keep your own Google account secure.",
+      "One account for one person."
+    ],
+    "dataTitle": "Your data",
+    "dataBody": "The data you enter stays yours. We use it only to run Untungin, as the <privacy>Privacy Policy</privacy> describes. If you delete a store or your account, the data is permanently removed and cannot be restored.",
+    "estimatesTitle": "Estimates, not advice",
+    "estimatesIntro": "Every figure in Untungin is an estimate calculated from the data you enter. That includes cost of goods, suggested prices, margins, profit, break-even, payback, the loan summary and instalment check, and the monthly report.",
+    "estimatesItems": [
+      "The figures are not financial, tax, legal or credit advice, and not an audited financial statement.",
+      "You check the numbers. You are responsible for the decisions you make with them, including prices, purchases and loan applications.",
+      "The loan summary is your own summary. Banks decide on their own criteria."
+    ],
+    "aiTitle": "AI analysis",
+    "aiItems": [
+      "It is optional. It runs only when you press the button and have agreed in the dialog.",
+      "Untungin sends a summary of your store's numbers to Google Gemini: store name, business type, target market, operating days, target margin, products, materials, channels, prices, estimated sales, competitor prices, costs and calculated totals such as revenue, profit and break-even.",
+      "AI output can be wrong or incomplete. Treat it as a suggestion, not advice.",
+      "There is a daily usage limit.",
+      "If Untungin uses the free tier of the Gemini API, Google may use the data sent to improve its products, and people may review it."
+    ],
+    "fairTitle": "Fair use",
+    "fairItems": [
+      "Do not break, overload or probe the service.",
+      "Do not enter other people's data without their permission.",
+      "Do not use Untungin for anything unlawful."
+    ],
+    "asIsTitle": "The service as it is",
+    "asIsItems": [
+      "Untungin is free for now.",
+      "The service is provided \"as is\". We do not promise it is error-free or always available.",
+      "Features may change.",
+      "Keep your own copy of figures that matter to you. You can export your data as CSV."
+    ],
+    "liabilityTitle": "Limits of liability",
+    "liabilityBody": "To the extent Indonesian law allows, Untungin is not liable for losses from decisions made using the estimates or AI output, from data you entered incorrectly, or from outages. Nothing limits liability that the law does not allow to be limited.",
+    "endingTitle": "Ending",
+    "endingBody": "You can stop and delete your account at any time. The operator may suspend accounts that break these terms, or stop the service with reasonable notice where possible.",
+    "changesTitle": "Changes",
+    "changesBody": "When the terms change, you are asked to agree again the next time you visit. If you do not agree, you can delete your account instead.",
+    "lawTitle": "Law",
+    "lawBody": "These terms are governed by Indonesian law. If they differ from this English translation, the Indonesian text prevails.",
+    "contactTitle": "Contact",
+    "contactBody": "Questions about these terms: <mail>{email}</mail>."
   },
   "Install": {
     "title": "Install Untungin on your phone",

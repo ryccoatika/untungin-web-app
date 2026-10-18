@@ -47,6 +47,20 @@ export default async function LoginPage({
         </p>
       )}
       <GoogleSignInButton next={target} />
+      <p className="text-center text-xs text-muted-foreground">
+        {t.rich("agreement", {
+          terms: (chunks) => (
+            <Link href="/syarat" className="underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/privasi" className="underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
       <Link href="/privasi" className="inline-flex min-h-10 items-center justify-center text-sm underline-offset-4 hover:underline">
         {tp("link")}
       </Link>

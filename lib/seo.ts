@@ -6,7 +6,7 @@ export const SITE_URL = "https://untungin.ryccoatika.com";
 export const SITE_NAME = "Untungin";
 
 /** Pages anyone can open without signing in; `""` is the landing page. */
-export const PUBLIC_PATHS = ["", "/privasi"] as const;
+export const PUBLIC_PATHS = ["", "/privasi", "/syarat"] as const;
 
 const OG_LOCALE: Record<AppLocale, string> = { id: "id_ID", en: "en_US" };
 
