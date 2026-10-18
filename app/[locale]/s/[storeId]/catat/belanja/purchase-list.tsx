@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import type { PurchaseRecord } from "@/lib/data/records";
 import { formatDay, formatNumber, formatRupiah } from "@/lib/format";
+import { earliestRecordable, jakartaToday } from "@/lib/records";
 import { deletePurchaseAction } from "./actions";
 
 /** Purchases with edit (Belanja form) and delete; shared by Belanja and Laporan. */
@@ -13,6 +14,9 @@ export async function PurchaseList({ storeId, purchases }: { storeId: string; pu
   const tCommon = await getTranslations("Common");
   const tUnit = await getTranslations("UnitShort");
   const locale = (await getLocale()) as AppLocale;
+
+  // The form can only open purchases inside the recordable window; older ones can still be deleted.
+  const oldest = earliestRecordable(jakartaToday(new Date()));
 
   return (
     <ul className="divide-y rounded-lg border">
@@ -33,7 +37,7 @@ export async function PurchaseList({ storeId, purchases }: { storeId: string; pu
             </p>
           </div>
           <div className="flex flex-wrap items-start gap-2">
-            {purchase.materialId !== null && (
+            {purchase.materialId !== null && purchase.date >= oldest && (
               <Link
                 href={`/s/${storeId}/catat/belanja?ubah=${purchase.id}`}
                 aria-label={t("editLabel", { material: purchase.materialName })}

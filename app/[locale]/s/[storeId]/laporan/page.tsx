@@ -172,14 +172,14 @@ export default async function ReportPage({ params, searchParams }: Props) {
             <CardContent>
               <dl className="divide-y text-sm">
                 <Line id="report-omzet" label={t("omzet")} value={rp(report.omzet)} />
-                <Line id="report-fees" label={t("channelFees")} value={rp(report.channelFees)} />
-                <Line id="report-materials" label={t("materials")} value={rp(report.materialCosts)} />
+                <Line id="report-fees" label={t("channelFees")} value={minus(rp(report.channelFees))} />
+                <Line id="report-materials" label={t("materials")} value={minus(rp(report.materialCosts))} />
                 <Line
                   id="report-fixed"
                   labelId="report-fixed-label"
                   label={t("fixed", { days: report.window.days, total: report.daysInMonth })}
                   note={t("fixedNote")}
-                  value={rp(report.fixedCosts)}
+                  value={minus(rp(report.fixedCosts))}
                 />
                 <Line id="report-net" label={t("netProfit")} value={rp(report.netProfit)} strong />
               </dl>
@@ -219,6 +219,9 @@ export default async function ReportPage({ params, searchParams }: Props) {
     </div>
   );
 }
+
+/** A deduction as shown in the lines: "− Rp…". */
+const minus = (formatted: string) => `− ${formatted}`;
 
 /** "1–17 Okt" within one month. */
 function dayRange(start: string, end: string, locale: AppLocale): string {

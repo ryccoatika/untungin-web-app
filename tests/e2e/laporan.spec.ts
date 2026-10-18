@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { createStoreViaOnboarding, signIn, storeUrl } from "./helpers";
+import { adminClient, createStoreViaOnboarding, signIn, storeIdFromUrl, storeUrl } from "./helpers";
 
 async function createSampleStore(page: Page) {
   await signIn(page, undefined, "/onboarding");
@@ -30,7 +30,7 @@ async function openLaporan(page: Page, month?: string) {
   await expect(page.getByRole("heading", { level: 1, name: "Laporan bulanan" })).toBeVisible();
 }
 
-/** Signed Rupiah of a line: "Rp1.200" -> 1200, "-Rp300" or "−Rp300" -> -300. */
+/** Signed Rupiah of a line: "Rp1.200" -> 1200, "− Rp300" -> -300, "-Rp300" -> -300. */
 async function amount(page: Page, id: string): Promise<number> {
   const text = await page.getByTestId(id).innerText();
   const value = Number(text.replace(/[^\d]/g, ""));
@@ -52,8 +52,8 @@ test("sample store: the answer and the five lines add up", async ({ page }) => {
   const fixed = await amount(page, "report-fixed");
   const net = await amount(page, "report-net");
   expect(omzet).toBeGreaterThan(0);
-  expect(fees).toBeGreaterThan(0);
-  expect(Math.abs(omzet - fees - materials - fixed - net)).toBeLessThanOrEqual(1);
+  expect(fees).toBeLessThan(0);
+  expect(omzet + fees + materials + fixed).toBe(net);
 
   const answerValue = Number((await answer.innerText()).replace(/[^\d]/g, ""));
   expect(answerValue).toBe(Math.abs(net));
@@ -133,6 +133,23 @@ test("the month's purchases are listed with edit and delete", async ({ page }) =
   await expect(susu.getByText("Yakin ingin menghapus?")).toBeVisible();
   await susu.getByRole("button", { name: "Hapus" }).click();
   await expect(page.getByRole("listitem").filter({ hasText: "Susu UHT" })).toHaveCount(0);
+});
+
+test("a purchase older than the recordable window has no edit link but can be deleted", async ({ page }) => {
+  await createSampleStore(page);
+  const storeId = storeIdFromUrl(page);
+  const admin = adminClient();
+  const { data: material } = await admin.from("materials").select("id, name").eq("store_id", storeId).limit(1).single();
+  const old = day(-100);
+  const { error } = await admin
+    .from("purchases")
+    .insert({ store_id: storeId, material_id: material!.id, material_name: material!.name, date: old, qty: 1, unit: "kg", total_paid: 5000 });
+  if (error) throw error;
+  await openLaporan(page, monthOf(old));
+  const row = page.getByRole("listitem").filter({ hasText: material!.name });
+  await expect(row).toBeVisible();
+  await expect(row.getByRole("link", { name: /^Ubah/ })).toHaveCount(0);
+  await expect(row.getByRole("button", { name: "Hapus" })).toBeVisible();
 });
 
 test("dashboard shows the actual result card linking to the report, and the nudge", async ({ page }) => {
