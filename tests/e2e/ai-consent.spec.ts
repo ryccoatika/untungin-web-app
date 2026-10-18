@@ -73,6 +73,33 @@ test("the dialog explains what is sent; Batal and Escape close it without agreei
   expect(await aiConsentVersions(userId)).toEqual([]);
 });
 
+test("Batal and Escape do nothing while the consent is saving", async ({ page }) => {
+  const { userId } = await openAnalysisWithSampleStore(page);
+  // Hold the consent POST until released; any later action POST (the analysis) is aborted before it leaves the browser.
+  let attempts = 0;
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => (release = resolve));
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    if (request.method() === "POST" && request.headers()["next-action"]) {
+      attempts += 1;
+      if (attempts > 1) return route.abort();
+      await held;
+    }
+    return route.continue();
+  });
+
+  await page.getByRole("button", { name: ANALYZE }).click();
+  const dialog = page.getByRole("dialog", { name: TITLE });
+  await dialog.getByRole("button", { name: AGREE }).click();
+  await expect(dialog.getByRole("button", { name: "Batal" })).toBeDisabled();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeVisible();
+  release();
+  await expect.poll(() => attempts).toBe(2);
+  expect(await aiConsentVersions(userId)).toEqual([AI_TERMS_VERSION]);
+});
+
 test("agreeing records the consent once, then analyzes; the dialog doesn't come back", async ({ page }) => {
   const { userId } = await openAnalysisWithSampleStore(page);
   // The first action POST is the consent; the analysis after it is aborted before it leaves the browser.

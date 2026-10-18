@@ -76,13 +76,13 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
 ## 5. Smoke test after deploy
 Use your own Google account, not a tester's.
 
-1. `/` loads with the 3D hero (or the static drawing on reduced motion); `/privasi` loads signed out. Toggle English and back.
-2. Sign in with Google → onboarding → "Coba dengan data contoh" → the dashboard shows profit and the "Bulan ini sebenarnya" card.
+1. `/` loads with the 3D hero (or the static drawing on reduced motion); `/privasi` and `/syarat` load signed out. The login page shows the agreement line with both links. Toggle English and back.
+2. Sign in with Google (in Supabase, exactly one `terms` row now exists in `consents` for you) → onboarding → "Coba dengan data contoh" → the dashboard shows profit and the "Bulan ini sebenarnya" card.
 3. **Catat:** record today's sales on one channel, save, reload: the counts stay. Change a count and tap Belanja: it asks before leaving.
 4. **Belanja:** record a purchase for one material; its price on Bahan changes.
 5. **Laporan:** the five lines add up, the calendar shows today as recorded, and the sample days show as recorded, closed or missing.
 6. **Ringkasan pinjaman:** "Cetak / Simpan PDF" fits on one A4 page; the CSV downloads and opens.
-7. `/s/<id>/analisis` → "Analisis usahaku" returns a result; pressing again says the data hasn't changed. This is the only step that costs Gemini credit.
+7. `/s/<id>/analisis` → "Analisis usahaku" first opens the AI consent dialog; agree, and exactly one `ai` row appears in `consents`. The analysis then returns a result; pressing again says the data hasn't changed. This is the only step that costs Gemini credit.
 8. On a phone: open the site, install it to the home screen, open it from there.
 9. Settings → delete the sample store; then delete a throwaway account and confirm you're signed out.
 10. Supabase → Auth logs show only Google sign-ins.
@@ -90,11 +90,12 @@ Use your own Google account, not a tester's.
 ## 6. Keep it running
 - **Free Supabase projects pause after a week without activity.** During the beta, either sign in at least once a week or move to the Pro plan. Pro also adds daily backups.
 - **Backups before later migrations:** before each `npx supabase db push` after this first one, run `npx supabase db dump --data-only -f backup-<date>.sql` and keep the file out of the repo. Migrations only go forward; there are no down migrations.
+- **Push migrations before merging the code that reads them.** Vercel deploys `master` on merge, so an additive migration must already be in production: back up, run `npx supabase db push`, then `npx supabase migration list` to confirm. For the terms & consent PR, `20261018000006_consents.sql` must be pushed first; otherwise every signed-in page errors, because `loadConsents` throws on the missing table.
 - **Rolling back the app:** Vercel → Deployments → the last good deployment → Instant Rollback. That does not undo a migration, so keep migrations additive (new tables and columns) where you can.
 - **Vercel Hobby** is for non-commercial use. A free private beta fits; move to Pro before charging anyone.
 
 ## 7. Private beta for seller tests
-- [ ] The site is public and search engines may index it; that is intended. "Private" only means you don't promote it yet: send the link to testers directly. Store pages need sign-in, so search engines only see the landing and privacy pages.
+- [ ] The site is public and search engines may index it; that is intended. "Private" only means you don't promote it yet: send the link to testers directly. Store pages need sign-in, so search engines only see the landing, privacy and terms pages.
 - [ ] Each tester signs in with their own Google account. Nothing to set up per tester: the store limit and RLS apply as for any user.
 - [ ] Run each session with `docs/seller-test/untungin-seller-test.html`. Testers type real business numbers, so don't take screenshots of their screens without asking.
 - [ ] After the beta: delete the test accounts you made yourself (Settings → delete account), and leave the testers' accounts unless they ask you to delete them.

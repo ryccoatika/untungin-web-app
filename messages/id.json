@@ -32,7 +32,7 @@
     "googlePending": "Membuka Google…",
     "googleError": "Gagal membuka login Google. Coba lagi.",
     "signOut": "Keluar",
-    "agreement": "Dengan masuk, kamu menyetujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan Privasi</privacy> Untungin.",
+    "agreement": "Dengan masuk, kamu menyetujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan privasi</privacy> Untungin.",
     "signOutPending": "Keluar…"
   },
   "NotFound": {
@@ -744,7 +744,7 @@
     "dataAi": "Hasil analisis AI yang kamu minta, beserta ringkasan angka toko yang dikirim untuk analisis itu, dan catatan pemakaian kuota harian.",
     "dataConsent": "Catatan persetujuan: dokumen yang kamu setujui (syarat atau analisis AI), versinya, dan waktunya.",
     "useTitle": "Untuk apa",
-    "useBody": "Hanya untuk menjalankan Untungin untukmu: menghitung, menyimpan, dan menampilkan datamu. Kami tidak menjual data dan tidak memakainya untuk iklan.",
+    "useBody": "Hanya untuk menjalankan Untungin untukmu: menghitung, menyimpan, dan menampilkan datamu. Kami tidak menjual data dan tidak memakainya untuk iklan. Catatan persetujuanmu kami simpan sebagai bukti apa yang kamu setujui.",
     "thirdTitle": "Layanan pihak ketiga",
     "thirdSupabase": "Supabase menyimpan database dan mengurus proses masuk.",
     "thirdGoogle": "Google dipakai untuk masuk (Google Sign-In).",
@@ -766,7 +766,7 @@
     "summary": "Untungin membantu kamu menghitung HPP, harga, dan laba usaha. Semua angkanya adalah perkiraan dari data yang kamu isi, bukan nasihat keuangan. Kamu yang memeriksa angkanya dan memutuskan sendiri. Halaman ini draf yang kami tulis dengan hati-hati, dan belum ditinjau ahli hukum.",
     "link": "Syarat & Ketentuan",
     "aboutTitle": "Tentang Untungin dan siapa yang mengelolanya",
-    "aboutBody": "Untungin dikelola oleh {name} ({email}), orang yang sama dengan yang tertulis di <privacy>Kebijakan Privasi</privacy>. Dengan memakai Untungin, kamu menyetujui syarat di halaman ini.",
+    "aboutBody": "Untungin dikelola oleh {name} ({email}), orang yang sama dengan yang tertulis di <privacy>Kebijakan privasi</privacy>. Dengan memakai Untungin, kamu menyetujui syarat di halaman ini.",
     "whoTitle": "Siapa yang boleh memakai",
     "whoBody": "Untungin untuk orang yang sedang menjalankan atau merencanakan usaha. Kamu harus bisa membuat perjanjian menurut hukum Indonesia: sudah dewasa, atau memakai Untungin dengan izin walimu.",
     "accountTitle": "Akunmu",
@@ -776,7 +776,7 @@
       "Satu akun untuk satu orang."
     ],
     "dataTitle": "Datamu",
-    "dataBody": "Data yang kamu isi tetap milikmu. Kami memakainya hanya untuk menjalankan Untungin, seperti yang dijelaskan di <privacy>Kebijakan Privasi</privacy>. Kalau kamu menghapus toko atau akunmu, datanya hilang secara permanen dan tidak bisa dikembalikan.",
+    "dataBody": "Data yang kamu isi tetap milikmu. Kami memakainya hanya untuk menjalankan Untungin, seperti yang dijelaskan di <privacy>Kebijakan privasi</privacy>. Kalau kamu menghapus toko atau akunmu, datanya hilang secara permanen dan tidak bisa dikembalikan.",
     "estimatesTitle": "Perkiraan, bukan nasihat",
     "estimatesIntro": "Semua angka di Untungin adalah perkiraan yang dihitung dari data yang kamu isi. Ini termasuk HPP, saran harga, margin, laba, titik impas, balik modal, ringkasan pinjaman dan cek cicilan, serta laporan bulanan.",
     "estimatesItems": [
@@ -803,7 +803,7 @@
       "Untungin gratis untuk saat ini.",
       "Layanan diberikan apa adanya. Kami tidak menjanjikan layanan bebas kesalahan atau selalu tersedia.",
       "Fitur bisa berubah.",
-      "Simpan sendiri salinan angka yang penting buatmu. Kamu bisa mengekspor data ke CSV."
+      "Simpan sendiri salinan angka yang penting buatmu. Kamu bisa mengunduh ringkasan usaha sebagai CSV dari halaman Ringkasan pinjaman."
     ],
     "liabilityTitle": "Batas tanggung jawab",
     "liabilityBody": "Sejauh diizinkan hukum Indonesia, Untungin tidak bertanggung jawab atas kerugian dari keputusan yang diambil memakai perkiraan atau hasil AI, dari data yang salah kamu isi, atau dari layanan yang sedang tidak tersedia. Tidak ada yang membatasi tanggung jawab yang menurut hukum tidak boleh dibatasi.",
@@ -817,7 +817,7 @@
     "contactBody": "Pertanyaan soal syarat ini: <mail>{email}</mail>.",
     "agree": {
       "title": "Setujui syarat untuk lanjut",
-      "body": "Sebelum lanjut, setujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan Privasi</privacy> Untungin.",
+      "body": "Sebelum lanjut, setujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan privasi</privacy> Untungin.",
       "note": "Syaratnya baru atau sudah berubah sejak kamu terakhir setuju. Kalau tidak setuju, kamu bisa keluar atau menghapus akunmu.",
       "submit": "Setuju & lanjut",
       "pending": "Menyimpan…",

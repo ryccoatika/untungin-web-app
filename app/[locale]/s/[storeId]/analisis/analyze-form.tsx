@@ -102,6 +102,8 @@ function AiConsentDialog({
     <Dialog
       open={open}
       onOpenChange={(next) => {
+        // While the consent is saving, a close would still be followed by the analysis, so ignore it.
+        if (pending && !next) return;
         if (!next) setError(null);
         onOpenChange(next);
       }}
@@ -130,7 +132,7 @@ function AiConsentDialog({
           </p>
         )}
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" />}>{t("cancel")}</DialogClose>
+          <DialogClose render={<Button variant="outline" disabled={pending} />}>{t("cancel")}</DialogClose>
           <Button onClick={agree} disabled={pending} aria-disabled={pending}>
             {pending ? t("agreeing") : t("agree")}
           </Button>

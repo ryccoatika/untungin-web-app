@@ -33,7 +33,7 @@ test("a user who hasn't agreed sees the agreement screen with a way out", async 
   await expect(page).toHaveURL(/\/id\/syarat\/setuju\?next=%2Fid%2Fmulai$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: "Syarat & Ketentuan" }).first()).toHaveAttribute("href", "/id/syarat");
-  await expect(page.getByRole("link", { name: "Kebijakan Privasi" }).first()).toHaveAttribute("href", "/id/privasi");
+  await expect(page.getByRole("link", { name: "Kebijakan privasi" }).first()).toHaveAttribute("href", "/id/privasi");
   await expect(page.getByRole("button", { name: AGREE_ID })).toBeVisible();
   await expect(page.getByRole("button", { name: "Keluar" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Hapus akun" })).toBeVisible();

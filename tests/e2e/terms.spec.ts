@@ -33,7 +33,7 @@ test("the Indonesian terms page has every section", async ({ page }) => {
   const law = page.locator("section", { has: page.getByRole("heading", { name: "Hukum yang berlaku" }) });
   await expect(law).toContainText("teks bahasa Indonesia yang berlaku");
 
-  await expect(page.getByRole("link", { name: "Kebijakan Privasi" }).first()).toHaveAttribute("href", "/id/privasi");
+  await expect(page.getByRole("link", { name: "Kebijakan privasi" }).first()).toHaveAttribute("href", "/id/privasi");
   await expect(page.locator('a[href="mailto:me@ryccoatika.com"]').first()).toBeVisible();
 });
 
@@ -47,7 +47,7 @@ test("the login page shows the agreement line with links", async ({ page }) => {
   await page.goto("/id/login");
   await expect(page.getByText("Dengan masuk, kamu menyetujui")).toBeVisible();
   await expect(page.getByRole("link", { name: "Syarat & Ketentuan", exact: true })).toHaveAttribute("href", "/id/syarat");
-  await expect(page.getByRole("link", { name: "Kebijakan Privasi", exact: true })).toHaveAttribute("href", "/id/privasi");
+  await expect(page.getByRole("link", { name: "Kebijakan privasi", exact: true })).toHaveAttribute("href", "/id/privasi");
 });
 
 test("the landing footer and the privacy page link to the terms", async ({ page }) => {
