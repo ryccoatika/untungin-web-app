@@ -184,10 +184,14 @@ describe("monthReport", () => {
     expect(state(1)).toBe("recorded");
     expect(state(3)).toBe("closed");
     expect(state(8)).toBe("missing");
-    expect(state(17)).toBe("future");
+    expect(state(17)).toBe("today");
     expect(state(18)).toBe("future");
     expect(r.missing).toContain("2026-10-08");
     expect(r.missing).not.toContain("2026-10-03");
+  });
+  it("keeps today recorded when it has a record", () => {
+    const r = report("2026-10", "2026-10-17", "2026-10-01", [...octLines, line("2026-10-17", "offline", 1)]);
+    expect(r.calendar.find((c) => c.date === "2026-10-17")?.state).toBe("recorded");
   });
   it("reconciles exactly with fractional snapshots", () => {
     const lines = [

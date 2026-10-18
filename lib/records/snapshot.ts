@@ -1,4 +1,5 @@
 import type { StoreAnalysis, StoreData } from "@/lib/calc";
+import type { IsoDate } from "./dates";
 
 export type SalesCount = { productId: string; channelId: string; qty: number };
 
@@ -33,11 +34,11 @@ export function snapshotLines(data: StoreData, analysis: StoreAnalysis, counts: 
   });
 }
 
-export type SalesDayRecord = { date: string; closed: boolean };
+export type SalesDayRecord = { date: IsoDate; closed: boolean };
 
 export type SalesLineRecord = {
   id: string;
-  date: string;
+  date: IsoDate;
   productId: string | null;
   channelId: string | null;
   productName: string;

@@ -2,7 +2,7 @@ import type { StoreAnalysis, StoreData } from "@/lib/calc";
 import { addDays, daysInMonth, diffDays, type IsoDate, type IsoMonth } from "./dates";
 import type { SalesDayRecord, SalesLineRecord } from "./snapshot";
 
-export type DayState = "recorded" | "closed" | "missing" | "future" | "before";
+export type DayState = "recorded" | "closed" | "missing" | "today" | "future" | "before";
 
 export type MonthReport = {
   month: IsoMonth;
@@ -112,6 +112,7 @@ export function monthReport(input: {
     else if (closed.has(date)) state = "closed";
     else if (firstRecord === null || date < firstRecord) state = "before";
     else if (missingSet.has(date)) state = "missing";
+    else if (date === today) state = "today";
     else state = "future";
     calendar.push({ date, state });
   }
