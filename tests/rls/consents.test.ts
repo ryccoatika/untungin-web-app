@@ -52,7 +52,10 @@ describe("consents", () => {
   });
 
   it("owner cannot update or delete their own row", async () => {
+    const { error } = await owner.client.from("consents").insert(row(owner.id, { kind: "ai" }));
+    expect(error).toBeNull();
     const before = await adminRows(owner.id);
+    expect(before.length).toBeGreaterThan(0);
     await owner.client.from("consents").update({ version: "2030-01-01" }).eq("user_id", owner.id);
     await owner.client.from("consents").delete().eq("user_id", owner.id);
     expect(await adminRows(owner.id)).toEqual(before);
@@ -70,7 +73,7 @@ describe("consents", () => {
     const { data } = await anon.from("consents").select("*");
     expect(data ?? []).toEqual([]);
     const { error } = await anon.from("consents").insert(row(owner.id));
-    expect(error).not.toBeNull();
+    expect(error?.code).toBe("42501");
   });
 
   it("deleting the user removes their rows", async () => {

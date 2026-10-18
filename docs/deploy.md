@@ -51,7 +51,7 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
    - Tables, `anon`: no rows.
    - Tables, `authenticated`: `DELETE,INSERT,SELECT,UPDATE` on `assets`, `materials`, `operating_expenses`, `product_channel_prices`, `product_materials`, `products`, `purchases`, `sales_channels`, `sales_days`, `sales_lines`, `stores`; `SELECT` only on `ai_analyses`, `ai_usage`, `consents`, `profiles`.
    - `profiles` column `UPDATE`: `full_name` and `locale`.
-- `consents` column `INSERT`: `kind`, `user_id` and `version` only (not `accepted_at`: the database sets it). The table query lists `SELECT` only, because the insert is a column grant.
+   - `consents` column `INSERT`: `kind`, `user_id` and `version` only (not `accepted_at`: the database sets it). The table query lists `SELECT` only, because the insert is a column grant.
    - Functions, `authenticated` only: `close_sales_day`, `create_store`, `delete_sales_day`, `delete_sales_line`, `is_store_owner`, `save_purchase`, `save_sales_day`. `handle_new_user` also lists `PUBLIC` and `anon`; that is expected, since a trigger function cannot be called directly.
 6. Advisors → Security Advisor: no errors. (Warnings about the Email provider being off or leaked-password protection don't apply to Google-only sign-in.)
 7. Note the project URL, the publishable key and the *secret* key (Settings → API Keys).
