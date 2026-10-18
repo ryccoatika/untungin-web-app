@@ -13,9 +13,11 @@ import { requireUser } from "@/lib/auth/require-user";
 import { tryAnalyzeStore } from "@/lib/calc";
 import { PLAN_LIMITS, toPlan } from "@/lib/config/plans";
 import { countUsageSince, listAnalyses } from "@/lib/data/analyses";
+import { loadConsents } from "@/lib/data/consents";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { getStore } from "@/lib/data/stores";
 import { formatDateTime } from "@/lib/format";
+import { hasAgreed } from "@/lib/legal/consent";
 import { AnalysisView } from "./analysis-view";
 import { AnalyzeForm } from "./analyze-form";
 
@@ -56,10 +58,11 @@ export default async function AnalysisPage({ params }: Props) {
     );
   }
 
-  const [analyses, used, profile] = await Promise.all([
+  const [analyses, used, profile, consents] = await Promise.all([
     listAnalyses(supabase, data.store.id, HISTORY_SIZE + 1),
     countUsageSince(supabase, startOfJakartaDay(new Date())),
     supabase.from("profiles").select("plan").eq("id", userId).maybeSingle(),
+    loadConsents(),
   ]);
   const limit = PLAN_LIMITS[toPlan(profile.data?.plan)].aiAnalysesPerDay;
   const remaining = remainingQuota(limit, used);
@@ -101,7 +104,11 @@ export default async function AnalysisPage({ params }: Props) {
           <p className="text-sm font-medium" data-testid="ai-quota">
             {t("quota", { remaining, limit })}
           </p>
-          <AnalyzeForm storeId={data.store.id} disabled={remaining === 0 || analysis === null} />
+          <AnalyzeForm
+            storeId={data.store.id}
+            disabled={remaining === 0 || analysis === null}
+            aiAgreed={hasAgreed(consents, "ai")}
+          />
           {remaining === 0 && <p className="text-sm text-muted-foreground">{t("quotaUsedUp")}</p>}
           <p className="text-xs text-muted-foreground">{t("privacy")}</p>
           <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline-offset-4 hover:underline">

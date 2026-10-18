@@ -611,13 +611,30 @@
     "emptyBody": "Add a product with a recipe and a selling price first, then come back here.",
     "emptyAction": "Go to products",
     "calcError": "Some product data needs fixing first. See the dashboard.",
+    "consent": {
+      "title": "Before the AI analysis",
+      "intro": "When you agree, Untungin sends a summary of your store's numbers for analysis.",
+      "items": [
+        "What is sent: store name and type, target market, operating days, target margin, products, materials, channels, prices, estimated sales, competitor prices, costs, and totals such as revenue, profit and break-even.",
+        "Google Gemini processes this data. The result is saved in your account.",
+        "If Untungin uses the free tier of the Gemini API, Google may use the data sent to improve its products, and people may review it.",
+        "AI output can be wrong or incomplete. Check it before you make a decision."
+      ],
+      "termsLink": "AI analysis terms",
+      "privacyLink": "Privacy policy",
+      "agree": "Agree & analyze",
+      "agreeing": "Saving…",
+      "cancel": "Cancel",
+      "failed": "Couldn't save your agreement. Try again."
+    },
     "result": {
       "created": "Analysis done.",
       "cached": "Your data hasn't changed since the last analysis, so the result is the same. No quota used.",
       "quota": "You've used today's analyses. Try again tomorrow.",
       "failed": "Analysis failed, try again.",
       "notConfigured": "AI analysis isn't set up on this server yet.",
-      "unavailable": "This store can't be analyzed yet. Reload the page and try again."
+      "unavailable": "This store can't be analyzed yet. Reload the page and try again.",
+      "needsConsent": "Agree to the AI analysis terms before you start."
     }
   },
   "Report": {

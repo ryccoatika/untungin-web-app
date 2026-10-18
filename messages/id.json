@@ -611,13 +611,30 @@
     "emptyBody": "Tambahkan produk dengan resep dan harga jual dulu, lalu kembali ke sini.",
     "emptyAction": "Ke halaman produk",
     "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor.",
+    "consent": {
+      "title": "Sebelum analisis AI",
+      "intro": "Saat kamu setuju, Untungin mengirim ringkasan angka tokomu untuk dianalisis.",
+      "items": [
+        "Yang dikirim: nama dan jenis toko, target pasar, hari operasional, target margin, produk, bahan, kanal, harga, perkiraan penjualan, harga pesaing, biaya, dan total seperti omzet, laba, dan titik impas.",
+        "Data itu diproses oleh Google Gemini. Hasilnya disimpan di akunmu.",
+        "Jika Untungin memakai Gemini API versi gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya dan dapat ditinjau manusia.",
+        "Hasil AI bisa salah atau tidak lengkap. Cek dulu sebelum mengambil keputusan."
+      ],
+      "termsLink": "Syarat analisis AI",
+      "privacyLink": "Kebijakan privasi",
+      "agree": "Setuju & analisis",
+      "agreeing": "Menyimpan…",
+      "cancel": "Batal",
+      "failed": "Persetujuan gagal disimpan. Coba lagi."
+    },
     "result": {
       "created": "Analisis selesai.",
       "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
       "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
       "failed": "Analisis gagal, coba lagi.",
       "notConfigured": "Analisis AI belum disiapkan di server ini.",
-      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
+      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi.",
+      "needsConsent": "Setujui dulu syarat analisis AI sebelum mulai."
     }
   },
   "Report": {

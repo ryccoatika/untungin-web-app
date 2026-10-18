@@ -10,17 +10,21 @@ import { requireUser } from "@/lib/auth/require-user";
 import { tryAnalyzeStore } from "@/lib/calc";
 import { PLAN_LIMITS, toPlan } from "@/lib/config/plans";
 import { listAnalyses } from "@/lib/data/analyses";
+import { loadConsents, recordConsent } from "@/lib/data/consents";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { revalidateStore } from "@/lib/data/revalidate";
 import { getStore } from "@/lib/data/stores";
+import { hasAgreed } from "@/lib/legal/consent";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 import { isUuid } from "@/lib/uuid";
 
-export type AnalyzeState = { status: AnalyzeStatus | "notConfigured" | "unavailable"; message: string } | undefined;
+export type AnalyzeState =
+  | { status: AnalyzeStatus | "notConfigured" | "unavailable" | "needsConsent"; message: string }
+  | undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- useActionState passes the previous state
-export async function analyzeStoreAction(storeId: string, _prev: AnalyzeState): Promise<AnalyzeState> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- useActionState passes the previous state and the form
+export async function analyzeStoreAction(storeId: string, _prev: AnalyzeState, _formData?: FormData): Promise<AnalyzeState> {
   const t = await getTranslations("Analysis.result");
   const unavailable = { status: "unavailable", message: t("unavailable") } as const;
   if (!isUuid(storeId)) return unavailable;
@@ -28,6 +32,10 @@ export async function analyzeStoreAction(storeId: string, _prev: AnalyzeState): 
   // Outside the try: a missing session redirects to the login page.
   const { supabase, userId } = await requireUser();
   try {
+    // No data leaves for Gemini without agreement to the current AI terms, whatever the client did (spec "My calls"
+    // 5). Checked first: before the store is loaded, any quota is claimed or the cached-result path runs.
+    if (!hasAgreed(await loadConsents(), "ai")) return { status: "needsConsent", message: t("needsConsent") };
+
     // Loading with the user's client proves ownership (RLS) before any secret-key call.
     const [store, data] = await Promise.all([getStore(storeId), loadStoreData(storeId)]);
     if (!store || !data) return unavailable;
@@ -83,5 +91,21 @@ export async function analyzeStoreAction(storeId: string, _prev: AnalyzeState): 
     // Only the message: the snapshot holds the seller's data.
     console.error(`AI analysis failed before the AI call: ${error instanceof Error ? error.message : String(error)}`);
     return { status: "failed", message: t("failed") };
+  }
+}
+
+/**
+ * Records agreement to the current AI terms (the consent dialog); the form then runs the analysis. An agreement
+ * already on record (another tab, a double tap) isn't stored twice.
+ */
+export async function acceptAiTermsAction(): Promise<{ ok: boolean; message?: string }> {
+  const { supabase, userId } = await requireUser();
+  try {
+    if (!hasAgreed(await loadConsents(), "ai")) await recordConsent(supabase, userId, "ai");
+    return { ok: true };
+  } catch (error) {
+    console.error(`Recording AI consent failed: ${error instanceof Error ? error.message : String(error)}`);
+    const t = await getTranslations("Analysis.consent");
+    return { ok: false, message: t("failed") };
   }
 }
