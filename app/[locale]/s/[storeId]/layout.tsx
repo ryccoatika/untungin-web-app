@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { StoreNav } from "@/components/store/store-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { getStore } from "@/lib/data/stores";
+import { requireCurrentTerms } from "@/lib/legal/gate";
 
 export default async function StoreLayout({
   children,
@@ -21,6 +22,8 @@ export default async function StoreLayout({
   params: Promise<{ locale: string; storeId: string }>;
 }) {
   const { storeId } = await params;
+  // A layout can't see which subpage was asked for, so agreeing returns to the store's dashboard.
+  await requireCurrentTerms(`/s/${storeId}/dashboard`);
   const store = await getStore(storeId);
   if (!store) notFound();
   const t = await getTranslations("StoreShell");

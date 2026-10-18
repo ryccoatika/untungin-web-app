@@ -7,6 +7,8 @@ for (const [path, title] of [
   ["/en", "Untungin — Calculate COGS & Business Profit"],
   ["/id/privasi", "Kebijakan privasi · Untungin"],
   ["/en/privasi", "Privacy policy · Untungin"],
+  ["/id/syarat", "Syarat & Ketentuan · Untungin"],
+  ["/en/syarat", "Terms & Conditions · Untungin"],
 ] as const) {
   test(`${path} has link-preview tags, a canonical link and hreflang`, async ({ page }) => {
     await page.goto(path);
@@ -54,11 +56,19 @@ test("robots.txt keeps crawlers out of signed-in pages and points to the sitemap
   const text = await (await request.get("/robots.txt")).text();
   expect(text).toContain("Allow: /");
   for (const path of ["/*/s/", "/*/login", "/*/onboarding"]) expect(text).toContain(`Disallow: ${path}`);
+  expect(text).toContain("Disallow: /*/syarat/setuju");
   expect(text).toContain(`Sitemap: ${SITE}/sitemap.xml`);
 });
 
 test("the sitemap lists the public pages in both languages", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]).sort();
-  expect(locs).toEqual([`${SITE}/en`, `${SITE}/en/privasi`, `${SITE}/id`, `${SITE}/id/privasi`]);
+  expect(locs).toEqual([
+    `${SITE}/en`,
+    `${SITE}/en/privasi`,
+    `${SITE}/en/syarat`,
+    `${SITE}/id`,
+    `${SITE}/id/privasi`,
+    `${SITE}/id/syarat`,
+  ]);
 });

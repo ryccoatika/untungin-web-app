@@ -19,7 +19,7 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
 
 ## 2. Supabase (production project)
 1. Create the project (region: Singapore, closest to Indonesia). Save the database password in your password manager.
-2. Link and push the migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`. It applies them in filename order. Confirm all 12 files in `supabase/migrations/` (`20261016000001_core.sql` through `20261018000005_delete_sales_day.sql`) are listed as applied: `npx supabase migration list`.
+2. Link and push the migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`. It applies them in filename order. Confirm all 13 files in `supabase/migrations/` (`20261016000001_core.sql` through `20261018000006_consents.sql`) are listed as applied: `npx supabase migration list`.
    - Never run `db reset` against this project: it wipes all data.
 3. Auth → Providers: enable **Google** (client id + *secret* from section 1); **disable Email**. The e2e sign-in helper relies on Email locally; production must not offer it.
 4. Auth → URL configuration: Site URL `https://untungin.ryccoatika.com`; Redirect URLs `https://untungin.ryccoatika.com/**` (add `https://<project>-*.vercel.app/**` only if you use preview deployments).
@@ -36,6 +36,12 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
      and grantee in ('anon', 'authenticated') and privilege_type = 'UPDATE'
    order by 1;
 
+   select column_name
+   from information_schema.column_privileges
+   where table_schema = 'public' and table_name = 'consents'
+     and grantee in ('anon', 'authenticated') and privilege_type = 'INSERT'
+   order by 1;
+
    select routine_name, grantee
    from information_schema.role_routine_grants
    where routine_schema = 'public' and grantee in ('anon', 'authenticated', 'PUBLIC')
@@ -43,8 +49,9 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
    ```
    Expect exactly:
    - Tables, `anon`: no rows.
-   - Tables, `authenticated`: `DELETE,INSERT,SELECT,UPDATE` on `assets`, `materials`, `operating_expenses`, `product_channel_prices`, `product_materials`, `products`, `purchases`, `sales_channels`, `sales_days`, `sales_lines`, `stores`; `SELECT` only on `ai_analyses`, `ai_usage`, `profiles`.
+   - Tables, `authenticated`: `DELETE,INSERT,SELECT,UPDATE` on `assets`, `materials`, `operating_expenses`, `product_channel_prices`, `product_materials`, `products`, `purchases`, `sales_channels`, `sales_days`, `sales_lines`, `stores`; `SELECT` only on `ai_analyses`, `ai_usage`, `consents`, `profiles`.
    - `profiles` column `UPDATE`: `full_name` and `locale`.
+   - `consents` column `INSERT`: `kind`, `user_id` and `version` only (not `accepted_at`: the database sets it). The table query lists `SELECT` only, because the insert is a column grant.
    - Functions, `authenticated` only: `close_sales_day`, `create_store`, `delete_sales_day`, `delete_sales_line`, `is_store_owner`, `save_purchase`, `save_sales_day`. `handle_new_user` also lists `PUBLIC` and `anon`; that is expected, since a trigger function cannot be called directly.
 6. Advisors → Security Advisor: no errors. (Warnings about the Email provider being off or leaked-password protection don't apply to Google-only sign-in.)
 7. Note the project URL, the publishable key and the *secret* key (Settings → API Keys).
@@ -69,13 +76,13 @@ The first deploy is a **private beta** for moderated seller tests (`docs/seller-
 ## 5. Smoke test after deploy
 Use your own Google account, not a tester's.
 
-1. `/` loads with the 3D hero (or the static drawing on reduced motion); `/privasi` loads signed out. Toggle English and back.
-2. Sign in with Google → onboarding → "Coba dengan data contoh" → the dashboard shows profit and the "Bulan ini sebenarnya" card.
+1. `/` loads with the 3D hero (or the static drawing on reduced motion); `/privasi` and `/syarat` load signed out. The login page shows the agreement line with both links. Toggle English and back.
+2. Sign in with Google (in Supabase, exactly one `terms` row now exists in `consents` for you) → onboarding → "Coba dengan data contoh" → the dashboard shows profit and the "Bulan ini sebenarnya" card.
 3. **Catat:** record today's sales on one channel, save, reload: the counts stay. Change a count and tap Belanja: it asks before leaving.
 4. **Belanja:** record a purchase for one material; its price on Bahan changes.
 5. **Laporan:** the five lines add up, the calendar shows today as recorded, and the sample days show as recorded, closed or missing.
 6. **Ringkasan pinjaman:** "Cetak / Simpan PDF" fits on one A4 page; the CSV downloads and opens.
-7. `/s/<id>/analisis` → "Analisis usahaku" returns a result; pressing again says the data hasn't changed. This is the only step that costs Gemini credit.
+7. `/s/<id>/analisis` → "Analisis usahaku" first opens the AI consent dialog; agree, and exactly one `ai` row appears in `consents`. The analysis then returns a result; pressing again says the data hasn't changed. This is the only step that costs Gemini credit.
 8. On a phone: open the site, install it to the home screen, open it from there.
 9. Settings → delete the sample store; then delete a throwaway account and confirm you're signed out.
 10. Supabase → Auth logs show only Google sign-ins.
@@ -83,11 +90,12 @@ Use your own Google account, not a tester's.
 ## 6. Keep it running
 - **Free Supabase projects pause after a week without activity.** During the beta, either sign in at least once a week or move to the Pro plan. Pro also adds daily backups.
 - **Backups before later migrations:** before each `npx supabase db push` after this first one, run `npx supabase db dump --data-only -f backup-<date>.sql` and keep the file out of the repo. Migrations only go forward; there are no down migrations.
+- **Push migrations before merging the code that reads them.** Vercel deploys `master` on merge, so an additive migration must already be in production: back up, run `npx supabase db push`, then `npx supabase migration list` to confirm. For the terms & consent PR, `20261018000006_consents.sql` must be pushed first; otherwise every signed-in page errors, because `loadConsents` throws on the missing table.
 - **Rolling back the app:** Vercel → Deployments → the last good deployment → Instant Rollback. That does not undo a migration, so keep migrations additive (new tables and columns) where you can.
 - **Vercel Hobby** is for non-commercial use. A free private beta fits; move to Pro before charging anyone.
 
 ## 7. Private beta for seller tests
-- [ ] The site is public and search engines may index it; that is intended. "Private" only means you don't promote it yet: send the link to testers directly. Store pages need sign-in, so search engines only see the landing and privacy pages.
+- [ ] The site is public and search engines may index it; that is intended. "Private" only means you don't promote it yet: send the link to testers directly. Store pages need sign-in, so search engines only see the landing, privacy and terms pages.
 - [ ] Each tester signs in with their own Google account. Nothing to set up per tester: the store limit and RLS apply as for any user.
 - [ ] Run each session with `docs/seller-test/untungin-seller-test.html`. Testers type real business numbers, so don't take screenshots of their screens without asking.
 - [ ] After the beta: delete the test accounts you made yourself (Settings → delete account), and leave the testers' accounts unless they ask you to delete them.

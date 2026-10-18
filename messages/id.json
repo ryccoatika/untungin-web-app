@@ -32,6 +32,7 @@
     "googlePending": "Membuka Google…",
     "googleError": "Gagal membuka login Google. Coba lagi.",
     "signOut": "Keluar",
+    "agreement": "Dengan masuk, kamu menyetujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan privasi</privacy> Untungin.",
     "signOutPending": "Keluar…"
   },
   "NotFound": {
@@ -610,13 +611,30 @@
     "emptyBody": "Tambahkan produk dengan resep dan harga jual dulu, lalu kembali ke sini.",
     "emptyAction": "Ke halaman produk",
     "calcError": "Ada data produk yang perlu diperbaiki dulu. Lihat dasbor.",
+    "consent": {
+      "title": "Sebelum analisis AI",
+      "intro": "Saat kamu setuju, Untungin mengirim ringkasan angka tokomu untuk dianalisis.",
+      "items": [
+        "Yang dikirim: nama dan jenis toko, target pasar, hari operasional, target margin, produk, bahan, kanal, harga, perkiraan penjualan, harga pesaing, biaya, dan total seperti omzet, laba, dan titik impas.",
+        "Data itu diproses oleh Google Gemini. Hasilnya disimpan di akunmu.",
+        "Jika Untungin memakai Gemini API versi gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya dan dapat ditinjau manusia.",
+        "Hasil AI bisa salah atau tidak lengkap. Cek dulu sebelum mengambil keputusan."
+      ],
+      "termsLink": "Syarat analisis AI",
+      "privacyLink": "Kebijakan privasi",
+      "agree": "Setuju & analisis",
+      "agreeing": "Menyimpan…",
+      "cancel": "Batal",
+      "failed": "Persetujuan gagal disimpan. Coba lagi."
+    },
     "result": {
       "created": "Analisis selesai.",
       "cached": "Datamu belum berubah sejak analisis terakhir, jadi hasilnya sama. Kuota tidak terpakai.",
       "quota": "Kuota analisis hari ini sudah habis. Coba lagi besok.",
       "failed": "Analisis gagal, coba lagi.",
       "notConfigured": "Analisis AI belum disiapkan di server ini.",
-      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi."
+      "unavailable": "Toko ini belum bisa dianalisis. Muat ulang halaman lalu coba lagi.",
+      "needsConsent": "Setujui dulu syarat analisis AI sebelum mulai."
     }
   },
   "Report": {
@@ -724,8 +742,9 @@
     "dataStore": "Data usaha yang kamu isi: toko, bahan, produk, resep, harga, kanal penjualan, biaya, dan inventaris.",
     "dataRecords": "Catatan penjualan harian dan belanja yang kamu isi, disimpan per toko dan ikut terhapus bersama toko atau akunmu.",
     "dataAi": "Hasil analisis AI yang kamu minta, beserta ringkasan angka toko yang dikirim untuk analisis itu, dan catatan pemakaian kuota harian.",
+    "dataConsent": "Catatan persetujuan: dokumen yang kamu setujui (syarat atau analisis AI), versinya, dan waktunya.",
     "useTitle": "Untuk apa",
-    "useBody": "Hanya untuk menjalankan Untungin untukmu: menghitung, menyimpan, dan menampilkan datamu. Kami tidak menjual data dan tidak memakainya untuk iklan.",
+    "useBody": "Hanya untuk menjalankan Untungin untukmu: menghitung, menyimpan, dan menampilkan datamu. Kami tidak menjual data dan tidak memakainya untuk iklan. Catatan persetujuanmu kami simpan sebagai bukti apa yang kamu setujui.",
     "thirdTitle": "Layanan pihak ketiga",
     "thirdSupabase": "Supabase menyimpan database dan mengurus proses masuk.",
     "thirdGoogle": "Google dipakai untuk masuk (Google Sign-In).",
@@ -740,6 +759,70 @@
     "rightsTitle": "Hak kamu",
     "rightsBody": "Kamu berhak melihat, membetulkan, dan menghapus datamu, sesuai UU Pelindungan Data Pribadi. Sebagian besar bisa langsung kamu lakukan di aplikasi; untuk hal lain, hubungi <mail>{email}</mail>.",
     "link": "Kebijakan privasi"
+  },
+  "Terms": {
+    "title": "Syarat & Ketentuan",
+    "updated": "Terakhir diperbarui: 18 Oktober 2026",
+    "summary": "Untungin membantu kamu menghitung HPP, harga, dan laba usaha. Semua angkanya adalah perkiraan dari data yang kamu isi, bukan nasihat keuangan. Kamu yang memeriksa angkanya dan memutuskan sendiri. Halaman ini draf yang kami tulis dengan hati-hati, dan belum ditinjau ahli hukum.",
+    "link": "Syarat & Ketentuan",
+    "aboutTitle": "Tentang Untungin dan siapa yang mengelolanya",
+    "aboutBody": "Untungin dikelola oleh {name} ({email}), orang yang sama dengan yang tertulis di <privacy>Kebijakan privasi</privacy>. Dengan memakai Untungin, kamu menyetujui syarat di halaman ini.",
+    "whoTitle": "Siapa yang boleh memakai",
+    "whoBody": "Untungin untuk orang yang sedang menjalankan atau merencanakan usaha. Kamu harus bisa membuat perjanjian menurut hukum Indonesia: sudah dewasa, atau memakai Untungin dengan izin walimu.",
+    "accountTitle": "Akunmu",
+    "accountItems": [
+      "Kamu masuk dengan akun Google.",
+      "Kamu menjaga keamanan akun Google-mu sendiri.",
+      "Satu akun untuk satu orang."
+    ],
+    "dataTitle": "Datamu",
+    "dataBody": "Data yang kamu isi tetap milikmu. Kami memakainya hanya untuk menjalankan Untungin, seperti yang dijelaskan di <privacy>Kebijakan privasi</privacy>. Kalau kamu menghapus toko atau akunmu, datanya hilang secara permanen dan tidak bisa dikembalikan.",
+    "estimatesTitle": "Perkiraan, bukan nasihat",
+    "estimatesIntro": "Semua angka di Untungin adalah perkiraan yang dihitung dari data yang kamu isi. Ini termasuk HPP, saran harga, margin, laba, titik impas, balik modal, ringkasan pinjaman dan cek cicilan, serta laporan bulanan.",
+    "estimatesItems": [
+      "Angka-angka itu bukan nasihat keuangan, pajak, hukum, atau kredit, dan bukan laporan keuangan yang diaudit.",
+      "Kamu yang memeriksa angkanya. Kamu bertanggung jawab atas keputusan yang kamu ambil dengannya, termasuk soal harga, belanja, dan pengajuan pinjaman.",
+      "Ringkasan pinjaman adalah ringkasan buatanmu sendiri. Bank menilai dengan kriteria mereka sendiri."
+    ],
+    "aiTitle": "Analisis AI",
+    "aiItems": [
+      "Fitur ini opsional. Ia hanya jalan saat kamu menekan tombolnya dan sudah menyetujuinya di kotak persetujuan.",
+      "Untungin mengirim ringkasan angka tokomu ke Google Gemini: nama toko, jenis usaha, target pasar, hari operasional, target margin, produk, bahan, kanal, harga, perkiraan penjualan, harga pesaing, biaya, dan total hasil hitungan seperti omzet, laba, dan titik impas.",
+      "Hasil AI bisa salah atau tidak lengkap. Anggap itu saran, bukan nasihat.",
+      "Ada batas pemakaian per hari.",
+      "Jika Untungin memakai Gemini API versi gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya dan dapat ditinjau manusia."
+    ],
+    "fairTitle": "Pemakaian yang wajar",
+    "fairItems": [
+      "Jangan merusak, membebani, atau mencoba menembus layanan ini.",
+      "Jangan memasukkan data orang lain tanpa izin mereka.",
+      "Jangan memakai Untungin untuk hal yang melanggar hukum."
+    ],
+    "asIsTitle": "Layanan apa adanya",
+    "asIsItems": [
+      "Untungin gratis untuk saat ini.",
+      "Layanan diberikan apa adanya. Kami tidak menjanjikan layanan bebas kesalahan atau selalu tersedia.",
+      "Fitur bisa berubah.",
+      "Simpan sendiri salinan angka yang penting buatmu. Kamu bisa mengunduh ringkasan usaha sebagai CSV dari halaman Ringkasan pinjaman."
+    ],
+    "liabilityTitle": "Batas tanggung jawab",
+    "liabilityBody": "Sejauh diizinkan hukum Indonesia, Untungin tidak bertanggung jawab atas kerugian dari keputusan yang diambil memakai perkiraan atau hasil AI, dari data yang salah kamu isi, atau dari layanan yang sedang tidak tersedia. Tidak ada yang membatasi tanggung jawab yang menurut hukum tidak boleh dibatasi.",
+    "endingTitle": "Mengakhiri pemakaian",
+    "endingBody": "Kamu bisa berhenti dan menghapus akunmu kapan saja. Pengelola dapat menangguhkan akun yang melanggar syarat ini, atau menghentikan layanan dengan pemberitahuan yang wajar jika memungkinkan.",
+    "changesTitle": "Perubahan syarat",
+    "changesBody": "Jika syarat berubah, kamu diminta menyetujuinya lagi saat berikutnya kamu membuka Untungin. Kalau tidak setuju, kamu bisa menghapus akunmu.",
+    "lawTitle": "Hukum yang berlaku",
+    "lawBody": "Syarat ini tunduk pada hukum Indonesia. Jika ada perbedaan dengan terjemahan bahasa Inggris, teks bahasa Indonesia yang berlaku.",
+    "contactTitle": "Kontak",
+    "contactBody": "Pertanyaan soal syarat ini: <mail>{email}</mail>.",
+    "agree": {
+      "title": "Setujui syarat untuk lanjut",
+      "body": "Sebelum lanjut, setujui <terms>Syarat & Ketentuan</terms> dan <privacy>Kebijakan privasi</privacy> Untungin.",
+      "note": "Syaratnya baru atau sudah berubah sejak kamu terakhir setuju. Kalau tidak setuju, kamu bisa keluar atau menghapus akunmu.",
+      "submit": "Setuju & lanjut",
+      "pending": "Menyimpan…",
+      "failed": "Persetujuan gagal disimpan. Coba lagi."
+    }
   },
   "Install": {
     "title": "Pasang Untungin di HP",

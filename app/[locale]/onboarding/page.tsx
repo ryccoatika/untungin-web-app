@@ -6,11 +6,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { requireUser } from "@/lib/auth/require-user";
 import { listStores } from "@/lib/data/stores";
+import { requireCurrentTerms } from "@/lib/legal/gate";
 import { DemoStoreButton } from "./demo-store-button";
 import { OnboardingForm } from "./onboarding-form";
 
 export default async function OnboardingPage() {
   const { email } = await requireUser();
+  await requireCurrentTerms("/onboarding");
   const ta = await getTranslations("Account");
   const t = await getTranslations("Onboarding");
   const stores = await listStores();

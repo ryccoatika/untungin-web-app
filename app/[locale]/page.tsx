@@ -27,6 +27,7 @@ export default async function LandingPage({
 }) {
   const t = await getTranslations("Landing");
   const tp = await getTranslations("Privacy");
+  const tt = await getTranslations("Terms");
   const tm = await getTranslations("Metadata");
   const locale = (await getLocale()) as AppLocale;
   const { akun } = await searchParams;
@@ -85,9 +86,12 @@ export default async function LandingPage({
           </li>
         ))}
       </ul>
-      <footer>
+      <footer className="flex flex-wrap gap-x-4">
         <Link href="/privasi" className="inline-flex min-h-10 items-center text-sm underline underline-offset-4">
           {tp("link")}
+        </Link>
+        <Link href="/syarat" className="inline-flex min-h-10 items-center text-sm underline underline-offset-4">
+          {tt("link")}
         </Link>
       </footer>
     </main>

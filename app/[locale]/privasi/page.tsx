@@ -5,9 +5,8 @@ import { BrandLogo } from "@/components/brand-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { AppLocale } from "@/i18n/routing";
+import { OPERATOR } from "@/lib/legal/operator";
 import { publicPageMetadata, SITE_NAME } from "@/lib/seo";
-
-const OPERATOR = { name: "Rycco Atika", email: "me@ryccoatika.com" };
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Privacy");
@@ -17,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function PrivacyPage() {
   const t = await getTranslations("Privacy");
+  const tt = await getTranslations("Terms");
   const mail = (chunks: React.ReactNode) => (
     <a href={`mailto:${OPERATOR.email}`} className="font-medium underline underline-offset-4">
       {chunks}
@@ -53,6 +53,7 @@ export default async function PrivacyPage() {
           <li>{t("dataStore")}</li>
           <li>{t("dataRecords")}</li>
           <li>{t("dataAi")}</li>
+          <li>{t("dataConsent")}</li>
         </ul>,
       )}
       {section(t("useTitle"), <p>{t("useBody")}</p>)}
@@ -69,6 +70,11 @@ export default async function PrivacyPage() {
       {section(t("locationTitle"), <p>{t("locationBody")}</p>)}
       {section(t("deleteTitle"), <p>{t("deleteBody")}</p>)}
       {section(t("rightsTitle"), <p>{t.rich("rightsBody", { email: OPERATOR.email, mail })}</p>)}
+      <p>
+        <Link href="/syarat" className="font-medium underline underline-offset-4">
+          {tt("link")}
+        </Link>
+      </p>
     </main>
   );
 }

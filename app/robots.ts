@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Signed-in areas and the sign-in flow: nothing there for a search engine.
-      disallow: ["/auth/", "/*/s/", "/*/login", "/*/mulai", "/*/onboarding", "/*/toko"],
+      disallow: ["/auth/", "/*/s/", "/*/login", "/*/mulai", "/*/onboarding", "/*/toko", "/*/syarat/setuju"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
