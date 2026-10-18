@@ -180,6 +180,16 @@
       "lifeNumber": "Isi umur pakai dalam bulan (angka bulat)",
       "lifeMin": "Umur pakai minimal 1 bulan",
       "lifeMax": "Umur pakai maksimal 600 bulan"
+    },
+    "purchase": {
+      "materialInvalid": "Pilih bahan yang dibeli",
+      "qtyNumber": "Isi jumlah dengan angka. Ribuan tanpa titik atau koma (1000), desimal pakai koma (1,5 atau 1,25).",
+      "qtyPositive": "Jumlah harus lebih dari 0",
+      "unitInvalid": "Pilih satuan",
+      "unitDimension": "Satuan ini beda jenis dengan bahannya. Pilih satuan yang sejenis.",
+      "totalNumber": "Isi total dengan angka bulat, contoh 34.000",
+      "totalMin": "Total tidak boleh negatif",
+      "dateInvalid": "Isi tanggal yang valid"
     }
   },
   "Store": {
@@ -779,6 +789,41 @@
       "calcError": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi penjualan belum bisa disimpan. Perbaiki dulu di halaman produk.",
       "calcErrorShort": "Ada komposisi dengan satuan yang tidak cocok di produk {product}, jadi angkanya belum bisa dihitung.",
       "calcErrorAction": "Perbaiki"
+    },
+    "purchases": {
+      "heading": "Catat belanja",
+      "intro": "Catat apa yang kamu beli. Harga bahan ikut berubah mengikuti belanja terbaru, jadi HPP tetap sesuai kenyataan.",
+      "editHeading": "Ubah belanja",
+      "material": "Bahan",
+      "materialPlaceholder": "Pilih bahan",
+      "materialFixed": "Bahan tidak bisa diganti. Hapus belanja ini lalu catat lagi kalau salah bahan.",
+      "qty": "Jumlah",
+      "unit": "Satuan",
+      "total": "Total dibayar (Rp)",
+      "totalPlaceholder": "34.000",
+      "date": "Tanggal",
+      "previewChange": "{material}: {from} → {to} per {qty} {unit}",
+      "previewKept": "Harga tidak berubah ({price} per {qty} {unit}) karena ada belanja yang lebih baru ({date}).",
+      "save": "Catat belanja",
+      "saveEdit": "Simpan perubahan",
+      "saving": "Menyimpan…",
+      "cancelEdit": "Batal ubah",
+      "savedChanged": "Harga {material} sekarang {price} per {qty} {unit}.",
+      "savedKept": "Belanja dicatat. Harga tidak berubah karena ada belanja yang lebih baru ({date}).",
+      "deleted": "Belanja dihapus. Harga bahan tidak diubah.",
+      "listTitle": "Belanja bulan ini",
+      "empty": "Belum ada belanja bulan ini.",
+      "item": "{qty} {unit} · {total}",
+      "edit": "Ubah",
+      "editLabel": "Ubah belanja {material}",
+      "removedMaterial": "bahan sudah dihapus",
+      "noMaterialsTitle": "Belum ada bahan",
+      "noMaterialsBody": "Tambahkan bahan dulu di halaman Bahan, lalu catat belanjanya di sini.",
+      "noMaterialsAction": "Ke bahan",
+      "errorInvalid": "Data tidak valid. Muat ulang halaman lalu coba lagi.",
+      "errorDate": "Tanggal itu di luar batas. Kamu bisa mencatat dari {min} sampai hari ini.",
+      "errorMaterial": "Bahan itu tidak ditemukan. Muat ulang halaman lalu coba lagi.",
+      "errorMaterialGone": "Bahan belanja ini sudah dihapus, jadi belanjanya tidak bisa diubah."
     }
   }
 }

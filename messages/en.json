@@ -180,6 +180,16 @@
       "lifeNumber": "Enter the useful life in whole months",
       "lifeMin": "At least 1 month",
       "lifeMax": "At most 600 months"
+    },
+    "purchase": {
+      "materialInvalid": "Choose the material you bought",
+      "qtyNumber": "Enter a number. Thousands without a dot or comma (1000), decimals with a comma (1,5 or 1,25).",
+      "qtyPositive": "Quantity must be more than 0",
+      "unitInvalid": "Choose a unit",
+      "unitDimension": "This unit is a different kind from the material's. Choose a matching unit.",
+      "totalNumber": "Enter the total as a whole number, e.g. 34.000",
+      "totalMin": "The total cannot be negative",
+      "dateInvalid": "Enter a valid date"
     }
   },
   "Store": {
@@ -779,6 +789,41 @@
       "calcError": "A recipe in {product} has a unit that does not fit, so sales can't be saved yet. Fix it on the product page first.",
       "calcErrorShort": "A recipe in {product} has a unit that does not fit, so the numbers can't be calculated yet.",
       "calcErrorAction": "Fix it"
+    },
+    "purchases": {
+      "heading": "Record purchases",
+      "intro": "Record what you bought. Material prices follow your latest purchase, so your costs stay true to life.",
+      "editHeading": "Edit purchase",
+      "material": "Material",
+      "materialPlaceholder": "Choose a material",
+      "materialFixed": "The material cannot be changed. Delete this purchase and record it again if it was the wrong material.",
+      "qty": "Quantity",
+      "unit": "Unit",
+      "total": "Total paid (Rp)",
+      "totalPlaceholder": "34.000",
+      "date": "Date",
+      "previewChange": "{material}: {from} → {to} per {qty} {unit}",
+      "previewKept": "The price will not change ({price} per {qty} {unit}) because there is a newer purchase ({date}).",
+      "save": "Record purchase",
+      "saveEdit": "Save changes",
+      "saving": "Saving…",
+      "cancelEdit": "Cancel editing",
+      "savedChanged": "The price of {material} is now {price} per {qty} {unit}.",
+      "savedKept": "Purchase recorded. The price did not change because there is a newer purchase ({date}).",
+      "deleted": "Purchase deleted. The material price was not changed.",
+      "listTitle": "This month's purchases",
+      "empty": "No purchases this month yet.",
+      "item": "{qty} {unit} · {total}",
+      "edit": "Edit",
+      "editLabel": "Edit purchase of {material}",
+      "removedMaterial": "material deleted",
+      "noMaterialsTitle": "No materials yet",
+      "noMaterialsBody": "Add a material on the Materials page first, then record its purchases here.",
+      "noMaterialsAction": "Go to materials",
+      "errorInvalid": "Invalid data. Reload the page and try again.",
+      "errorDate": "That date is out of range. You can record from {min} up to today.",
+      "errorMaterial": "That material was not found. Reload the page and try again.",
+      "errorMaterialGone": "The material of this purchase was deleted, so the purchase cannot be edited."
     }
   }
 }

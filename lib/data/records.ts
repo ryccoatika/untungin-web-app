@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
-import type { IsoDate, SalesDayRecord, SalesLineRecord } from "@/lib/records";
+import type { Unit } from "@/lib/calc";
+import { earliestRecordable, jakartaToday, type IsoDate, type SalesDayRecord, type SalesLineRecord } from "@/lib/records";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/database.types";
 import { isUuid } from "@/lib/uuid";
@@ -87,3 +88,66 @@ export const loadFirstRecordDate = cache(async (storeId: string): Promise<IsoDat
   if (error) throw error;
   return data?.date ?? null;
 });
+
+export type PurchaseRecord = {
+  id: string;
+  /** Null after the material was deleted; the purchase stays as a record. */
+  materialId: string | null;
+  materialName: string;
+  date: IsoDate;
+  qty: number;
+  unit: Unit;
+  totalPaid: number;
+};
+
+/** Purchases with `from <= date <= to` (inclusive), newest first. */
+export const loadPurchases = cache(async (storeId: string, from: IsoDate, to: IsoDate): Promise<PurchaseRecord[]> => {
+  if (!isUuid(storeId)) return [];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("purchases")
+    .select("id, material_id, material_name, date, qty, unit, total_paid")
+    .eq("store_id", storeId)
+    .gte("date", from)
+    .lte("date", to)
+    .order("date", { ascending: false })
+    .order("saved_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    materialId: row.material_id,
+    materialName: row.material_name,
+    date: row.date,
+    qty: Number(row.qty),
+    unit: row.unit as Unit,
+    totalPaid: row.total_paid,
+  }));
+});
+
+/**
+ * The latest purchase of each material (by date, then saved last), skipping `excludeId` (the purchase being edited).
+ * Only purchases a new or edited one could be older than count (date >= earliest recordable day), so a material
+ * whose last purchase is older has no entry.
+ */
+export const loadLatestPurchaseDates = cache(
+  async (storeId: string, excludeId?: string): Promise<Map<string, { id: string; date: IsoDate }>> => {
+    const latest = new Map<string, { id: string; date: IsoDate }>();
+    if (!isUuid(storeId)) return latest;
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("purchases")
+      .select("id, material_id, date")
+      .eq("store_id", storeId)
+      .gte("date", earliestRecordable(jakartaToday(new Date())))
+      .not("material_id", "is", null)
+      .order("date", { ascending: false })
+      .order("saved_at", { ascending: false });
+    if (error) throw error;
+    for (const row of data ?? []) {
+      if (row.material_id && row.id !== excludeId && !latest.has(row.material_id)) {
+        latest.set(row.material_id, { id: row.id, date: row.date });
+      }
+    }
+    return latest;
+  },
+);
