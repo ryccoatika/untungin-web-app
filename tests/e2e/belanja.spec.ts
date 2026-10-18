@@ -92,6 +92,29 @@ test("unit list follows the material", async ({ page }) => {
   await expect(units).toHaveValue("kg");
 });
 
+test("the preview follows the material chosen after the quantity was typed", async ({ page }) => {
+  await openBelanja(page);
+  const f = form(page);
+  await f.getByLabel("Jumlah", { exact: true }).fill("2");
+  await f.getByLabel("Total dibayar (Rp)").fill("34.000");
+  await f.getByLabel("Bahan", { exact: true }).selectOption({ label: "Gelas plastik" });
+  await expect(f.getByTestId("price-preview")).toContainText("Gelas plastik: Rp20.000 → Rp850.000 per 50 pcs");
+  // Back to a weight material: the unit follows (kg), not the previous unit (pcs).
+  await f.getByLabel("Bahan", { exact: true }).selectOption({ label: "Gula" });
+  await expect(f.getByLabel("Satuan")).toHaveValue("kg");
+  await expect(f.getByTestId("price-preview")).toContainText("Gula: Rp15.000 → Rp17.000 per 1 kg");
+  await f.getByLabel("Satuan").selectOption("g");
+  await expect(f.getByTestId("price-preview")).toContainText("Gula: Rp15.000 → Rp17.000.000 per 1 kg");
+});
+
+test("a price above the money cap is a field error, not a generic failure", async ({ page }) => {
+  await openBelanja(page);
+  await fillPurchase(page, { material: "Gula", qty: "0,001", unit: "g", total: "1.000.000.000" });
+  await form(page).getByRole("button", { name: "Catat belanja" }).click();
+  await expect(form(page).getByText("Angka terlalu besar")).toBeVisible();
+  await expect(form(page).getByText("Gagal menyimpan")).toHaveCount(0);
+});
+
 test("deleting a purchase keeps the price", async ({ page }) => {
   await openBelanja(page);
   await fillPurchase(page, { material: "Gula", qty: "2", total: "34.000" });

@@ -11,6 +11,7 @@ import { parseForm } from "@/lib/forms-server";
 import { getValidationTranslator } from "@/lib/i18n/server";
 import { earliestRecordable, jakartaToday, newPurchasePrice } from "@/lib/records";
 import { isUuid } from "@/lib/uuid";
+import { MAX_AMOUNT } from "@/lib/validation/common";
 import { PURCHASE_UNIT_DIMENSION_KEY, purchaseInputSchema } from "@/lib/validation/purchase";
 
 const FIELDS = ["materialId", "qty", "unit", "totalPaid", "date"] as const;
@@ -73,6 +74,10 @@ export async function savePurchaseAction(
     input.unit,
     input.totalPaid,
   );
+  // A tiny quantity for a big total can imply a price above the money cap the materials accept.
+  if (newPrice > MAX_AMOUNT) {
+    return { fieldErrors: { totalPaid: [(await getValidationTranslator())("common.amountTooLarge")] }, values };
+  }
   const { data: changed, error } = await supabase.rpc("save_purchase", {
     p_store_id: storeId,
     // The function takes null to insert; the generated type cannot express a nullable argument.

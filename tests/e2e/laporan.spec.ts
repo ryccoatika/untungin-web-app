@@ -108,9 +108,12 @@ test("month switcher: previous works, next is disabled on the current month, a b
 test("a month before the first record shows the empty state", async ({ page }) => {
   await createSampleStore(page);
   await openLaporan(page, "2020-01");
-  await expect(page.getByText("Belum ada penjualan yang dicatat")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Catat penjualan pertamamu" })).toBeVisible();
+  await expect(page.getByText(/Kamu mulai mencatat pada/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Ke bulan pertama" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Catat penjualan pertamamu" })).toHaveCount(0);
   await expect(page.getByTestId("report-answer")).toHaveCount(0);
+  await page.getByRole("link", { name: "Ke bulan pertama" }).click();
+  await expect(page.getByTestId("report-answer")).toBeVisible();
 });
 
 test("the month's purchases are listed with edit and delete", async ({ page }) => {
@@ -200,4 +203,13 @@ test("no horizontal scroll at 360px and calendar days are at least 40px", async 
     expect(b.width).toBeGreaterThanOrEqual(40);
     expect(b.height).toBeGreaterThanOrEqual(40);
   }
+});
+
+test("English: singular missing-day title and a natural day range", async ({ page }) => {
+  await createSampleStore(page);
+  const id = storeIdFromUrl(page);
+  await page.goto(`/en/s/${id}/laporan?bulan=${monthOf(MISSING)}`);
+  // The sample store has exactly one missing day in its span.
+  await expect(page.getByTestId("missing-days")).toContainText(/^1 day not recorded yet/);
+  await expect(page.getByText(/[A-Z][a-z]{2} \d{1,2}–\d{1,2}/).first()).toBeVisible();
 });

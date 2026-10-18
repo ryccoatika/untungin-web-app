@@ -11,7 +11,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { tryAnalyzeStore } from "@/lib/calc";
 import { loadStoreData } from "@/lib/data/load-store-data";
 import { loadFirstRecordDate, loadPurchases, loadSalesRange } from "@/lib/data/records";
-import { formatDay, formatMonth, formatNumber, formatRupiah } from "@/lib/format";
+import { formatDay, formatDayRange, formatMonth, formatNumber, formatRupiah } from "@/lib/format";
 import { daysInMonth, earliestRecordable, isIsoMonth, jakartaToday, monthOf, monthReport } from "@/lib/records";
 import { cn } from "@/lib/utils";
 import { PurchaseList } from "../catat/belanja/purchase-list";
@@ -109,7 +109,15 @@ export default async function ReportPage({ params, searchParams }: Props) {
         </p>
       )}
 
-      {!report && !error && (
+      {!report && !error && firstRecord !== null && (
+        <EmptyState title={t("beforeTitle", { date: formatDay(firstRecord, locale, true) })} body={t("beforeBody")} illustration={<EmptyIllustration />}>
+          <Link href={`/s/${storeId}/laporan?bulan=${monthOf(firstRecord)}`} className={buttonVariants()}>
+            {t("beforeAction")}
+          </Link>
+        </EmptyState>
+      )}
+
+      {!report && !error && firstRecord === null && (
         <EmptyState title={t("emptyTitle")} body={t("emptyBody")} illustration={<EmptyIllustration />}>
           <Link href={`/s/${storeId}/catat`} className={buttonVariants()}>
             {t("emptyAction")}
@@ -130,8 +138,8 @@ export default async function ReportPage({ params, searchParams }: Props) {
               </p>
               <p className="text-sm text-muted-foreground">
                 {month === currentMonth
-                  ? t("periodCurrent", { range: dayRange(report.window.start, report.window.end, locale) })
-                  : t("periodPast", { range: dayRange(report.window.start, report.window.end, locale) })}
+                  ? t("periodCurrent", { range: formatDayRange(report.window.start, report.window.end, locale) })
+                  : t("periodPast", { range: formatDayRange(report.window.start, report.window.end, locale) })}
                 {" · "}
                 {t("basedOn")}
               </p>
@@ -160,7 +168,7 @@ export default async function ReportPage({ params, searchParams }: Props) {
                 ))}
               </ul>
               {report.missing.length > MAX_MISSING_LINKS && (
-                <p className="text-muted-foreground">+{report.missing.length - MAX_MISSING_LINKS}</p>
+                <p className="text-muted-foreground">{t("missingMore", { count: report.missing.length - MAX_MISSING_LINKS })}</p>
               )}
             </div>
           )}
@@ -222,11 +230,6 @@ export default async function ReportPage({ params, searchParams }: Props) {
 
 /** A deduction as shown in the lines: "− Rp…". */
 const minus = (formatted: string) => `− ${formatted}`;
-
-/** "1–17 Okt" within one month. */
-function dayRange(start: string, end: string, locale: AppLocale): string {
-  return start === end ? formatDay(end, locale) : `${Number(start.slice(8))}–${formatDay(end, locale)}`;
-}
 
 function Line({ id, labelId, label, note, value, strong }: { id: string; labelId?: string; label: string; note?: string; value: string; strong?: boolean }) {
   return (

@@ -15,7 +15,7 @@ import type { AppLocale } from "@/i18n/routing";
 import { dimensionOf, unitsOf, type Unit } from "@/lib/calc";
 import { formatDay, formatNumber, formatRupiah } from "@/lib/format";
 import type { FormAction } from "@/lib/forms";
-import { newPurchasePrice } from "@/lib/records";
+import { purchaseOutcome } from "@/lib/records";
 import { purchaseInputSchema } from "@/lib/validation/purchase";
 
 export type PurchaseMaterial = { id: string; name: string; purchaseQty: number; purchaseUnit: Unit; purchasePrice: number };
@@ -82,6 +82,13 @@ function PurchaseFields({ materials, latestDates, defaults, errors, today, min, 
   // Only units of the material's dimension; household units are never offered for a purchase.
   const units = material ? unitsOf(dimensionOf(material.purchaseUnit)) : [];
 
+  // What was typed in the text fields; the material and the unit come from state, never from the event that changed them.
+  const [typed, setTyped] = useState<Record<string, unknown>>(defaults);
+  function onChange(event: FormEvent<HTMLFieldSetElement>) {
+    const form = event.currentTarget.form;
+    if (form) setTyped(Object.fromEntries(new FormData(form)));
+  }
+
   function previewFor(values: Record<string, unknown>): string | null {
     const parsed = purchaseInputSchema.safeParse(values);
     if (!parsed.success) return null;
@@ -89,24 +96,13 @@ function PurchaseFields({ materials, latestDates, defaults, errors, today, min, 
     if (!found || dimensionOf(parsed.data.unit) !== dimensionOf(found.purchaseUnit)) return null;
     if (parsed.data.date < min || parsed.data.date > today) return null;
     const pack = { qty: formatNumber(found.purchaseQty, locale), unit: tUnitShort(found.purchaseUnit) };
-    const newer = latestDates[found.id];
-    if (newer && newer > parsed.data.date) {
-      return t("previewKept", { price: formatRupiah(found.purchasePrice, locale), date: formatDay(newer, locale), ...pack });
+    const outcome = purchaseOutcome(found, parsed.data, latestDates[found.id]);
+    if (outcome.kind === "kept") {
+      return t("previewKept", { price: formatRupiah(outcome.price, locale), date: formatDay(outcome.newerDate, locale), ...pack });
     }
-    const next = newPurchasePrice(found, parsed.data.qty, parsed.data.unit, parsed.data.totalPaid);
-    return t("previewChange", {
-      material: found.name,
-      from: formatRupiah(found.purchasePrice, locale),
-      to: formatRupiah(next, locale),
-      ...pack,
-    });
+    return t("previewChange", { material: found.name, from: formatRupiah(outcome.from, locale), to: formatRupiah(outcome.to, locale), ...pack });
   }
-
-  const [preview, setPreview] = useState(() => previewFor(defaults));
-  function onChange(event: FormEvent<HTMLFieldSetElement>) {
-    const form = event.currentTarget.form;
-    if (form) setPreview(previewFor(Object.fromEntries(new FormData(form))));
-  }
+  const preview = previewFor({ ...typed, materialId, unit });
 
   function chooseMaterial(id: string) {
     setMaterialId(id);
